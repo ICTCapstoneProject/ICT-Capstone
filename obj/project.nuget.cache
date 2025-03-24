@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "5GAQ7wDdv0k=",
+  "dgSpecHash": "fM3M1kMgIos=",
   "success": true,
-  "projectFilePath": "/Users/denniskalongonda/Desktop/ProjectManagerMvc/ProjectManagerMvc.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/denniskalongonda/Desktop/ICT-Capstone/ProjectManagerMvc.csproj",
+  "expectedPackageFiles": [
+    "/Users/denniskalongonda/.nuget/packages/microsoft.netcore.app.ref/8.0.14/microsoft.netcore.app.ref.8.0.14.nupkg.sha512",
+    "/Users/denniskalongonda/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.14/microsoft.aspnetcore.app.ref.8.0.14.nupkg.sha512",
+    "/Users/denniskalongonda/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.14/microsoft.netcore.app.host.osx-arm64.8.0.14.nupkg.sha512"
+  ],
   "logs": []
 }
