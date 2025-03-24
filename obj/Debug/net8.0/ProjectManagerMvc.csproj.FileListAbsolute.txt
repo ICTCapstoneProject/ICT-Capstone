@@ -29,3 +29,4 @@
 /Users/denniskalongonda/Desktop/ICT-Capstone/obj/Debug/net8.0/ProjectManagerMvc.pdb
 /Users/denniskalongonda/Desktop/ICT-Capstone/obj/Debug/net8.0/ProjectManagerMvc.genruntimeconfig.cache
 /Users/denniskalongonda/Desktop/ICT-Capstone/obj/Debug/net8.0/ref/ProjectManagerMvc.dll
+/Users/denniskalongonda/Desktop/ICT-Capstone/obj/Debug/net8.0/ProjectManagerMvc.csproj.AssemblyReference.cache
