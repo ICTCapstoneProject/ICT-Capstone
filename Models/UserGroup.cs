@@ -1,13 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FSSA.Models
 {
+    [Table("user_groups")]
     public class UserGroup
     {
-        [Column("user_id")]
+        [Key, Column("user_id", Order = 0)]
         public int UserId { get; set; }
 
-        [Column("group_id")]
+        [Key, Column("group_id", Order = 1)]
         public int GroupId { get; set; }
 
         [Column("role_id")]

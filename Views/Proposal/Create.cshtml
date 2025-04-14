@@ -4,7 +4,7 @@
     ViewData["Title"] = "Submit Proposal";
 }
 
-<h1>Submit New Proposal</h1>
+<h1>Make a New Proposal</h1>
 
 <form asp-action="Create" method="post">
     <div class="mb-3">
@@ -21,6 +21,14 @@
     <div class="mb-3">
         <label asp-for="Method" class="form-label"></label>
         <textarea asp-for="Method" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Project Level</label>
+        <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
+            <option value="">-- Pick a Project Level --</option>
+        </select>
+        <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -46,16 +54,6 @@
     <div class="mb-3">
         <label asp-for="EstimatedCompletionDate" class="form-label"></label>
         <input asp-for="EstimatedCompletionDate" class="form-control" type="date" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="StatusId" class="form-label"></label>
-        <input asp-for="StatusId" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="SubmittedBy" class="form-label"></label>
-        <input asp-for="SubmittedBy" class="form-control" />
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>

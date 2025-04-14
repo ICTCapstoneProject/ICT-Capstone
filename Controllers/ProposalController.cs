@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using FSSA.Models;
 
 namespace FSSA.Controllers
@@ -15,6 +16,14 @@ namespace FSSA.Controllers
         // GET: /Proposal/Create
         public IActionResult Create()
         {
+            ViewBag.ProjectLevels = _context.ProjectLevels
+                .Select(pl => new SelectListItem
+                {
+                    Value = pl.LevelId.ToString(),
+                    Text = pl.LevelName
+                })
+                .ToList();
+
             return View();
         }
 
@@ -25,13 +34,23 @@ namespace FSSA.Controllers
         {
             if (ModelState.IsValid)
             {
-                proposal.ProjectLevelId = 1; // Default to "New Proposal"
+                proposal.StatusId = 1;             // Default to "New Proposal" status from the db
+                proposal.SubmittedBy = 1;          // Hardcoded for now using the guest I made in the db
                 proposal.CreatedAt = DateTime.Now;
+                proposal.UpdatedAt = DateTime.Now;
 
                 _context.Proposals.Add(proposal);
                 _context.SaveChanges();
                 return RedirectToAction("Index", "Home");
             }
+
+            ViewBag.ProjectLevels = _context.ProjectLevels
+                .Select(pl => new SelectListItem
+                {
+                    Value = pl.LevelId.ToString(),
+                    Text = pl.LevelName
+                })
+                .ToList();
 
             return View(proposal);
         }

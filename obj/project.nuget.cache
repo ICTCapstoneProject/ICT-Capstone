@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "oVmh2LnGBKI=",
+  "dgSpecHash": "PrTThtS/Uuk=",
   "success": true,
-  "projectFilePath": "/Users/denniskalongonda/Desktop/ICT-Capstone-1/ProjectManagerMvc.csproj",
+  "projectFilePath": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
   "expectedPackageFiles": [
     "/Users/denniskalongonda/.nuget/packages/microsoft.data.sqlite.core/9.0.4/microsoft.data.sqlite.core.9.0.4.nupkg.sha512",
     "/Users/denniskalongonda/.nuget/packages/microsoft.entityframeworkcore/9.0.4/microsoft.entityframeworkcore.9.0.4.nupkg.sha512",
