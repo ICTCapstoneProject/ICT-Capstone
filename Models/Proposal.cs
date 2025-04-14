@@ -11,10 +11,6 @@ namespace FSSA.Models
         public int Id { get; set; }
 
         [Required]
-        [Column("application_id")]
-        public string ApplicationId { get; set; }
-
-        [Required]
         [Column("title")]
         public string Title { get; set; }
 
