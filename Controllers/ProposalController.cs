@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using FSSA.Models;
+using System;
+using System.Linq;
 
 namespace FSSA.Controllers
 {
@@ -34,14 +36,15 @@ namespace FSSA.Controllers
         {
             if (ModelState.IsValid)
             {
-                proposal.StatusId = 1;             // Default to "New Proposal" status from the db
-                proposal.SubmittedBy = 1;          // Hardcoded for now using the guest I made in the db
+                proposal.StatusId = 1;              // Default to "New Proposal" status
+                proposal.SubmittedBy = 1;           // Currently hardcoded to Guest User with UserId = 1
                 proposal.CreatedAt = DateTime.Now;
                 proposal.UpdatedAt = DateTime.Now;
 
                 _context.Proposals.Add(proposal);
                 _context.SaveChanges();
-                return RedirectToAction("Index", "Home");
+
+                return RedirectToAction("Success", new { id = proposal.Id });
             }
 
             ViewBag.ProjectLevels = _context.ProjectLevels
@@ -51,6 +54,24 @@ namespace FSSA.Controllers
                     Text = pl.LevelName
                 })
                 .ToList();
+
+            return View(proposal);
+        }
+
+        // GET: /Proposal/Success/{id}
+        public IActionResult Success(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+            var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId);
+
+            ViewBag.SubmitterName = user?.Name ?? "Unknown User";
+            ViewBag.LevelName = level?.LevelName ?? "Unknown Level";
 
             return View(proposal);
         }

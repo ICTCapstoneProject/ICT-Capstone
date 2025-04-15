@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "oviENV5QZWUCUOEwCYdR3em/nfDKxzFGIxQHCkkPlUM=",
+  "Hash": "fZeMOSvA3jY7Mzh+mwim/R1WmggVvHcKZoTEzjhxLts=",
   "Source": "ProjectManagerMvc",
   "BasePath": "_content/ProjectManagerMvc",
   "Mode": "Default",
@@ -16,44 +16,6 @@
     }
   ],
   "Assets": [
-    {
-      "Identity": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/bundle/ProjectManagerMvc.styles.css",
-      "SourceId": "ProjectManagerMvc",
-      "SourceType": "Computed",
-      "ContentRoot": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/bundle/",
-      "BasePath": "_content/ProjectManagerMvc",
-      "RelativePath": "ProjectManagerMvc.styles.css",
-      "AssetKind": "All",
-      "AssetMode": "CurrentProject",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ApplicationBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/bundle/ProjectManagerMvc.styles.css"
-    },
-    {
-      "Identity": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/projectbundle/ProjectManagerMvc.bundle.scp.css",
-      "SourceId": "ProjectManagerMvc",
-      "SourceType": "Computed",
-      "ContentRoot": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/projectbundle/",
-      "BasePath": "_content/ProjectManagerMvc",
-      "RelativePath": "ProjectManagerMvc.bundle.scp.css",
-      "AssetKind": "All",
-      "AssetMode": "Reference",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "ScopedCss",
-      "AssetTraitValue": "ProjectBundle",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/projectbundle/ProjectManagerMvc.bundle.scp.css"
-    },
     {
       "Identity": "/Users/denniskalongonda/ICT-Capstone-3/wwwroot/css/site.css",
       "SourceId": "ProjectManagerMvc",

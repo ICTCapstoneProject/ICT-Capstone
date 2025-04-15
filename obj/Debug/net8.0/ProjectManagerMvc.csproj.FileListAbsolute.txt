@@ -174,9 +174,7 @@
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.ProjectManagerMvc.props
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.ProjectManagerMvc.props
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/staticwebassets.pack.json
-/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/bundle/ProjectManagerMvc.styles.css
-/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/projectbundle/ProjectManagerMvc.bundle.scp.css
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/ProjectM.17412BD7.Up2Date
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/ProjectManagerMvc.dll
 /Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/refint/ProjectManagerMvc.dll

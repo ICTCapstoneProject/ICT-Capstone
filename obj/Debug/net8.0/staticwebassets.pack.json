@@ -1,10 +1,6 @@
 {
   "Files": [
     {
-      "Id": "/Users/denniskalongonda/ICT-Capstone-3/obj/Debug/net8.0/scopedcss/projectbundle/ProjectManagerMvc.bundle.scp.css",
-      "PackagePath": "staticwebassets/ProjectManagerMvc.bundle.scp.css"
-    },
-    {
       "Id": "/Users/denniskalongonda/ICT-Capstone-3/wwwroot/css/site.css",
       "PackagePath": "staticwebassets/css/site.css"
     },
