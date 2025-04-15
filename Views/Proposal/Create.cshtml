@@ -1,0 +1,80 @@
+@model FSSA.Models.Proposal
+
+@{
+    ViewData["Title"] = "Submit Proposal";
+}
+
+<h1>Make a New Proposal</h1>
+
+<form id="proposalForm" asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Synopsis" class="form-label"></label>
+        <textarea asp-for="Synopsis" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Method" class="form-label"></label>
+        <textarea asp-for="Method" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Project Level</label>
+        <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
+            <option value="">-- Pick a Project Level --</option>
+        </select>
+        <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Resources" class="form-label"></label>
+        <textarea asp-for="Resources" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EthicalConsiderations" class="form-label"></label>
+        <textarea asp-for="EthicalConsiderations" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Outcomes" class="form-label"></label>
+        <textarea asp-for="Outcomes" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Milestones" class="form-label"></label>
+        <textarea asp-for="Milestones" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EstimatedCompletionDate" class="form-label"></label>
+        <input asp-for="EstimatedCompletionDate" class="form-control" type="date" />
+    </div>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
+        Submit
+    </button>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirm Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to submit this proposal?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Yes, Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

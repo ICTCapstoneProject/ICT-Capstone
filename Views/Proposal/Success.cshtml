@@ -1,0 +1,52 @@
+@model FSSA.Models.Proposal
+@{
+    ViewData["Title"] = "Submission Successful";
+}
+
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Submission Successful</h4>
+    <p class="mb-0">Proposal <strong>@Model.Id</strong>, <em>"@Model.Title"</em> was successfully created by <strong>@ViewBag.SubmitterName</strong>.</p>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Proposal Summary</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Title:</dt>
+            <dd class="col-sm-8">@Model.Title</dd>
+
+            <dt class="col-sm-4">Synopsis:</dt>
+            <dd class="col-sm-8">@Model.Synopsis</dd>
+
+            <dt class="col-sm-4">Method:</dt>
+            <dd class="col-sm-8">@Model.Method</dd>
+
+            <dt class="col-sm-4">Project Level:</dt>
+            <dd class="col-sm-8">@ViewBag.LevelName</dd>
+
+            <dt class="col-sm-4">Resources:</dt>
+            <dd class="col-sm-8">@Model.Resources</dd>
+
+            <dt class="col-sm-4">Ethical Considerations:</dt>
+            <dd class="col-sm-8">@Model.EthicalConsiderations</dd>
+
+            <dt class="col-sm-4">Outcomes:</dt>
+            <dd class="col-sm-8">@Model.Outcomes</dd>
+
+            <dt class="col-sm-4">Milestones:</dt>
+            <dd class="col-sm-8">@Model.Milestones</dd>
+
+            <dt class="col-sm-4">Estimated Completion:</dt>
+            <dd class="col-sm-8">@Model.EstimatedCompletionDate.ToShortDateString()</dd>
+
+            <dt class="col-sm-4">Submitted By:</dt>
+            <dd class="col-sm-8">@ViewBag.SubmitterName</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Return to Dashboard</a>
+</div>

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/denniskalongonda/Desktop/ICT-Capstone/ProjectManagerMvc.csproj": {}
+    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {}
   },
   "projects": {
-    "/Users/denniskalongonda/Desktop/ICT-Capstone/ProjectManagerMvc.csproj": {
+    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/denniskalongonda/Desktop/ICT-Capstone/ProjectManagerMvc.csproj",
+        "projectUniqueName": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
         "projectName": "ProjectManagerMvc",
-        "projectPath": "/Users/denniskalongonda/Desktop/ICT-Capstone/ProjectManagerMvc.csproj",
+        "projectPath": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
         "packagesPath": "/Users/denniskalongonda/.nuget/packages/",
-        "outputPath": "/Users/denniskalongonda/Desktop/ICT-Capstone/obj/",
+        "outputPath": "/Users/denniskalongonda/ICT-Capstone-3/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/denniskalongonda/.nuget/NuGet/NuGet.Config"
@@ -42,6 +42,16 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
