@@ -53,11 +53,11 @@
         <form asp-controller="Account" asp-action="Login" method="post">
             <div class="mb-3 text-start">
                 <label>Email address</label>
-                <input type="email" class="form-control" placeholder="name@xxxxx" />
+                <input type="email" class="form-control" name="email" placeholder="name@xxxxx" />
             </div>
             <div class="mb-3 text-start">
                 <label>Password</label>
-                <input type="password" class="form-control" placeholder="Enter your password" />
+                <input type="password" class="form-control" name="password" placeholder="Enter your password" />
             </div>
             <button type="submit" class="btn btn-login mb-3">Sign in</button>
         </form>
