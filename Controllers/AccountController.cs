@@ -34,6 +34,8 @@ namespace ProjectManagerMvc.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            ViewBag.Email = email;
+            ViewBag.ErrorMessage = "Your password is incorrect";
             return View();
         
         }

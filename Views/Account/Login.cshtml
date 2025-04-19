@@ -50,10 +50,21 @@
         <h2 class="login-title">FORENSIC<br />SCIENCE SA</h2>
         <p class="subtext">Sign in to your account</p>
 
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger border border-danger rounded p-3 mb-4">
+                <strong>There was a problem</strong><br />
+                @ViewBag.ErrorMessage
+            </div>
+            
+        }
+
+
         <form asp-controller="Account" asp-action="Login" method="post">
             <div class="mb-3 text-start">
                 <label>Email address</label>
-                <input type="email" class="form-control" name="email" placeholder="name@xxxxx" />
+                <input type="email" class="form-control" name="email" placeholder="name@xxxxx" value="@ViewBag.Email"/>
             </div>
             <div class="mb-3 text-start">
                 <label>Password</label>
