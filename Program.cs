@@ -1,5 +1,6 @@
 using FSSA.Models; 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ProjectManagerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))); //This is linked to the "DefaultConnection in appsettings.json btw
 
-builder.Services.AddAuthorization(); 
 builder.Services.AddControllersWithViews(); 
 
-builder.Services.AddSession();
+
+// Cookie Authentication setup
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+    });
+
 
 var app = builder.Build();
 
@@ -26,8 +33,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

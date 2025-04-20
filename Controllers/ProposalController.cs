@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using FSSA.Models;
 using System;
 using System.Linq;
+using System.Security.Claims;
 
 namespace FSSA.Controllers
 {
@@ -29,15 +30,39 @@ namespace FSSA.Controllers
             return View();
         }
 
+        
+
         // POST: /Proposal/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Proposal proposal)
         {
+
             if (ModelState.IsValid)
             {
                 proposal.StatusId = 1;              // Default to "New Proposal" status
-                proposal.SubmittedBy = 1;           // Currently hardcoded to Guest User with UserId = 1
+
+
+                var Identity = User.Identity;
+                if (Identity == null || !Identity.IsAuthenticated)
+                {
+                    return Unauthorized();
+                }
+                var email = Identity.Name;
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Unauthorized();
+                }
+
+                var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId;
+
+                if(userId == null)
+                {
+                    return Unauthorized();
+                }
+
+                proposal.SubmittedBy = userId.Value;
+
                 proposal.CreatedAt = DateTime.Now;
                 proposal.UpdatedAt = DateTime.Now;
 
