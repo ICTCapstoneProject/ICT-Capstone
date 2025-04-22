@@ -1,0 +1,81 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .login-card {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .login-title {
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .subtext {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border-radius: 8px;
+        }
+        .btn-login {
+            background-color: #1f2937;
+            color: white;
+            width: 100%;
+        }
+        .btn-register {
+            background-color: #e5e7eb;
+            color: #111827;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card text-center">
+        <h2 class="login-title">FORENSIC<br />SCIENCE SA</h2>
+        <p class="subtext">Sign in to your account</p>
+
+
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger border border-danger rounded p-3 mb-4">
+                <strong>There was a problem</strong><br />
+                @ViewBag.ErrorMessage
+            </div>
+            
+        }
+
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="mb-3 text-start">
+                <label>Email address</label>
+                <input type="email" class="form-control" name="email" placeholder="name@xxxxx" value="@ViewBag.Email"/>
+            </div>
+            <div class="mb-3 text-start">
+                <label>Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Enter your password" />
+            </div>
+            <button type="submit" class="btn btn-login mb-3">Sign in</button>
+        </form>
+
+        <form asp-controller="Account" asp-action="Register">
+            <button type="submit" class="btn btn-register">Register</button>
+        </form>
+    </div>
+</body>
+</html>
