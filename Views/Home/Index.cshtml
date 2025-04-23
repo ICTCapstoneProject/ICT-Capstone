@@ -1,9 +1,65 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ProjectManagerMvc.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+<div class="container mt-4">
+    <h2>Dashboard Overview</h2>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>@Model.TotalProposals</h3>
+                    <p>Total Proposals</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>@Model.PendingApprovals</h3>
+                    <p>Pending Approvals</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>@Model.RecentlyReviewed</h3>
+                    <p>Recently Reviewed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3>@Model.RecentlyCommented</h3>
+                    <p>Recently Commented</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <div class="card">
+        <div class="card-header">
+            Recent Activity
+        </div>
+        <ul class="list-group list-group-flush">
+            @if (Model.RecentActivities != null && Model.RecentActivities.Any())
+            {
+                foreach (var activity in Model.RecentActivities)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @activity.Description
+                        <span class="text-muted" style="font-size:0.9em;">@activity.TimeAgo</span>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="list-group-item">No recent activity.</li>
+            }
+        </ul>
+    </div>
 </div>
