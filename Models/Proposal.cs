@@ -14,30 +14,42 @@ namespace FSSA.Models
         [Column("title")]
         public string Title { get; set; }
 
+        [Required]
         [Column("synopsis")]
         public string Synopsis { get; set; }
 
+        [Required]
         [Column("method")]
         public string Method { get; set; }
 
+        [Required]
+        [Display(Name = "Project Level")]
         [Column("project_level_id")]
         public int ProjectLevelId { get; set; }
 
+        [Required]
         [Column("resources")]
         public string Resources { get; set; }
 
+        [Required]
+        [Display(Name = "Estimated Completion Date")]
         [Column("ethical_considerations")]
         public string EthicalConsiderations { get; set; }
 
+        [Required]
         [Column("outcomes")]
         public string Outcomes { get; set; }
 
+        [Required]
         [Column("milestones")]
         public string Milestones { get; set; }
 
+        [Required]
+        [Display(Name = "Estimated Completion Date")]
         [Column("estimated_completion_date")]
         public DateTime EstimatedCompletionDate { get; set; }
 
+        
         [Column("status_id")]
         public int StatusId { get; set; }
 
