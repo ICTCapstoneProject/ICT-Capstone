@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/hanyi/Desktop/ICT-Capstone/ProjectManagerMvc.csproj": {}
+    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {}
   },
   "projects": {
-    "/Users/hanyi/Desktop/ICT-Capstone/ProjectManagerMvc.csproj": {
+    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/hanyi/Desktop/ICT-Capstone/ProjectManagerMvc.csproj",
+        "projectUniqueName": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
         "projectName": "ProjectManagerMvc",
-        "projectPath": "/Users/hanyi/Desktop/ICT-Capstone/ProjectManagerMvc.csproj",
-        "packagesPath": "/Users/hanyi/.nuget/packages/",
-        "outputPath": "/Users/hanyi/Desktop/ICT-Capstone/obj/",
+        "projectPath": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
+        "packagesPath": "/Users/denniskalongonda/.nuget/packages/",
+        "outputPath": "/Users/denniskalongonda/ICT-Capstone-3/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/hanyi/.nuget/NuGet/NuGet.Config"
+          "/Users/denniskalongonda/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -32,6 +32,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -66,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/Cellar/dotnet@8/8.0.14_1/libexec/sdk/8.0.114/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

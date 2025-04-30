@@ -24,14 +24,18 @@ public class HomeController : Controller
         var recentlyReviewed = _context.Proposals.Count(p => p.StatusId == 2 && p.UpdatedAt >= DateTime.Now.AddDays(-7)); 
         var recentlyCommented = _context.Comments.Count(c => c.Timestamp >= DateTime.Now.AddDays(-7));
 
-        var recentActivities = _context.Proposals
-            .OrderByDescending(p => p.CreatedAt)
-            .Take(3)
-            .Select(p => new DashboardActivity
-            {
-                Description = $"Proposal #{p.Id} submitted by UserId {p.SubmittedBy}",
-                TimeAgo = (DateTime.Now - p.CreatedAt).TotalHours < 1 ? "just now" : $"{(int)(DateTime.Now - p.CreatedAt).TotalHours} hours ago"
-            }).ToList();
+        var recentActivities = (from p in _context.Proposals
+                        join u in _context.Users on p.SubmittedBy equals u.UserId
+                        orderby p.CreatedAt descending
+                        select new DashboardActivity
+                        {
+                            Description = $"Proposal #{p.Id}, <strong>'{p.Title}'</strong> was submitted by {u.Name}",
+                            TimeAgo = (DateTime.Now - p.CreatedAt).TotalHours < 1
+                                ? "just now"
+                                : $"{(int)(DateTime.Now - p.CreatedAt).TotalHours} hours ago"
+                        })
+                        .Take(3)
+                        .ToList();
 
         var model = new DashboardViewModel
         {
