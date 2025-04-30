@@ -53,7 +53,7 @@
 
     <div class="mb-3">
         <label asp-for="EstimatedCompletionDate" class="form-label"></label>
-        <input asp-for="EstimatedCompletionDate" class="form-control" type="date" />
+        <input asp-for="EstimatedCompletionDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
     </div>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
