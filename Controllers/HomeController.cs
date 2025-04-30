@@ -16,27 +16,68 @@ public class HomeController : Controller
         _context = context;
     }
 
+    private string GetTimeAgo(DateTime createdAt)
+    {
+        var span = DateTime.Now - createdAt;
+
+        if (span.TotalMinutes < 1)
+            return "just now";
+
+        if (span.TotalMinutes < 60)
+        {
+            int minutes = (int)span.TotalMinutes;
+            return minutes == 1 ? "1 minute ago" : $"{minutes} minutes ago";
+        }
+
+        if (span.TotalHours < 24)
+        {
+            int hours = (int)span.TotalHours;
+            return hours == 1 ? "1 hour ago" : $"{hours} hours ago";
+        }
+
+        if (span.TotalDays < 7)
+        {
+            int days = (int)span.TotalDays;
+            return days == 1 ? "1 day ago" : $"{days} days ago";
+        }
+
+        if (span.TotalDays < 30)
+        {
+            int weeks = (int)(span.TotalDays / 7);
+            return weeks == 1 ? "1 week ago" : $"{weeks} weeks ago";
+        }
+
+        if (span.TotalDays < 365)
+        {
+            int months = (int)(span.TotalDays / 30);
+            return months == 1 ? "1 month ago" : $"{months} months ago";
+        }
+
+        int years = (int)(span.TotalDays / 365);
+        return years == 1 ? "1 year ago" : $"{years} years ago";
+    }
+
     public IActionResult Index()
     {
         var totalProposals = _context.Proposals.Count();
-        // not sure
-        var pendingApprovals = _context.Proposals.Count(p => p.StatusId == 1); 
-        var recentlyReviewed = _context.Proposals.Count(p => p.StatusId == 2 && p.UpdatedAt >= DateTime.Now.AddDays(-7)); 
+        var pendingApprovals = _context.Proposals.Count(p => p.StatusId == 1);
+        var recentlyReviewed = _context.Proposals.Count(p => p.StatusId == 2 && p.UpdatedAt >= DateTime.Now.AddDays(-7));
         var recentlyCommented = _context.Comments.Count(c => c.Timestamp >= DateTime.Now.AddDays(-7));
 
-        var recentActivities = (from p in _context.Proposals
-                        join u in _context.Users on p.SubmittedBy equals u.UserId
-                        orderby p.CreatedAt descending
-                        select new DashboardActivity
-                        {
-                            Description = $"Proposal #{p.Id}, <strong>'{p.Title}'</strong> was submitted by {u.Name}",
-                            TimeAgo = (DateTime.Now - p.CreatedAt).TotalHours < 1
-                                ? "just now"
-                                : $"{(int)(DateTime.Now - p.CreatedAt).TotalHours} hours ago"
-                        })
-                        .Take(3)
-                        .ToList();
-
+        var recentActivities = _context.Proposals
+            .Join(_context.Users,
+                p => p.SubmittedBy,
+                u => u.UserId,
+                (p, u) => new { p, u })
+            .OrderByDescending(x => x.p.CreatedAt)
+            .AsEnumerable() 
+            .Select(x => new DashboardActivity
+            {
+                Description = $"Proposal #{x.p.Id}, <strong>'{x.p.Title}'</strong> was submitted by {x.u.Name}",
+                TimeAgo = GetTimeAgo(x.p.CreatedAt)
+            })
+            .Take(3)
+            .ToList();
         var model = new DashboardViewModel
         {
             TotalProposals = totalProposals,
@@ -45,6 +86,11 @@ public class HomeController : Controller
             RecentlyCommented = recentlyCommented,
             RecentActivities = recentActivities
         };
+
+        var email = User.Identity?.Name;
+        var userName = _context.Users.FirstOrDefault(u => u.Email == email)?.Name ?? "Guest";
+
+        ViewBag.UserName = userName;
 
         return View(model);
     }

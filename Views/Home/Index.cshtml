@@ -5,7 +5,7 @@
 }
 
 <div class="container mt-4">
-    <h2>Dashboard Overview</h2>
+    <h2 id="dashboard-heading"></h2>
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-center">
@@ -69,3 +69,30 @@
         </ul>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const target = document.getElementById("dashboard-heading");
+        const text = "Hi @ViewBag.UserName, here's your overview!";
+        const typingSpeed = 90;
+
+        if (!sessionStorage.getItem("dashboardSeen")) {
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    target.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, typingSpeed);
+                } else {
+                    sessionStorage.setItem("dashboardSeen", "true");
+                }
+            }
+            typeChar();
+        } else {
+            // If we've already seen the dashboard, then instantly render the content without the animation.
+            target.textContent = text;
+        }
+    });
+</script>
+}
