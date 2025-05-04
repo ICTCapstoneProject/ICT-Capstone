@@ -26,6 +26,12 @@ dotnet add package Microsoft.EntityFrameworkCore.Sqlite
 echo "Restoring .NET dependencies..."
 dotnet restore
 
+# Install React and Webpack toolchain
+echo "Installing React and Webpack toolchain..."
+npm init -y
+npm install react react-dom
+npm install --save-dev webpack webpack-cli babel-loader @babel/core @babel/preset-env @babel/preset-react
+
 # Open the project in VS Code if installed
 if command -v code &> /dev/null; then
     echo "Opening project in VS Code..."

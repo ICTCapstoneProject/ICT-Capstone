@@ -1,0 +1,18 @@
+#So we stop seeing 20 odd file changes every time we build the project
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Build artifacts
+bin/
+obj/
+
+# VS Code settings
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Log files
+*.log

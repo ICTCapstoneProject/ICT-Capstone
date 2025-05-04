@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {}
+    "/Users/denniskalongonda/Desktop/ICT-Capstone-2/ProjectManagerMvc.csproj": {}
   },
   "projects": {
-    "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj": {
+    "/Users/denniskalongonda/Desktop/ICT-Capstone-2/ProjectManagerMvc.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
+        "projectUniqueName": "/Users/denniskalongonda/Desktop/ICT-Capstone-2/ProjectManagerMvc.csproj",
         "projectName": "ProjectManagerMvc",
-        "projectPath": "/Users/denniskalongonda/ICT-Capstone-3/ProjectManagerMvc.csproj",
+        "projectPath": "/Users/denniskalongonda/Desktop/ICT-Capstone-2/ProjectManagerMvc.csproj",
         "packagesPath": "/Users/denniskalongonda/.nuget/packages/",
-        "outputPath": "/Users/denniskalongonda/ICT-Capstone-3/obj/",
+        "outputPath": "/Users/denniskalongonda/Desktop/ICT-Capstone-2/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/denniskalongonda/.nuget/NuGet/NuGet.Config"

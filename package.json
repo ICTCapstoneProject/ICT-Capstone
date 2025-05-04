@@ -1,0 +1,32 @@
+{
+  "name": "ict-capstone-2",
+  "version": "1.0.0",
+  "description": "### Prerequisites - **Visual Studio Code** must already be installed. Get a copy via: https://code.visualstudio.com/download",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ICTCapstoneProject/ICT-Capstone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ICTCapstoneProject/ICT-Capstone/issues"
+  },
+  "homepage": "https://github.com/ICTCapstoneProject/ICT-Capstone#readme",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1"
+  }
+}
