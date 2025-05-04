@@ -32,7 +32,7 @@ namespace FSSA.Models
         public string Resources { get; set; }
 
         [Required]
-        [Display(Name = "Estimated Completion Date")]
+        [Display(Name = "Ethical Considerations")]
         [Column("ethical_considerations")]
         public string EthicalConsiderations { get; set; }
 
