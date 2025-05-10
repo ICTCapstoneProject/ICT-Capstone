@@ -27,6 +27,20 @@
                         <i class="bi bi-pencil-square"></i> Proposal Creation
                     </a>
                 </li>
+
+                @* Only display 'My Proposals' button for Researcher users *@
+                @{
+                    var userRole = User.FindFirst("Role")?.Value;
+                    if (userRole == "Researcher")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Proposal" asp-action="MyProposals">
+                                <i class="bi bi-folder"></i> My Proposals
+                            </a>
+                        </li>
+                    }
+                }
+
                 <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
                         <i class="bi bi-shield-lock"></i> Privacy

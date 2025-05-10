@@ -100,5 +100,11 @@ namespace FSSA.Controllers
 
             return View(proposal);
         }
+
+
+        public IActionResult MyProposals()
+        {
+            return View();
+        }
     }
 }

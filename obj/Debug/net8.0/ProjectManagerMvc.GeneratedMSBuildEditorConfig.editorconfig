@@ -9,51 +9,55 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ProjectManagerMvc
 build_property.RootNamespace = ProjectManagerMvc
-build_property.ProjectDir = /Users/denniskalongonda/ICT-Capstone-3/
+build_property.ProjectDir = /Users/hanyi/Desktop/ICT-Capstone/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /Users/denniskalongonda/ICT-Capstone-3
+build_property.MSBuildProjectDirectory = /Users/hanyi/Desktop/ICT-Capstone
 build_property._RazorSourceGeneratorDebug = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Account/Login.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Home/Index.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Home/Privacy.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Proposal/Create.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Proposal/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvcG9zYWwvQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Proposal/Success.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Proposal/MyProposals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvcG9zYWwvTXlQcm9wb3NhbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Proposal/Success.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvcG9zYWwvU3VjY2Vzcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Shared/Error.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Shared/_Layout.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/Shared/_ValidationScriptsPartial.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/_ViewImports.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/denniskalongonda/ICT-Capstone-3/Views/_ViewStart.cshtml]
+[/Users/hanyi/Desktop/ICT-Capstone/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

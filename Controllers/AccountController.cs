@@ -39,7 +39,8 @@ namespace ProjectManagerMvc.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.Email),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim("UserId", user.UserId.ToString())
+                    new Claim("UserId", user.UserId.ToString()),
+                    new Claim("Role", user.Role)
                 };
 
                 // Create the identity and principal for cookie
