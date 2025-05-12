@@ -104,7 +104,35 @@ namespace FSSA.Controllers
 
         public IActionResult MyProposals()
         {
-            return View();
+            var email = User.Identity?.Name;
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null || !string.Equals(user.Role, "researcher", StringComparison.OrdinalIgnoreCase))
+            {
+                return Unauthorized();
+            }
+
+            var proposals = _context.Proposals
+                .Where(p => p.SubmittedBy == user.UserId)
+                .Join(_context.ProjectLevels,
+                    p => p.ProjectLevelId,
+                    pl => pl.LevelId,
+                    (p, pl) => new MyProposalViewModel
+                    {
+                        Id = p.Id,
+                        Title = p.Title,
+                        Synopsis = p.Synopsis,
+                        ProjectLevel = pl.LevelName,
+                        EstimatedCompletionDate = p.EstimatedCompletionDate
+                    })
+                .ToList();
+
+            return View(proposals);
         }
+
     }
 }

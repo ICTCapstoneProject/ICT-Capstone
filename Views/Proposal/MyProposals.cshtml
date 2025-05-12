@@ -1,6 +1,35 @@
+@model List<MyProposalViewModel>
 @{
     ViewData["Title"] = "My Proposals";
 }
 
 <h2>My Proposals</h2>
-<p>This is a page for Researcher proposals.</p>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Synopsis</th>
+                <th>Project Level</th>
+                <th>Estimated Completion Date</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Title</td>
+                <td>@p.Synopsis</td>
+                <td>@p.ProjectLevel</td>
+                <td>@p.EstimatedCompletionDate.ToShortDateString()</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>You haven't submitted any proposals yet.</p>
+}
