@@ -7,27 +7,32 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Synopsis</th>
-                <th>Project Level</th>
-                <th>Estimated Completion Date</th>
-            </tr>
-        </thead>
+    foreach (var p in Model)
+    {
+        
+        <table class="table mb-5" style="border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <thead>
+                <tr>
+                    <th colspan="2">Proposal: @p.Title</th>
+                </tr>
+            </thead>
         <tbody>
-        @foreach (var p in Model)
-        {
             <tr>
-                <td>@p.Title</td>
+                <th>Synopsis</th>
                 <td>@p.Synopsis</td>
-                <td>@p.ProjectLevel</td>
-                <td>@p.EstimatedCompletionDate.ToShortDateString()</td>
             </tr>
-        }
+            <tr>
+                <th>Project Level</th>
+                <td>@p.ProjectLevel</td>
+            </tr>
+            <tr>
+                <th>Estimated Completion Date</th>
+                <td>@p.EstimatedCompletionDate</td>
+            </tr>
         </tbody>
     </table>
+    }
+
 }
 else
 {
