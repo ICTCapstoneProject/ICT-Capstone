@@ -9,28 +9,21 @@
 {
     foreach (var p in Model)
     {
-        
-        <table class="table mb-5" style="border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            <thead>
-                <tr>
-                    <th colspan="2">Proposal: @p.Title</th>
-                </tr>
-            </thead>
-        <tbody>
-            <tr>
-                <th>Synopsis</th>
-                <td>@p.Synopsis</td>
-            </tr>
-            <tr>
-                <th>Project Level</th>
-                <td>@p.ProjectLevel</td>
-            </tr>
-            <tr>
-                <th>Estimated Completion Date</th>
-                <td>@p.EstimatedCompletionDate</td>
-            </tr>
-        </tbody>
-    </table>
+        <a asp-controller="Proposal" asp-action="Details" asp-route-id="@p.Id" style="text-decoration: none; color: inherit;">
+            <div class="card mb-5 shadow-sm" style="border: 1px solid #ccc;"></div>
+                <div class="card-header bg-dark text-white">
+                    <h5 class="=mb-0">Proposal: @p.Title</h5>
+                </div>
+
+                <div class="card-body">
+                    <p><strong>Synopsis:</strong> @p.Synopsis</p>
+                    <p><strong>Project Level:</strong> @p.ProjectLevel</p>
+                    <p><strong>Estimated Completion Date:</strong> @p.EstimatedCompletionDate</p>
+                </div>
+        </a>
+
+
+
     }
 
 }

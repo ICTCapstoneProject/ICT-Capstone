@@ -134,5 +134,33 @@ namespace FSSA.Controllers
             return View(proposals);
         }
 
+
+        public IActionResult Details(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            var projectLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            var model = new MyProposalViewModel
+            {
+                Id = proposal.Id,
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                ProjectLevel = projectLevel,
+                Resources = proposal.Resources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate        
+            };
+
+            return View(model);
+        }
+
     }
 }

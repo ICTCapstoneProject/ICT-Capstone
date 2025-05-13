@@ -1,0 +1,19 @@
+@model MyProposalViewModel
+@{
+    ViewData["Title"] = "Proposal Details";
+}
+
+<h2>@Model.Title</h2>
+
+<ul class="list-group mb-4">
+    <li class="list-group-item"><strong>Synopsis:</strong> @Model.Synopsis</li>
+    <li class="list-group-item"><strong>Method:</strong> @Model.Method</li>
+    <li class="list-group-item"><strong>Project Level:</strong> @Model.ProjectLevel</li>
+    <li class="list-group-item"><strong>Resources:</strong> @Model.Resources</li>
+    <li class="list-group-item"><strong>Ethical Considerations:</strong> @Model.EthicalConsiderations</li>
+    <li class="list-group-item"><strong>Outcomes:</strong> @Model.Outcomes</li>
+    <li class="list-group-item"><strong>Milestones:</strong> @Model.Milestones</li>
+    <li class="list-group-item"><strong>Estimated Completion Date:</strong> @Model.EstimatedCompletionDate.ToShortDateString()</li>
+</ul>
+
+<a class="btn btn-secondary" asp-action="MyProposals">Back to My Proposals</a>
