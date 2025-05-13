@@ -161,6 +161,66 @@ namespace FSSA.Controllers
 
             return View(model);
         }
+        
+
+        public IActionResult Edit(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ProjectLevels = _context.ProjectLevels
+            .Select(pl => new SelectListItem
+            {
+                Value = pl.LevelId.ToString(),
+                Text = pl.LevelName
+            })
+            .ToList();
+            return View(proposal);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Proposal updatedProposal)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ProjectLevels = _context.ProjectLevels
+                    .Select(PlatformID => new SelectListItem
+                    {
+                        Value = PlatformID.LevelId.ToString(),
+                        Text = PlatformID.LevelName
+                    }).ToList();
+
+                    return View(updatedProposal);
+            }
+
+            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == updatedProposal.Id);
+            if (existingProposal == null)
+            {
+                return NotFound();
+            }
+
+            existingProposal.Title = updatedProposal.Title;
+            existingProposal.Synopsis = updatedProposal.Synopsis;
+            existingProposal.Method = updatedProposal.Method;
+            existingProposal.ProjectLevelId = updatedProposal.ProjectLevelId;
+            existingProposal.Resources = updatedProposal.Resources;
+            existingProposal.EthicalConsiderations = updatedProposal.EthicalConsiderations;
+            existingProposal.Outcomes = updatedProposal.Outcomes;
+            existingProposal.Milestones = updatedProposal.Milestones;
+            existingProposal.EstimatedCompletionDate = updatedProposal.EstimatedCompletionDate;
+            existingProposal.UpdatedAt = DateTime.Now;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Details", new {id = updatedProposal.Id});
+
+        }
 
     }
 }
