@@ -1,0 +1,9 @@
+@model FSSA.Models.Proposal
+@{
+    ViewData["Title"] = "Edit Proposal";
+    ViewBag.ButtonLabel = "Save";
+    ViewBag.FormAction = "Edit";
+}
+
+<h1>Edit Proposal</h1>
+@await Html.PartialAsync("_ProposalForm", Model)

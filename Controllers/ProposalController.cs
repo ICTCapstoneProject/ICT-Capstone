@@ -100,5 +100,127 @@ namespace FSSA.Controllers
 
             return View(proposal);
         }
+
+
+        public IActionResult MyProposals()
+        {
+            var email = User.Identity?.Name;
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null || !string.Equals(user.Role, "researcher", StringComparison.OrdinalIgnoreCase))
+            {
+                return Unauthorized();
+            }
+
+            var proposals = _context.Proposals
+                .Where(p => p.SubmittedBy == user.UserId)
+                .Join(_context.ProjectLevels,
+                    p => p.ProjectLevelId,
+                    pl => pl.LevelId,
+                    (p, pl) => new MyProposalViewModel
+                    {
+                        Id = p.Id,
+                        Title = p.Title,
+                        Synopsis = p.Synopsis,
+                        ProjectLevel = pl.LevelName,
+                        EstimatedCompletionDate = p.EstimatedCompletionDate
+                    })
+                .ToList();
+
+            return View(proposals);
+        }
+
+
+        public IActionResult Details(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            var projectLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            var model = new MyProposalViewModel
+            {
+                Id = proposal.Id,
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                ProjectLevel = projectLevel,
+                Resources = proposal.Resources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate        
+            };
+
+            return View(model);
+        }
+        
+
+        public IActionResult Edit(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ProjectLevels = _context.ProjectLevels
+            .Select(pl => new SelectListItem
+            {
+                Value = pl.LevelId.ToString(),
+                Text = pl.LevelName
+            })
+            .ToList();
+            return View(proposal);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Proposal updatedProposal)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ProjectLevels = _context.ProjectLevels
+                    .Select(PlatformID => new SelectListItem
+                    {
+                        Value = PlatformID.LevelId.ToString(),
+                        Text = PlatformID.LevelName
+                    }).ToList();
+
+                    return View(updatedProposal);
+            }
+
+            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == updatedProposal.Id);
+            if (existingProposal == null)
+            {
+                return NotFound();
+            }
+
+            existingProposal.Title = updatedProposal.Title;
+            existingProposal.Synopsis = updatedProposal.Synopsis;
+            existingProposal.Method = updatedProposal.Method;
+            existingProposal.ProjectLevelId = updatedProposal.ProjectLevelId;
+            existingProposal.Resources = updatedProposal.Resources;
+            existingProposal.EthicalConsiderations = updatedProposal.EthicalConsiderations;
+            existingProposal.Outcomes = updatedProposal.Outcomes;
+            existingProposal.Milestones = updatedProposal.Milestones;
+            existingProposal.EstimatedCompletionDate = updatedProposal.EstimatedCompletionDate;
+            existingProposal.UpdatedAt = DateTime.Now;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Details", new {id = updatedProposal.Id});
+
+        }
+
     }
 }
