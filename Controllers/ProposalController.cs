@@ -68,6 +68,15 @@ namespace FSSA.Controllers
 
                 _context.Proposals.Add(proposal);
                 _context.SaveChanges();
+                _context.ProposalLogs.Add(new ProposalLog
+                {
+                    ProposalId = proposal.Id,
+                    StatusId = proposal.StatusId,
+                    ChangedBy = proposal.SubmittedBy,
+                    Action = "submitted", // NEW LINE
+                    Timestamp = DateTime.Now
+                });
+                _context.SaveChanges();
 
                 return RedirectToAction("Success", new { id = proposal.Id });
             }
@@ -259,6 +268,18 @@ namespace FSSA.Controllers
             existingProposal.EstimatedCompletionDate = updatedProposal.EstimatedCompletionDate;
             existingProposal.UpdatedAt = DateTime.Now;
 
+            _context.SaveChanges();
+            var email = User.Identity?.Name;
+            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
+
+            _context.ProposalLogs.Add(new ProposalLog
+            {
+                ProposalId = existingProposal.Id,
+                StatusId = existingProposal.StatusId,
+                ChangedBy = userId,
+                Action = "modified", 
+                Timestamp = DateTime.Now
+            });
             _context.SaveChanges();
 
             return RedirectToAction("Details", new {id = updatedProposal.Id});
