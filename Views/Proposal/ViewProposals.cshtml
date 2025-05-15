@@ -20,10 +20,8 @@
 
     <script>
         document.getElementById('proposalToggle').addEventListener('change', function () {
-            // When unchecked, we still need to submit 'false', so override manually
             if (!this.checked) {
                 this.value = "false";
-                // Ensure form sends correct value
                 let hiddenInput = document.createElement("input");
                 hiddenInput.type = "hidden";
                 hiddenInput.name = "showOnlyMine";
@@ -37,31 +35,38 @@
 
 @if (Model != null && Model.Any())
 {
-    foreach (var p in Model)
-    {
-        <a asp-controller="Proposal" asp-action="Details" asp-route-id="@p.Id" style="text-decoration: none; color: inherit;">
-            <div class="card mb-5 shadow-sm" style="border: 1px solid #ccc;">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">Proposal #@p.Id: @p.Title</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Synopsis:</strong> @p.Synopsis</p>
-                    <p><strong>Project Level:</strong> @p.ProjectLevel</p>
-                    <p><strong>Estimated Completion Date:</strong> @p.EstimatedCompletionDate.ToShortDateString()</p>
-                    <p><strong>Submitted By:</strong> @p.SubmittedByName</p>
-                </div>
+    <div class="row">
+        @foreach (var p in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <a asp-controller="Proposal" asp-action="Details" asp-route-id="@p.Id" style="text-decoration: none; color: inherit;">
+                    <div class="card h-100 shadow-sm" style="border: 1px solid #ccc;">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Proposal #@p.Id: @p.Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Synopsis:</strong> @p.Synopsis</p>
+                            <p><strong>Project Level:</strong> @p.ProjectLevel</p>
+                            <p><strong>Estimated Completion Date:</strong> @p.EstimatedCompletionDate.ToString("dd-MM-yyyy")</p>
+                            <p><strong>Submitted By:</strong> @p.SubmittedByName</p>
+
+                            @* Status display *@
+                            @if (p.StatusName == "New Proposal")
+                            {
+                                <p><strong>Status:</strong> <span class="fw-bold text-success">New Proposal</span></p>
+                            }
+                            else
+                            {
+                                <p><strong>Status:</strong> <span class="">@p.StatusName</span></p>
+                            }
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    }
+        }
+    </div>
 }
 else
 {
-    if (isResearcher && showingMine)
-    {
-        <p>You haven't submitted any proposals yet.</p>
-    }
-    else
-    {
-        <p>No proposals available.</p>
-    }
+    <p>@(isResearcher && showingMine ? "You haven't submitted any proposals yet." : "No proposals available.")</p>
 }
