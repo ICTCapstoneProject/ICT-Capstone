@@ -35,7 +35,9 @@
 
         <small class="text-muted">
             <span class="d-block">Optionally, Upload Media Associated to Method Contents:</span>
-            <span id="methodFileName" class="fst-italic text-primary small"></span>
+            <a href="#" id="methodFileLink" class="fst-italic text-primary small text-decoration-underline d-none"
+               data-bs-toggle="modal" data-bs-target="#previewModal"></a>
+            <button type="button" id="clearFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
         </small>
     </div>
 
@@ -98,7 +100,19 @@
         </div>
     </div>
 </form>
-
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Method Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="#" class="img-fluid rounded shadow-sm" style="max-height: 400px;" />
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -119,15 +133,51 @@
         });
     </script>
 
-    <script>
-        function updateMethodFileName() {
-            const input = document.getElementById('MethodImage');
-            const display = document.getElementById('methodFileName');
-            if (input.files.length > 0) {
-                display.textContent = input.files[0].name;
-            } else {
-                display.textContent = "";
+     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("proposalForm");
+            const triggerBtn = document.getElementById("triggerModalBtn");
+            const modalEl = document.getElementById("confirmModal");
+
+            const clearBtn = document.getElementById('clearFileBtn');
+            const fileInput = document.getElementById('MethodImage');
+            const fileLink = document.getElementById('methodFileLink');
+            const previewImg = document.getElementById('previewImage');
+            
+            if (form && triggerBtn && modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                triggerBtn.addEventListener("click", function () {
+                    if ($(form).valid()) {
+                        modal.show();
+                    }
+                });
             }
-        }
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    fileLink.textContent = file.name;
+                    fileLink.classList.remove("d-none");
+                    clearBtn.style.display = 'inline-block';
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileLink.textContent = '';
+                    fileLink.classList.add("d-none");
+                    clearBtn.style.display = 'none';
+                    previewImg.src = '#';
+                }
+            });
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileLink.textContent = '';
+                fileLink.classList.add("d-none");
+                clearBtn.style.display = 'none';
+                previewImg.src = '#';
+            });
+        });
     </script>
 }

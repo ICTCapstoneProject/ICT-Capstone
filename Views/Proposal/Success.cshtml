@@ -23,6 +23,30 @@
             <dt class="col-sm-4">Method:</dt>
             <dd class="col-sm-8">@Model.Method</dd>
 
+            @if (!string.IsNullOrEmpty(Model.MethodImage))
+                {
+                    <dt class="col-sm-4">Method Image:</dt>
+                    <dd class="col-sm-8">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#methodImageModal" class="text-decoration-underline text-primary">
+                            @System.IO.Path.GetFileName(Model.MethodImage)
+                        </a>
+
+                        <div class="modal fade" id="methodImageModal" tabindex="-1" aria-labelledby="methodImageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="methodImageModalLabel">Method Image</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="@Model.MethodImage" alt="Method Image" class="img-fluid rounded" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </dd>
+                }
+
             <dt class="col-sm-4">Project Level:</dt>
             <dd class="col-sm-8">@ViewBag.LevelName</dd>
 
