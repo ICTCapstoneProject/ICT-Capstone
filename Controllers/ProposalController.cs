@@ -342,5 +342,100 @@ namespace FSSA.Controllers
             return View("EditSuccess", updated);
         }
 
+        public IActionResult Search(
+            List<string> StatusFilters,
+            List<string> ProjectLevelFilters,
+            DateTime? StartDate,
+            DateTime? EndDate,
+            string SearchKeyword,
+            string SortBy,
+            int page = 1,
+            int pageSize = 10)
+        {
+            ViewBag.ProjectLevels = _context.ProjectLevels
+                .Select(pl => new { pl.LevelId, pl.LevelName })
+                .ToList();
+
+            ViewBag.Statuses = _context.Statuses
+                .Select(s => new { s.StatusId, s.StatusName })
+                .ToList();
+
+            var query = _context.Proposals
+                .Join(_context.ProjectLevels,
+                    p => p.ProjectLevelId,
+                    pl => pl.LevelId,
+                    (p, pl) => new { p, pl })
+                .Join(_context.Users,
+                    combo => combo.p.SubmittedBy,
+                    u => u.UserId,
+                    (combo, u) => new { combo.p, combo.pl, u })
+                .Join(_context.Statuses,
+                    combo => combo.p.StatusId,
+                    s => s.StatusId,
+                    (combo, s) => new MyProposalViewModel
+                    {
+                        Id = combo.p.Id,
+                        Title = combo.p.Title,
+                        Synopsis = combo.p.Synopsis,
+                        Method = combo.p.Method,
+                        ProjectLevel = combo.pl.LevelName,
+                        Resources = combo.p.Resources,
+                        EthicalConsiderations = combo.p.EthicalConsiderations,
+                        Outcomes = combo.p.Outcomes,
+                        Milestones = combo.p.Milestones,
+                        EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
+                        SubmittedByName = combo.u.Name,
+                        StatusName = s.StatusName
+                    });
+
+            if (ProjectLevelFilters != null && ProjectLevelFilters.Any())
+                query = query.Where(p => ProjectLevelFilters.Contains(p.ProjectLevel));
+
+            // Status Filters
+            if (StatusFilters != null && StatusFilters.Any())
+                query = query.Where(p => StatusFilters.Contains(p.StatusName));
+
+            // Date Filters
+            if (StartDate.HasValue)
+                query = query.Where(p => p.EstimatedCompletionDate >= StartDate.Value);
+            if (EndDate.HasValue)
+                query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
+
+        
+            // Search Keyword
+            if (!string.IsNullOrEmpty(SearchKeyword))
+                query = query.Where(p => p.Title.Contains(SearchKeyword));
+
+            // Sort
+            switch (SortBy)
+            {
+                case "Title":
+                    query = query.OrderBy(p => p.Title);
+                    break;
+                default:
+                    query = query.OrderByDescending(p => p.EstimatedCompletionDate);
+                    break;
+            }
+
+            // Pagination
+            int totalCount = query.Count();
+            var pagedProposals = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var viewModel = new ProposalSearchViewModel
+            {
+                Proposals = pagedProposals,
+                TotalCount = totalCount,
+                PageIndex = page,
+                PageSize = pageSize,
+                StatusFilters = StatusFilters ?? new List<string>(),
+                ProjectLevelFilters = ProjectLevelFilters ?? new List<string>(),
+                StartDate = StartDate,
+                EndDate = EndDate,
+                SearchKeyword = SearchKeyword,
+                SortBy = SortBy
+            };
+
+            return View(viewModel);
+        }
     }
 }
