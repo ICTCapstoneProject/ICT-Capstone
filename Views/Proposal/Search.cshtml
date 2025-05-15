@@ -1,0 +1,105 @@
+@model ProposalSearchViewModel
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- side filter -->
+        <div class="col-2">
+            <div class="card p-3 mb-3">
+                <h5>Filters</h5>
+                <form method="get" asp-action="Search">
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div>
+                            @foreach (var status in ViewBag.Statuses)
+                            {
+                                <input type="checkbox" name="StatusFilters" value="@status.StatusName" 
+                                        @(Model.StatusFilters?.Contains(status.StatusName) == true ? "checked" : "") /> @status.StatusName<br />
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project Level</label>
+                        <div>
+                            @foreach (var level in ViewBag.ProjectLevels)
+                            {
+                                <input type="checkbox" name="ProjectLevelFilters" value="@level.LevelName" 
+                                        @(Model.ProjectLevelFilters?.Contains(level.LevelName) == true ? "checked" : "") /> @level.LevelName<br />
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date Range</label>
+                        <input type="date" class="form-control mb-1" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                        <input type="date" class="form-control" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+        <!-- body -->
+        <div class="col-10">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Search Proposals</h4>
+                <div>
+                    <span>@User.Identity.Name</span>
+                </div>
+            </div>
+            <form method="get" asp-action="Search" class="mb-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="SearchKeyword" placeholder="Search proposals..." value="@Model.SearchKeyword" />
+                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                </div>
+            </form>
+            <form method="get" asp-action="Search" id="sortForm">
+                <input type="hidden" name="SearchKeyword" value="@Model.SearchKeyword" />
+                <input type="hidden" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                <input type="hidden" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                @foreach (var status in Model.StatusFilters ?? new List<string>())
+                {
+                    <input type="hidden" name="StatusFilters" value="@status" />
+                }
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>@Model.TotalCount results found</span>
+                    <select class="form-select w-auto" name="SortBy" onchange="document.getElementById('sortForm').submit()">
+                        <option value="Recent" selected="@(Model.SortBy == "Recent" || string.IsNullOrEmpty(Model.SortBy))">Sort by: Recent</option>
+                        <option value="Title" selected="@(Model.SortBy == "Title")">Sort by: Title</option>
+                    </select>
+                </div>
+            </form>
+            <div class="list-group mb-3">
+                @foreach (var proposal in Model.Proposals)
+                {
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">@proposal.Title</h5>
+                            <small>
+                                <i class="bi bi-person"></i> @proposal.SubmittedByName &nbsp;
+                                <i class="bi bi-calendar"></i> Submitted: @proposal.EstimatedCompletionDate.ToString("MMM dd, yyyy") &nbsp;
+                                <i class="bi bi-person-badge"></i> @proposal.Method
+                            </small>
+                        </div>
+                        <span class="badge bg-secondary">@proposal.StatusName</span>
+                    </div>
+                }
+            </div>
+            <!-- page -->
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.PageIndex - 1)">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalCount / Model.PageSize); i++)
+                    {
+                        <li class="page-item @(Model.PageIndex == i ? "active" : "")">
+                            <a class="page-link" href="?page=@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageIndex == Math.Ceiling((double)Model.TotalCount / Model.PageSize) ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.PageIndex + 1)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
