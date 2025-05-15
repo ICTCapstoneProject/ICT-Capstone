@@ -36,39 +36,46 @@ namespace FSSA.Controllers
         // POST: /Proposal/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Proposal proposal)
+        public IActionResult Create(Proposal proposal, IFormFile MethodImage)
         {
-
             if (ModelState.IsValid)
             {
-                proposal.StatusId = 1;              // Default to "New Proposal" status
+                proposal.StatusId = 1; // Still just defaulting for now
 
-
-                var Identity = User.Identity;
-                if (Identity == null || !Identity.IsAuthenticated)
-                {
+                var identity = User.Identity;
+                if (identity == null || !identity.IsAuthenticated)
                     return Unauthorized();
-                }
-                var email = Identity.Name;
-                if (string.IsNullOrEmpty(email))
-                {
-                    return Unauthorized();
-                }
 
+                var email = identity.Name;
                 var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId;
-
-                if(userId == null)
-                {
+                if (userId == null)
                     return Unauthorized();
-                }
 
                 proposal.SubmittedBy = userId.Value;
-
                 proposal.CreatedAt = DateTime.Now;
                 proposal.UpdatedAt = DateTime.Now;
 
+                
+                if (MethodImage != null && MethodImage.Length > 0)
+                {
+                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                    if (!Directory.Exists(uploadsPath))
+                        Directory.CreateDirectory(uploadsPath);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(MethodImage.FileName);
+                    var filePath = Path.Combine(uploadsPath, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        MethodImage.CopyTo(stream);
+                    }
+
+                    proposal.MethodImage = "/uploads/" + uniqueFileName;
+                }
+
                 _context.Proposals.Add(proposal);
                 _context.SaveChanges();
+
                 _context.ProposalLogs.Add(new ProposalLog
                 {
                     ProposalId = proposal.Id,
@@ -81,7 +88,6 @@ namespace FSSA.Controllers
 
                 return RedirectToAction("Success", new { id = proposal.Id });
             }
-
             ViewBag.ProjectLevels = _context.ProjectLevels
                 .Select(pl => new SelectListItem
                 {
@@ -151,6 +157,7 @@ namespace FSSA.Controllers
                             Id = combo.p.Id,
                             Title = combo.p.Title,
                             Synopsis = combo.p.Synopsis,
+                            MethodImage = combo.p.MethodImage,
                             ProjectLevel = combo.pl.LevelName,
                             EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
                             SubmittedByName = combo.u.Name,
@@ -177,6 +184,7 @@ namespace FSSA.Controllers
                             Id = combo.p.Id,
                             Title = combo.p.Title,
                             Synopsis = combo.p.Synopsis,
+                            MethodImage = combo.p.MethodImage,
                             ProjectLevel = combo.pl.LevelName,
                             EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
                             SubmittedByName = combo.u.Name,
@@ -210,6 +218,7 @@ namespace FSSA.Controllers
                 Title = proposal.Title,
                 Synopsis = proposal.Synopsis,
                 Method = proposal.Method,
+                MethodImage = proposal.MethodImage,
                 ProjectLevel = projectLevel,
                 Resources = proposal.Resources,
                 EthicalConsiderations = proposal.EthicalConsiderations,

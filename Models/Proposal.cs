@@ -49,7 +49,7 @@ namespace FSSA.Models
         [Column("estimated_completion_date")]
         public DateTime EstimatedCompletionDate { get; set; }
 
-        
+
         [Column("status_id")]
         public int StatusId { get; set; }
 
@@ -62,5 +62,9 @@ namespace FSSA.Models
         [Required]
         [Column("submitted_by")]
         public int SubmittedBy { get; set; }
+        
+        [Column("method_image")]
+        [Display(Name = "Method Image")]
+        public string? MethodImage { get; set; }
     }
 }

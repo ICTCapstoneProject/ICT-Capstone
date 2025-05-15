@@ -6,7 +6,7 @@
 
 <h1>Make a New Proposal</h1>
 
-<form id="proposalForm" asp-action="Create" method="post">
+<form id="proposalForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
         <input asp-for="Title" class="form-control" />
@@ -25,6 +25,24 @@
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
+   <div class="mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <label for="MethodImage" class="btn btn-outline-primary d-inline-flex align-items-center mb-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2-open me-2" viewBox="0 0 16 16">
+                <path d="M1.5 3a.5.5 0 0 0-.5.5V5h3.837a2 2 0 0 0 1.789-1.106l.518-1.034A.5.5 0 0 1 7.5 2h7a.5.5 0 0 1 .5.5V4H15a1 1 0 0 1 .984 1.175l-1.5 8A1 1 0 0 1 13.5 14h-10a1 1 0 0 1-.984-.825l-1.5-8A1 1 0 0 1 1.5 4V3zm13.393 2H7.437a1 1 0 0 1-.894-.553L6.11 4H1.561l1.5 8h10l1.5-8z"/>
+            </svg>
+        </label>
+
+        <small class="text-muted">
+            <span class="d-block">Optionally, Upload Media Associated to Method Contents:</span>
+            <a href="#" id="methodFileLink" class="fst-italic text-primary small text-decoration-underline d-none"
+               data-bs-toggle="modal" data-bs-target="#previewModal"></a>
+            <button type="button" id="clearFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
+        </small>
+    </div>
+
+    <input type="file" id="MethodImage" name="MethodImage" class="d-none" onchange="updateMethodFileName()" />
+</div>
     <div class="mb-3">
         <label class="form-label">Project Level</label>
         <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
@@ -82,7 +100,19 @@
         </div>
     </div>
 </form>
-
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Method Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="#" class="img-fluid rounded shadow-sm" style="max-width: 100%; max-height: 500px; object-fit: contain;" " />
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -100,6 +130,54 @@
                     }
                 });
             }
+        });
+    </script>
+
+     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("proposalForm");
+            const triggerBtn = document.getElementById("triggerModalBtn");
+            const modalEl = document.getElementById("confirmModal");
+
+            const clearBtn = document.getElementById('clearFileBtn');
+            const fileInput = document.getElementById('MethodImage');
+            const fileLink = document.getElementById('methodFileLink');
+            const previewImg = document.getElementById('previewImage');
+
+            if (form && triggerBtn && modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                triggerBtn.addEventListener("click", function () {
+                    if ($(form).valid()) {
+                        modal.show();
+                    }
+                });
+            }
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    fileLink.textContent = file.name;
+                    fileLink.classList.remove("d-none");
+                    clearBtn.style.display = 'inline-block';
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileLink.textContent = '';
+                    fileLink.classList.add("d-none");
+                    clearBtn.style.display = 'none';
+                    previewImg.src = '#';
+                }
+            });
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileLink.textContent = '';
+                fileLink.classList.add("d-none");
+                clearBtn.style.display = 'none';
+                previewImg.src = '#';
+            });
         });
     </script>
 }
