@@ -6,7 +6,7 @@
 
 <h1>Make a New Proposal</h1>
 
-<form id="proposalForm" asp-action="Create" method="post">
+<form id="proposalForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
         <input asp-for="Title" class="form-control" />
@@ -25,6 +25,22 @@
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
+   <div class="mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <label for="MethodImage" class="btn btn-outline-primary d-inline-flex align-items-center mb-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2-open me-2" viewBox="0 0 16 16">
+                <path d="M1.5 3a.5.5 0 0 0-.5.5V5h3.837a2 2 0 0 0 1.789-1.106l.518-1.034A.5.5 0 0 1 7.5 2h7a.5.5 0 0 1 .5.5V4H15a1 1 0 0 1 .984 1.175l-1.5 8A1 1 0 0 1 13.5 14h-10a1 1 0 0 1-.984-.825l-1.5-8A1 1 0 0 1 1.5 4V3zm13.393 2H7.437a1 1 0 0 1-.894-.553L6.11 4H1.561l1.5 8h10l1.5-8z"/>
+            </svg>
+        </label>
+
+        <small class="text-muted">
+            <span class="d-block">Optionally, Upload Media Associated to Method Contents:</span>
+            <span id="methodFileName" class="fst-italic text-primary small"></span>
+        </small>
+    </div>
+
+    <input type="file" id="MethodImage" name="MethodImage" class="d-none" onchange="updateMethodFileName()" />
+</div>
     <div class="mb-3">
         <label class="form-label">Project Level</label>
         <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
@@ -101,5 +117,17 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        function updateMethodFileName() {
+            const input = document.getElementById('MethodImage');
+            const display = document.getElementById('methodFileName');
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+            } else {
+                display.textContent = "";
+            }
+        }
     </script>
 }
