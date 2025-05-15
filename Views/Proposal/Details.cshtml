@@ -7,7 +7,36 @@
 
 <ul class="list-group mb-4">
     <li class="list-group-item"><strong>Synopsis:</strong> @Model.Synopsis</li>
-    <li class="list-group-item"><strong>Method:</strong> @Model.Method</li>
+    <li class="list-group-item">
+    <strong>Method: </strong><span class="mb-2">@Model.Method</span>
+    @if (!string.IsNullOrEmpty(Model.MethodImage))
+    {
+        <button type="button"
+                style="margin-left: 7px;"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center"
+                data-bs-toggle="modal"
+                data-bs-target="#methodImageModal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-folder2-open me-1" viewBox="0 0 16 16">
+                <path d="M1.5 3a.5.5 0 0 0-.5.5V5h3.837a2 2 0 0 0 1.789-1.106l.518-1.034A.5.5 0 0 1 7.5 2h7a.5.5 0 0 1 .5.5V4H15a1 1 0 0 1 .984 1.175l-1.5 8A1 1 0 0 1 13.5 14h-10a1 1 0 0 1-.984-.825l-1.5-8A1 1 0 0 1 1.5 4V3zm13.393 2H7.437a1 1 0 0 1-.894-.553L6.11 4H1.561l1.5 8h10l1.5-8z"/>
+            </svg>
+        </button>
+
+        <div class="modal fade" id="methodImageModal" tabindex="-1" aria-labelledby="methodImageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content shadow border-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="methodImageModalLabel">Method Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="@Model.MethodImage" alt="Method Image" class="img-fluid rounded shadow" style="max-width: 100%; max-height: 500px; object-fit: contain;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</li>
     <li class="list-group-item"><strong>Project Level:</strong> @Model.ProjectLevel</li>
     <li class="list-group-item"><strong>Resources:</strong> @Model.Resources</li>
     <li class="list-group-item"><strong>Ethical Considerations:</strong> @Model.EthicalConsiderations</li>

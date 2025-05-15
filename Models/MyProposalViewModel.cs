@@ -3,7 +3,7 @@ public class MyProposalViewModel
     public int Id { get; set; }
     public string Title { get; set; }
     public string Synopsis { get; set; }
-    public string Method {get; set; }
+    public string Method { get; set; }
     public string ProjectLevel { get; set; }
     public string Resources { get; set; }
     public string EthicalConsiderations { get; set; }
@@ -12,4 +12,5 @@ public class MyProposalViewModel
     public DateTime EstimatedCompletionDate { get; set; }
     public string SubmittedByName { get; set; }
     public string StatusName { get; set; }
+    public string MethodImage { get; set; } 
 }
