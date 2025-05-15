@@ -63,10 +63,7 @@
         <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
     </div>
 
-    <button type="button" class="btn btn-success mb-3" id="triggerModalBtn">
-        Submit
-    </button>
-
+    <button type="button" class="btn btn-success mb-3" id="triggerModalBtn">Submit</button>
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content shadow">
@@ -88,19 +85,21 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("proposalForm");
             const triggerBtn = document.getElementById("triggerModalBtn");
-            const modal = new bootstrap.Modal(document.getElementById("confirmModal"));
+            const modalEl = document.getElementById("confirmModal");
 
-            triggerBtn.addEventListener("click", function () {
-             
-                if ($(form).valid()) {
-                    modal.show(); 
-                }
-            });
+            if (form && triggerBtn && modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                triggerBtn.addEventListener("click", function () {
+                    if ($(form).valid()) {
+                        modal.show();
+                    }
+                });
+            }
         });
     </script>
 }

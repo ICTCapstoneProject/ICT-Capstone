@@ -64,19 +64,35 @@ public class HomeController : Controller
         var recentlyReviewed = _context.Proposals.Count(p => p.StatusId == 2 && p.UpdatedAt >= DateTime.Now.AddDays(-7));
         var recentlyCommented = _context.Comments.Count(c => c.Timestamp >= DateTime.Now.AddDays(-7));
 
-        var recentActivities = _context.Proposals
+        var recentActivities = _context.ProposalLogs
+            .OrderByDescending(log => log.Timestamp)
+            .Take(3)
+            .Join(_context.Proposals,
+                log => log.ProposalId,
+                p => p.Id,
+                (log, p) => new { log, p })
             .Join(_context.Users,
-                p => p.SubmittedBy,
+                combo => combo.log.ChangedBy,
                 u => u.UserId,
-                (p, u) => new { p, u })
-            .OrderByDescending(x => x.p.CreatedAt)
-            .AsEnumerable() 
+                (combo, u) => new
+                {
+                    ProposalId = combo.p.Id,
+                    combo.p.Title,
+                    combo.log.Action,
+                    combo.log.Timestamp,
+                    UserName = u.Name
+                })
+            .AsEnumerable()
             .Select(x => new DashboardActivity
             {
-                Description = $"Proposal #{x.p.Id}, <strong>'{x.p.Title}'</strong> was submitted by {x.u.Name}",
-                TimeAgo = GetTimeAgo(x.p.CreatedAt)
+                Description = x.Action switch
+                {
+                    "submitted" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-success'>submitted</span> by {x.UserName}",
+                    "modified" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-warning'>modified</span> by {x.UserName}",
+                    _ => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was updated by {x.UserName}"
+                },
+                TimeAgo = GetTimeAgo(x.Timestamp)
             })
-            .Take(3)
             .ToList();
         var model = new DashboardViewModel
         {

@@ -1,0 +1,165 @@
+@model FSSA.Models.Proposal
+
+@{
+    ViewData["Title"] = "Edit Proposal";
+}
+
+<h1>Edit Proposal</h1>
+
+<form id="proposalForm" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="StatusId" />
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Title</label>
+            <input class="form-control" value="@Model.Title" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Title</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Synopsis</label>
+            <textarea class="form-control" disabled>@Model.Synopsis</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Synopsis</label>
+            <textarea asp-for="Synopsis" class="form-control"></textarea>
+            <span asp-validation-for="Synopsis" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Method</label>
+            <textarea class="form-control" disabled>@Model.Method</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Method</label>
+            <textarea asp-for="Method" class="form-control"></textarea>
+            <span asp-validation-for="Method" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Project Level</label>
+            <input class="form-control" value="@ViewBag.CurrentLevelName" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Project Level</label>
+            <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
+                <option value="">-- Pick a Project Level --</option>
+            </select>
+            <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Resources</label>
+            <textarea class="form-control" disabled>@Model.Resources</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Resources</label>
+            <textarea asp-for="Resources" class="form-control"></textarea>
+            <span asp-validation-for="Resources" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Ethical Considerations</label>
+            <textarea class="form-control" disabled>@Model.EthicalConsiderations</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Ethical Considerations</label>
+            <textarea asp-for="EthicalConsiderations" class="form-control"></textarea>
+            <span asp-validation-for="EthicalConsiderations" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Outcomes</label>
+            <textarea class="form-control" disabled>@Model.Outcomes</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Outcomes</label>
+            <textarea asp-for="Outcomes" class="form-control"></textarea>
+            <span asp-validation-for="Outcomes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Milestones</label>
+            <textarea class="form-control" disabled>@Model.Milestones</textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Milestones</label>
+            <textarea asp-for="Milestones" class="form-control"></textarea>
+            <span asp-validation-for="Milestones" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-md-6">
+            <label class="form-label">Original Estimated Completion Date</label>
+            <input class="form-control" value="@Model.EstimatedCompletionDate.ToString("dd-MM-yyyy")" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">New Estimated Completion Date</label>
+            <input asp-for="EstimatedCompletionDate" class="form-control" type="date" value="" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-success mb-3" id="triggerModalBtn">Modify Proposal</button>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirm Edit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">You Are Rewriting An Existing Proposal. Publish?</p>
+                    <div class="alert alert-warning">
+                        NOTE: These Changes Will Be Broadcasted to the Dashboard!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Yes, Publish My Changes.</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("proposalForm");
+            const triggerBtn = document.getElementById("triggerModalBtn");
+            const modalEl = document.getElementById("confirmModal");
+
+            if (form && triggerBtn && modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                triggerBtn.addEventListener("click", function () {
+                    if ($(form).valid()) {
+                        modal.show();
+                    }
+                });
+            }
+        });
+    </script>
+}

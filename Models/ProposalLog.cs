@@ -24,5 +24,9 @@ namespace FSSA.Models
 
         [Column("timestamp")]
         public DateTime Timestamp { get; set; }
+        
+        [Required]
+        [Column("action")]
+        public string Action { get; set; }
     }
 }

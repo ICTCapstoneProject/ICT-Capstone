@@ -27,6 +27,20 @@
                         <i class="bi bi-pencil-square"></i> Proposal Creation
                     </a>
                 </li>
+
+                @* Show 'View Proposals' link to all authenticated users *@
+                @{
+                    var userRole = User.FindFirst("Role")?.Value;
+                    if (!string.IsNullOrEmpty(userRole))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Proposal" asp-action="ViewProposals">
+                                <i class="bi bi-folder"></i> View Proposals
+                            </a>
+                        </li>
+                    }
+                }
+
                 <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
                         <i class="bi bi-shield-lock"></i> Privacy
