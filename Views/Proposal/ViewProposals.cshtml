@@ -3,7 +3,7 @@
     ViewData["Title"] = "Proposals";
     var role = (string)ViewBag.Role;
     var showingMine = (bool)ViewBag.ShowingMine;
-    var canToggle = role == "researcher" || role == "manager";
+    var canToggle = role == "researcher" || role == "manager" || role == "assistant director";
 }
 
 <h2>Proposals</h2>

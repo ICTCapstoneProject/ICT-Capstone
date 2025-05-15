@@ -127,7 +127,7 @@ namespace FSSA.Controllers
             }
 
             var role = user.Role.ToLower();
-            bool canToggle = role == "researcher" || role == "manager";
+            bool canToggle = role == "researcher" || role == "manager" || role == "assistant director";
 
             List<MyProposalViewModel> proposals;
 
