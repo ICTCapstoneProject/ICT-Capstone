@@ -73,3 +73,7 @@ footer.footer {
   background-color: #f1f1f1;
   border-top: 1px solid #ccc;
 }
+
+.edit-highlight {
+  background-color: #fff5f5 !important; 
+}

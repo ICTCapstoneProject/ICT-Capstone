@@ -88,7 +88,7 @@ public class HomeController : Controller
                 Description = x.Action switch
                 {
                     "submitted" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-success'>submitted</span> by {x.UserName}",
-                    "modified" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-warning'>edited</span> by {x.UserName}",
+                    "modified" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-warning'>modified</span> by {x.UserName}",
                     _ => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was updated by {x.UserName}"
                 },
                 TimeAgo = GetTimeAgo(x.Timestamp)

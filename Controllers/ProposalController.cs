@@ -4,6 +4,7 @@ using FSSA.Models;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace FSSA.Controllers
 {
@@ -73,7 +74,7 @@ namespace FSSA.Controllers
                     ProposalId = proposal.Id,
                     StatusId = proposal.StatusId,
                     ChangedBy = proposal.SubmittedBy,
-                    Action = "submitted", // NEW LINE
+                    Action = "submitted",
                     Timestamp = DateTime.Now
                 });
                 _context.SaveChanges();
@@ -241,14 +242,7 @@ namespace FSSA.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.ProjectLevels = _context.ProjectLevels
-                    .Select(PlatformID => new SelectListItem
-                    {
-                        Value = PlatformID.LevelId.ToString(),
-                        Text = PlatformID.LevelName
-                    }).ToList();
-
-                    return View(updatedProposal);
+                return View(updatedProposal);
             }
 
             var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == updatedProposal.Id);
@@ -257,6 +251,22 @@ namespace FSSA.Controllers
                 return NotFound();
             }
 
+            // Store old values first
+            var originalClone = new Proposal
+            {
+                Title = existingProposal.Title,
+                Synopsis = existingProposal.Synopsis,
+                Method = existingProposal.Method,
+                ProjectLevelId = existingProposal.ProjectLevelId,
+                Resources = existingProposal.Resources,
+                EthicalConsiderations = existingProposal.EthicalConsiderations,
+                Outcomes = existingProposal.Outcomes,
+                Milestones = existingProposal.Milestones,
+                EstimatedCompletionDate = existingProposal.EstimatedCompletionDate,
+                SubmittedBy = existingProposal.SubmittedBy
+            };
+
+            // Then update
             existingProposal.Title = updatedProposal.Title;
             existingProposal.Synopsis = updatedProposal.Synopsis;
             existingProposal.Method = updatedProposal.Method;
@@ -269,6 +279,7 @@ namespace FSSA.Controllers
             existingProposal.UpdatedAt = DateTime.Now;
 
             _context.SaveChanges();
+
             var email = User.Identity?.Name;
             var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
 
@@ -277,13 +288,47 @@ namespace FSSA.Controllers
                 ProposalId = existingProposal.Id,
                 StatusId = existingProposal.StatusId,
                 ChangedBy = userId,
-                Action = "modified", 
+                Action = "modified",
                 Timestamp = DateTime.Now
             });
             _context.SaveChanges();
 
-            return RedirectToAction("Details", new {id = updatedProposal.Id});
+            var submitter = _context.Users.FirstOrDefault(u => u.UserId == existingProposal.SubmittedBy);
+            var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == existingProposal.ProjectLevelId);
 
+            // Finally, use old states and pass through ViewBag
+            ViewBag.Original = originalClone;
+            ViewBag.OriginalLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == originalClone.ProjectLevelId)?.LevelName ?? "Unknown";
+            ViewBag.SubmitterName = submitter?.Name ?? "Unknown";
+            ViewBag.LevelName = level?.LevelName ?? "Unknown";
+
+            return View("EditSuccess", existingProposal);
+        }
+
+        public IActionResult EditSuccess(int id)
+        {
+            var updated = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (updated == null) return NotFound();
+
+            var originalLog = _context.ProposalLogs
+                .Where(log => log.ProposalId == id && log.Action == "submitted")
+                .OrderBy(log => log.Timestamp)
+                .FirstOrDefault();
+
+            var original = originalLog != null
+                ? _context.Proposals.AsNoTracking().FirstOrDefault(p => p.Id == id)
+                : updated;
+
+            var user = _context.Users.FirstOrDefault(u => u.UserId == updated.SubmittedBy);
+            var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == updated.ProjectLevelId);
+            var origLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == original.ProjectLevelId);
+
+            ViewBag.SubmitterName = user?.Name ?? "Unknown";
+            ViewBag.LevelName = level?.LevelName ?? "Unknown";
+            ViewBag.Original = original;
+            ViewBag.OriginalLevel = origLevel?.LevelName ?? "Unknown";
+
+            return View("EditSuccess", updated);
         }
 
     }
