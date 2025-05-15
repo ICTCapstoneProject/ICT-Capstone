@@ -211,12 +211,16 @@ namespace FSSA.Controllers
             }
 
             ViewBag.ProjectLevels = _context.ProjectLevels
-            .Select(pl => new SelectListItem
-            {
-                Value = pl.LevelId.ToString(),
-                Text = pl.LevelName
-            })
-            .ToList();
+                .Select(pl => new SelectListItem
+                {
+                    Value = pl.LevelId.ToString(),
+                    Text = pl.LevelName
+                })
+                .ToList();
+
+            ViewBag.CurrentLevelName = _context.ProjectLevels
+                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
             return View(proposal);
         }
 
