@@ -14,9 +14,10 @@
     <li class="list-group-item"><strong>Outcomes:</strong> @Model.Outcomes</li>
     <li class="list-group-item"><strong>Milestones:</strong> @Model.Milestones</li>
     <li class="list-group-item"><strong>Estimated Completion Date:</strong> @Model.EstimatedCompletionDate.ToShortDateString()</li>
+    <li class="list-group-item"><strong>Author:</strong> @Model.SubmittedByName</li>
 </ul>
 
 <div class="d-flex gap-2 mt-3">
-    <a class="btn btn-secondary" asp-action="MyProposals">Back to My Proposals</a>
+    <a class="btn btn-secondary" asp-action="ViewProposals">Back to Proposals</a>
     <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit Proposal</a>
 </div>

@@ -28,14 +28,14 @@
                     </a>
                 </li>
 
-                @* Only display 'My Proposals' button for Researcher users *@
+                @* Show 'View Proposals' link to all authenticated users *@
                 @{
                     var userRole = User.FindFirst("Role")?.Value;
-                    if (userRole == "Researcher")
+                    if (!string.IsNullOrEmpty(userRole))
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Proposal" asp-action="MyProposals">
-                                <i class="bi bi-folder"></i> My Proposals
+                            <a class="nav-link" asp-controller="Proposal" asp-action="ViewProposals">
+                                <i class="bi bi-folder"></i> View Proposals
                             </a>
                         </li>
                     }

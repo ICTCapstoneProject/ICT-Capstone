@@ -1,0 +1,67 @@
+@model List<MyProposalViewModel>
+@{
+    ViewData["Title"] = "Proposals";
+    var isResearcher = (string)ViewBag.Role == "researcher";
+    var showingMine = (bool)ViewBag.ShowingMine;
+}
+
+<h2>Proposals</h2>
+
+@if (isResearcher)
+{
+    <form id="toggleForm" method="get" asp-action="ViewProposals">
+        <div class="form-check form-switch mb-4">
+            <input class="form-check-input" type="checkbox" id="proposalToggle" name="showOnlyMine" value="true" @(showingMine ? "checked" : "")>
+            <label class="form-check-label" for="proposalToggle">
+                @(showingMine ? "Submitted by You" : "All Proposals")
+            </label>
+        </div>
+    </form>
+
+    <script>
+        document.getElementById('proposalToggle').addEventListener('change', function () {
+            // When unchecked, we still need to submit 'false', so override manually
+            if (!this.checked) {
+                this.value = "false";
+                // Ensure form sends correct value
+                let hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "showOnlyMine";
+                hiddenInput.value = "false";
+                this.form.appendChild(hiddenInput);
+            }
+            this.form.submit();
+        });
+    </script>
+}
+
+@if (Model != null && Model.Any())
+{
+    foreach (var p in Model)
+    {
+        <a asp-controller="Proposal" asp-action="Details" asp-route-id="@p.Id" style="text-decoration: none; color: inherit;">
+            <div class="card mb-5 shadow-sm" style="border: 1px solid #ccc;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Proposal #@p.Id: @p.Title</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Synopsis:</strong> @p.Synopsis</p>
+                    <p><strong>Project Level:</strong> @p.ProjectLevel</p>
+                    <p><strong>Estimated Completion Date:</strong> @p.EstimatedCompletionDate.ToShortDateString()</p>
+                    <p><strong>Submitted By:</strong> @p.SubmittedByName</p>
+                </div>
+            </div>
+        </a>
+    }
+}
+else
+{
+    if (isResearcher && showingMine)
+    {
+        <p>You haven't submitted any proposals yet.</p>
+    }
+    else
+    {
+        <p>No proposals available.</p>
+    }
+}

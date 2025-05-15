@@ -102,7 +102,7 @@ namespace FSSA.Controllers
         }
 
 
-        public IActionResult MyProposals()
+        public IActionResult ViewProposals(bool showOnlyMine = false)
         {
             var email = User.Identity?.Name;
             if (string.IsNullOrEmpty(email))
@@ -111,27 +111,63 @@ namespace FSSA.Controllers
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
-            if (user == null || !string.Equals(user.Role, "researcher", StringComparison.OrdinalIgnoreCase))
+            if (user == null)
             {
                 return Unauthorized();
             }
 
-            var proposals = _context.Proposals
-                .Where(p => p.SubmittedBy == user.UserId)
-                .Join(_context.ProjectLevels,
-                    p => p.ProjectLevelId,
-                    pl => pl.LevelId,
-                    (p, pl) => new MyProposalViewModel
-                    {
-                        Id = p.Id,
-                        Title = p.Title,
-                        Synopsis = p.Synopsis,
-                        ProjectLevel = pl.LevelName,
-                        EstimatedCompletionDate = p.EstimatedCompletionDate
-                    })
-                .ToList();
+            bool isResearcher = user.Role.Equals("Researcher", StringComparison.OrdinalIgnoreCase);
 
-            return View(proposals);
+            List<MyProposalViewModel> proposals;
+
+            if (isResearcher && showOnlyMine)
+            {
+                proposals = _context.Proposals
+                    .Where(p => p.SubmittedBy == user.UserId)
+                    .Join(_context.ProjectLevels,
+                        p => p.ProjectLevelId,
+                        pl => pl.LevelId,
+                        (p, pl) => new { p, pl })
+                    .Join(_context.Users,
+                        combo => combo.p.SubmittedBy,
+                        u => u.UserId,
+                        (combo, u) => new MyProposalViewModel
+                        {
+                            Id = combo.p.Id,
+                            Title = combo.p.Title,
+                            Synopsis = combo.p.Synopsis,
+                            ProjectLevel = combo.pl.LevelName,
+                            EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
+                            SubmittedByName = u.Name
+                        })
+                    .ToList();
+            }
+            else
+            {
+                proposals = _context.Proposals
+                    .Join(_context.ProjectLevels,
+                        p => p.ProjectLevelId,
+                        pl => pl.LevelId,
+                        (p, pl) => new { p, pl })
+                    .Join(_context.Users,
+                        combo => combo.p.SubmittedBy,
+                        u => u.UserId,
+                        (combo, u) => new MyProposalViewModel
+                        {
+                            Id = combo.p.Id,
+                            Title = combo.p.Title,
+                            Synopsis = combo.p.Synopsis,
+                            ProjectLevel = combo.pl.LevelName,
+                            EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
+                            SubmittedByName = u.Name
+                        })
+                    .ToList();
+            }
+
+            ViewBag.Role = user.Role.ToLower();         // This is for controlling toggle visibility
+            ViewBag.ShowingMine = showOnlyMine;         // And this is to determine the toggle state
+
+            return View("ViewProposals", proposals);
         }
 
 
@@ -143,7 +179,9 @@ namespace FSSA.Controllers
                 return NotFound();
             }
 
-            var projectLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+            var projectLevel = _context.ProjectLevels
+                                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
 
             var model = new MyProposalViewModel
             {
@@ -156,7 +194,8 @@ namespace FSSA.Controllers
                 EthicalConsiderations = proposal.EthicalConsiderations,
                 Outcomes = proposal.Outcomes,
                 Milestones = proposal.Milestones,
-                EstimatedCompletionDate = proposal.EstimatedCompletionDate        
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate,
+                SubmittedByName = user?.Name ?? "Unknown"
             };
 
             return View(model);

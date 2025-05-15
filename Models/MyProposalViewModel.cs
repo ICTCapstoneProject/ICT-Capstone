@@ -10,4 +10,5 @@ public class MyProposalViewModel
     public string Outcomes { get; set; }
     public string Milestones { get; set; }
     public DateTime EstimatedCompletionDate { get; set; }
+    public string SubmittedByName { get; set; }
 }
