@@ -126,11 +126,12 @@ namespace FSSA.Controllers
                 return Unauthorized();
             }
 
-            bool isResearcher = user.Role.Equals("Researcher", StringComparison.OrdinalIgnoreCase);
+            var role = user.Role.ToLower();
+            bool canToggle = role == "researcher" || role == "manager";
 
             List<MyProposalViewModel> proposals;
 
-            if (isResearcher && showOnlyMine)
+            if (canToggle && showOnlyMine)
             {
                 proposals = _context.Proposals
                     .Where(p => p.SubmittedBy == user.UserId)
@@ -142,7 +143,7 @@ namespace FSSA.Controllers
                         combo => combo.p.SubmittedBy,
                         u => u.UserId,
                         (combo, u) => new { combo.p, combo.pl, u })
-                    .Join(_context.Statuses,                      
+                    .Join(_context.Statuses,
                         combo => combo.p.StatusId,
                         s => s.StatusId,
                         (combo, s) => new MyProposalViewModel
@@ -153,36 +154,36 @@ namespace FSSA.Controllers
                             ProjectLevel = combo.pl.LevelName,
                             EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
                             SubmittedByName = combo.u.Name,
-                            StatusName = s.StatusName             
+                            StatusName = s.StatusName
                         })
                     .ToList();
             }
             else
-                {
-                    proposals = _context.Proposals
-                        .Join(_context.ProjectLevels,
-                            p => p.ProjectLevelId,
-                            pl => pl.LevelId,
-                            (p, pl) => new { p, pl })
-                        .Join(_context.Users,
-                            combo => combo.p.SubmittedBy,
-                            u => u.UserId,
-                            (combo, u) => new { combo.p, combo.pl, u })
-                        .Join(_context.Statuses,                      
-                            combo => combo.p.StatusId,
-                            s => s.StatusId,
-                            (combo, s) => new MyProposalViewModel
-                            {
-                                Id = combo.p.Id,
-                                Title = combo.p.Title,
-                                Synopsis = combo.p.Synopsis,
-                                ProjectLevel = combo.pl.LevelName,
-                                EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
-                                SubmittedByName = combo.u.Name,
-                                StatusName = s.StatusName             
-                            })
-                        .ToList();
-                }
+            {
+                proposals = _context.Proposals
+                    .Join(_context.ProjectLevels,
+                        p => p.ProjectLevelId,
+                        pl => pl.LevelId,
+                        (p, pl) => new { p, pl })
+                    .Join(_context.Users,
+                        combo => combo.p.SubmittedBy,
+                        u => u.UserId,
+                        (combo, u) => new { combo.p, combo.pl, u })
+                    .Join(_context.Statuses,
+                        combo => combo.p.StatusId,
+                        s => s.StatusId,
+                        (combo, s) => new MyProposalViewModel
+                        {
+                            Id = combo.p.Id,
+                            Title = combo.p.Title,
+                            Synopsis = combo.p.Synopsis,
+                            ProjectLevel = combo.pl.LevelName,
+                            EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
+                            SubmittedByName = combo.u.Name,
+                            StatusName = s.StatusName
+                        })
+                    .ToList();
+            }
 
             ViewBag.Role = user.Role.ToLower();         // This is for controlling toggle visibility
             ViewBag.ShowingMine = showOnlyMine;         // And this is to determine the toggle state

@@ -1,13 +1,14 @@
 @model List<MyProposalViewModel>
 @{
     ViewData["Title"] = "Proposals";
-    var isResearcher = (string)ViewBag.Role == "researcher";
+    var role = (string)ViewBag.Role;
     var showingMine = (bool)ViewBag.ShowingMine;
+    var canToggle = role == "researcher" || role == "manager";
 }
 
 <h2>Proposals</h2>
 
-@if (isResearcher)
+@if (canToggle)
 {
     <form id="toggleForm" method="get" asp-action="ViewProposals">
         <div class="form-check form-switch mb-4">
@@ -68,5 +69,5 @@
 }
 else
 {
-    <p>@(isResearcher && showingMine ? "You haven't submitted any proposals yet." : "No proposals available.")</p>
+    <p>@(canToggle && showingMine ? "You haven't submitted any proposals yet." : "No proposals available.")</p>
 }
