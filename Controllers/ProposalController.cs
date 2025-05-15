@@ -387,6 +387,7 @@ namespace FSSA.Controllers
                         Title = combo.p.Title,
                         Synopsis = combo.p.Synopsis,
                         Method = combo.p.Method,
+                        MethodImage = combo.p.MethodImage,
                         ProjectLevel = combo.pl.LevelName,
                         Resources = combo.p.Resources,
                         EthicalConsiderations = combo.p.EthicalConsiderations,
