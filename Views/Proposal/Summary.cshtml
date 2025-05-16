@@ -1,21 +1,30 @@
 ﻿@model MyProposalViewModel
+
 @{
     ViewData["Title"] = "Proposal Summary";
 }
 
+<!-- Display the proposal title -->
 <h2>@Model.Title</h2>
 
+<!-- Summary content container -->
 <div class="summary-section">
     <dl class="row">
+
+        <!-- Table fields to be displayed  -->
+        <!-- Submitted By -->
         <dt class="col-sm-3">Submitted By</dt>
         <dd class="col-sm-9">@Model.SubmittedByName</dd>
 
+        <!-- Status -->
         <dt class="col-sm-3">Status</dt>
         <dd class="col-sm-9">@Model.StatusName</dd>
 
+        <!-- Project Level -->
         <dt class="col-sm-3">Project Level</dt>
         <dd class="col-sm-9">@Model.ProjectLevel</dd>
 
+        <!-- Synopsis (reduced, with toggle to allow expansion) -->
         <dt class="col-sm-3">Synopsis</dt>
         <dd class="col-sm-9">
             <span id="synopsisPreview">
@@ -28,6 +37,7 @@
             </span>
         </dd>
 
+        <!-- Method (reduced, with toggle to allow expansion) -->
         <dt class="col-sm-3">Method</dt>
         <dd class="col-sm-9">
             <span id="methodPreview">
@@ -40,6 +50,7 @@
             </span>
         </dd>
 
+        <!-- Outcomes (reduced, with toggle to allow expansion) -->
         <dt class="col-sm-3">Outcomes</dt>
         <dd class="col-sm-9">
             <span id="outcomesPreview">
@@ -52,16 +63,21 @@
             </span>
         </dd>
 
+        <!-- Resource -->
         <dt class="col-sm-3">Resources</dt>
         <dd class="col-sm-9">@Model.Resources</dd>
 
+        <!-- Ethical Considerations -->
         <dt class="col-sm-3">Ethical Considerations</dt>
         <dd class="col-sm-9">@Model.EthicalConsiderations</dd>
 
+        <!-- Milestones -->
         <dt class="col-sm-3">Milestones</dt>
         <dd class="col-sm-9">@Model.Milestones</dd>
 
+        <!-- Estimated completion date -->
         <dt class="col-sm-3">Estimated Completion</dt>
         <dd class="col-sm-9">@Model.EstimatedCompletionDate.ToString("yyyy-MM-dd")</dd>
+
     </dl>
 </div>
