@@ -451,16 +451,24 @@ namespace FSSA.Controllers
         // Method for retrieving data for the Summary view
         public IActionResult Summary(int id)
         {
+            // Search for the Proposal using the Proposal ID
             var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+
+            // If the proposal is not found (null result), return NotFound
             if (proposal == null)
             {
                 return NotFound();
             }
 
+            // Search for user who created the proposal
             var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
-            var projectLevel = _context.ProjectLevels
-                                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
 
+            // Look up the name of the project level (e.g., Undergraduate, Graduate)
+            // If not found, return "Unknown"
+            var projectLevel = _context.ProjectLevels
+                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            // Collate the data to send to the view
             var model = new MyProposalViewModel
             {
                 Id = proposal.Id,
@@ -474,12 +482,12 @@ namespace FSSA.Controllers
                 Outcomes = proposal.Outcomes,
                 Milestones = proposal.Milestones,
                 EstimatedCompletionDate = proposal.EstimatedCompletionDate,
-                SubmittedByName = user?.Name ?? "Unknown",
+                SubmittedByName = user?.Name ?? "Unknown", // Use "Unknown" if user not found
                 StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown"
             };
 
+            // Return the "Summary" view and pass the data to it.
             return View("Summary", model);
         }
-
     }
 }
