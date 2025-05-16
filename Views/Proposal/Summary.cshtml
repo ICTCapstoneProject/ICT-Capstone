@@ -81,3 +81,22 @@
 
     </dl>
 </div>
+
+<!-- Javascript function to toggle Synopsis, Method, and Outcomes fields -->
+@section Scripts {
+    <script>
+        function toggle(section) {
+            const preview = document.getElementById(section + 'Preview');
+            const full = document.getElementById(section + 'Full');
+
+            // Handling for blank data fields
+            if (preview.style.display === 'none') {
+                preview.style.display = '';
+                full.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                full.style.display = '';
+            }
+        }
+    </script>
+}
