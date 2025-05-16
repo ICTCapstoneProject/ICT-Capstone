@@ -31,7 +31,7 @@ namespace FSSA.Controllers
             return View();
         }
 
-        
+
 
         // POST: /Proposal/Create
         [HttpPost]
@@ -55,7 +55,7 @@ namespace FSSA.Controllers
                 proposal.CreatedAt = DateTime.Now;
                 proposal.UpdatedAt = DateTime.Now;
 
-                
+
                 if (MethodImage != null && MethodImage.Length > 0)
                 {
                     var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
@@ -230,7 +230,7 @@ namespace FSSA.Controllers
 
             return View(model);
         }
-        
+
 
         public IActionResult Edit(int id)
         {
@@ -411,7 +411,7 @@ namespace FSSA.Controllers
             if (EndDate.HasValue)
                 query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
 
-        
+
             // Search Keyword
             if (!string.IsNullOrEmpty(SearchKeyword))
                 query = query.Where(p => p.Title.Contains(SearchKeyword));
@@ -447,5 +447,39 @@ namespace FSSA.Controllers
 
             return View(viewModel);
         }
+
+        // Method for retrieving data for the Summary view
+        public IActionResult Summary(int id)
+        {
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+            var projectLevel = _context.ProjectLevels
+                                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            var model = new MyProposalViewModel
+            {
+                Id = proposal.Id,
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                MethodImage = proposal.MethodImage,
+                ProjectLevel = projectLevel,
+                Resources = proposal.Resources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate,
+                SubmittedByName = user?.Name ?? "Unknown",
+                StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown"
+            };
+
+            return View("Summary", model);
+        }
+
     }
 }
