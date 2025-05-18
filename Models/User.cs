@@ -24,9 +24,8 @@ namespace FSSA.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
-
         
-        [Column("role")]
-        public string Role { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; }
+
     }
 }

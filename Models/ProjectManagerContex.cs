@@ -23,6 +23,8 @@ namespace FSSA.Models
         public DbSet<Comment> Comments { get; set; }
         public DbSet<EthicsReview> EthicsReviews { get; set; }
 
+        public DbSet<UserRole> UserRoles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -40,10 +42,24 @@ namespace FSSA.Models
             modelBuilder.Entity<Review>().ToTable("reviews");
             modelBuilder.Entity<Comment>().ToTable("comments");
             modelBuilder.Entity<EthicsReview>().ToTable("ethics_review");
+            modelBuilder.Entity<UserRole>().ToTable("user_roles");
 
             // This down here is a composite primary key for UserGroup
             modelBuilder.Entity<UserGroup>()
                 .HasKey(ug => new { ug.UserId, ug.GroupId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new {ur.UserId, ur.RoleId});
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
+            
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany()
+                .HasForeignKey(ur => ur.RoleId);
         }
     }
 }

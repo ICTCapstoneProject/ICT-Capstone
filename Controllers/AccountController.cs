@@ -3,6 +3,7 @@ using FSSA.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProjectManagerMvc.Controllers
 {
@@ -29,19 +30,26 @@ namespace ProjectManagerMvc.Controllers
         public async Task<IActionResult> Login(string email, string password)
         {
             // Find exist user with matching email and password
-            var user = _context.Users
-                .FirstOrDefault(u => u.Email == email && u.PasswordHash == password);
+            var userWithRoles = _context.Users
+                .Where(u => u.Email == email && u.PasswordHash == password)
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefault();
 
-            if (user != null)
+            if (userWithRoles != null)
             {   
                 // Create a list of user identity info
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim("UserId", user.UserId.ToString()),
-                    new Claim("Role", user.Role ?? "")
+                    new Claim(ClaimTypes.Name, userWithRoles.Email),
+                    new Claim(ClaimTypes.Email, userWithRoles.Email),
+                    new Claim("UserId", userWithRoles.UserId.ToString()),
                 };
+
+                foreach (var role in userWithRoles.UserRoles.Select(ur => ur.Role.RoleName))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
 
                 // Create the identity and principal for cookie
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

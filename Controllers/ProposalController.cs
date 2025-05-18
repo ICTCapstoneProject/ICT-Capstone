@@ -131,9 +131,8 @@ namespace FSSA.Controllers
             {
                 return Unauthorized();
             }
-
-            var role = user.Role.ToLower();
-            bool canToggle = role == "researcher" || role == "manager" || role == "assistant director";
+            
+            bool canToggle = User.IsInRole("researcher") || User.IsInRole("manager") || User.IsInRole("assistant director");
 
             List<MyProposalViewModel> proposals;
 
@@ -193,7 +192,7 @@ namespace FSSA.Controllers
                     .ToList();
             }
 
-            ViewBag.Role = user.Role.ToLower();         // This is for controlling toggle visibility
+            ViewBag.canToggle = canToggle;         // This is for controlling toggle visibility
             ViewBag.ShowingMine = showOnlyMine;         // And this is to determine the toggle state
 
             return View("ViewProposals", proposals);
