@@ -7,6 +7,12 @@
 <!-- Display the proposal title -->
 <h2>@Model.Title</h2>
 
+<!-- Navigation buttons -->
+<div class="d-flex gap-2 mt-3">
+    <a class="btn btn-dark" asp-action="Search">Back to Proposals</a>
+    <a class="btn btn-warning" asp-action="Details" asp-route-id="@Model.Id">Detail View</a>
+</div>
+
 <!-- Summary content container -->
 <div class="summary-section">
     <dl class="row">
