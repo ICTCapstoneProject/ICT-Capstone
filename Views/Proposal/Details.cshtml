@@ -5,6 +5,13 @@
 
 <h2>@Model.Title</h2>
 
+<!-- Navigation Buttons-->
+<div class="d-flex gap-2 mt-3">
+    <a class="btn btn-dark" asp-action="Search">Back to Proposals</a>
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit Proposal</a>
+    <a class="btn btn-info" asp-action="Summary" asp-route-id="@Model.Id">Summary</a>
+</div>
+
 <ul class="list-group mb-4">
     <li class="list-group-item"><strong>Synopsis:</strong> @Model.Synopsis</li>
     <li class="list-group-item">
@@ -45,8 +52,3 @@
     <li class="list-group-item"><strong>Estimated Completion Date:</strong> @Model.EstimatedCompletionDate.ToString("dd/MM/yyyy")</li>
     <li class="list-group-item"><strong>Author:</strong> @Model.SubmittedByName</li>
 </ul>
-
-<div class="d-flex gap-2 mt-3">
-    <a class="btn btn-dark" asp-action="Search">Back to Proposals</a>
-    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit Proposal</a>
-</div>
