@@ -37,7 +37,7 @@ namespace ProjectManagerMvc.Controllers
                 .FirstOrDefault();
 
             if (userWithRoles != null)
-            {   
+            {
                 // Create a list of user identity info
                 var claims = new List<Claim>
                 {
@@ -64,7 +64,13 @@ namespace ProjectManagerMvc.Controllers
             ViewBag.Email = email;
             ViewBag.ErrorMessage = "Your password is incorrect";
             return View();
-        
+
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Login", "Account");
         }
     
     }
