@@ -13,7 +13,7 @@
 </div>
 
 <ul class="list-group mb-4">
-    <li class="list-group-item"><strong>Synopsis:</strong> @Model.Synopsis</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Synopsis):</strong> @Model.Synopsis</li>
     <li class="list-group-item">
     <strong>Method: </strong><span class="mb-2">@Model.Method</span>
     @if (!string.IsNullOrEmpty(Model.MethodImage))
@@ -33,7 +33,7 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content shadow border-0">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="methodImageModalLabel">Method Image</h5>
+                        <h5 class="modal-title" id="methodImageModalLabel">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.MethodImage)</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
@@ -44,11 +44,11 @@
         </div>
     }
 </li>
-    <li class="list-group-item"><strong>Project Level:</strong> @Model.ProjectLevel</li>
-    <li class="list-group-item"><strong>Resources:</strong> @Model.Resources</li>
-    <li class="list-group-item"><strong>Ethical Considerations:</strong> @Model.EthicalConsiderations</li>
-    <li class="list-group-item"><strong>Outcomes:</strong> @Model.Outcomes</li>
-    <li class="list-group-item"><strong>Milestones:</strong> @Model.Milestones</li>
-    <li class="list-group-item"><strong>Estimated Completion Date:</strong> @Model.EstimatedCompletionDate.ToString("dd/MM/yyyy")</li>
-    <li class="list-group-item"><strong>Author:</strong> @Model.SubmittedByName</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.ProjectLevel):</strong> @Model.ProjectLevel</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Resources):</strong> @Model.Resources</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.EthicalConsiderations):</strong> @Model.EthicalConsiderations</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Outcomes):</strong> @Model.Outcomes</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Milestones):</strong> @Model.Milestones</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.EstimatedCompletionDate):</strong> @Model.EstimatedCompletionDate.ToString("dd/MM/yyyy")</li>
+    <li class="list-group-item"><strong>@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.SubmittedByName):</strong> @Model.SubmittedByName</li>
 </ul>
