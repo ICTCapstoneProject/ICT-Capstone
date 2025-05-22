@@ -44,6 +44,7 @@
         <label class="form-label">Project Level</label>
         <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
             <option value="">-- Pick a Project Level --</option>
+            <option value="custom">Custom</option>
         </select>
         <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
     </div>
@@ -97,6 +98,26 @@
         </div>
     </div>
 </form>
+
+<div class="modal fade" id="customLevelModal" tabindex="-1" role="dialog" aria-labelledby="customLevelModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="customLevelForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Custom Project Level</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control" id="customLevelInput" placeholder="Enter custom level..." required />
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Level</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
