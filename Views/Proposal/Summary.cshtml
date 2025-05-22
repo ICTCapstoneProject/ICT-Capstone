@@ -19,20 +19,20 @@
 
         <!-- Table fields to be displayed  -->
         <!-- Submitted By -->
-        <dt class="col-sm-3">Submitted By</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.SubmittedByName)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.SubmittedByName) ? Model.SubmittedByName : "(No data available)")</dd>
 
 
         <!-- Status -->
-        <dt class="col-sm-3">Status</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.StatusName)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.StatusName) ? Model.StatusName : "(No data available)")</dd>
 
         <!-- Project Level -->
-        <dt class="col-sm-3">Project Level</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.ProjectLevel)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.ProjectLevel) ? Model.ProjectLevel : "(No data available)")</dd>
 
         <!-- Synopsis (reduced, with toggle to allow expansion) -->
-        <dt class="col-sm-3">Synopsis</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Synopsis)</dt>
         <dd class="col-sm-9">
             @if (!string.IsNullOrWhiteSpace(Model.Synopsis))
             {
@@ -53,7 +53,7 @@
 
 
         <!-- Method (reduced, with toggle to allow expansion) -->
-        <dt class="col-sm-3">Method</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Method)</dt>
         <dd class="col-sm-9">
             @if (!string.IsNullOrWhiteSpace(Model.Method))
             {
@@ -73,7 +73,7 @@
         </dd>
 
         <!-- Outcomes (reduced, with toggle to allow expansion) -->
-        <dt class="col-sm-3">Outcomes</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Outcomes)</dt>
         <dd class="col-sm-9">
             @if (!string.IsNullOrWhiteSpace(Model.Outcomes))
             {
@@ -93,20 +93,20 @@
         </dd>
 
         <!-- Resource -->
-        <dt class="col-sm-3">Resources</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Resources)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.Resources) ? Model.Resources : "(No data available)")</dd>
 
 
         <!-- Ethical Considerations -->
-        <dt class="col-sm-3">Ethical Considerations</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.EthicalConsiderations)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.EthicalConsiderations) ? Model.EthicalConsiderations : "(No data available)")</dd>
 
         <!-- Milestones -->
-        <dt class="col-sm-3">Milestones</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.Milestones)</dt>
         <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(Model.Milestones) ? Model.Milestones : "(No data available)")</dd>
 
         <!-- Estimated completion date -->
-        <dt class="col-sm-3">Estimated Completion</dt>
+        <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.EstimatedCompletionDate)</dt>
         <dd class="col-sm-9">@((Model.EstimatedCompletionDate != DateTime.MinValue) ? Model.EstimatedCompletionDate.ToString("yyyy-MM-dd") : "(No date provided)")</dd>
 
     </dl>
