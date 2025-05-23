@@ -99,8 +99,29 @@ public class AdminController : Controller
             _context.UserRoles.Add(new UserRole { UserId = user.UserId, RoleId = roleId });
         }
 
-    _context.SaveChanges();
-    return RedirectToAction("Index");
+        _context.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+    public IActionResult Delete(int id)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == id);
+        if (user == null) return NotFound();
+
+        return View(user);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Deleted(int id)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == id);
+        if (user == null) return NotFound();
+        var userRoles = _context.UserRoles.Where(ur => ur.UserId == id);
+        _context.UserRoles.RemoveRange(userRoles);
+        _context.Users.Remove(user);
+        _context.SaveChanges();
+        return RedirectToAction("Index");
     }
 
 
