@@ -10,15 +10,16 @@ namespace FSSA.Models
         [Column("user_id")]
         public int UserId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Name is required")]
         [Column("name")]
         public string Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Email is required")]
+        [EmailAddress(ErrorMessage ="Invalid email")]
         [Column("email")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="password is required")]
         [Column("password_hash")]
         public string PasswordHash { get; set; }
 

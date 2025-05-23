@@ -38,6 +38,16 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Create(User user, List<int> selectedRoles)
     {
+
+
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", selectedRoles);
+            return View(user);
+        }
+
+
         user.CreatedAt = DateTime.Now;
         _context.Users.Add(user);
         _context.SaveChanges();
