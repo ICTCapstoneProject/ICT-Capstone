@@ -2,6 +2,7 @@ using FSSA.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SQLitePCL;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
@@ -49,4 +50,50 @@ public class AdminController : Controller
         _context.SaveChanges();
         return RedirectToAction("Index");
     }
+
+    public IActionResult Edit(int id)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == id);
+        if (user == null) return NotFound();
+
+        var selectedRoleIds = _context.UserRoles
+            .Where(ur => ur.UserId == id)
+            .Select(ur => ur.RoleId)
+            .ToList();
+
+        ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", selectedRoleIds);
+        return View(user);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(User updatedUser, List<int> selectedRoles)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == updatedUser.UserId);
+        if (user == null) return NotFound();
+
+        user.Name = updatedUser.Name;
+        user.Email = updatedUser.Email;
+        if (!string.IsNullOrWhiteSpace(updatedUser.PasswordHash))
+        {
+            user.PasswordHash = updatedUser.PasswordHash;
+        }
+
+
+
+        var existingRoles = _context.UserRoles.Where(ur => ur.UserId == user.UserId);
+        _context.UserRoles.RemoveRange(existingRoles);
+        foreach (var roleId in selectedRoles)
+        {
+            _context.UserRoles.Add(new UserRole { UserId = user.UserId, RoleId = roleId });
+        }
+
+    _context.SaveChanges();
+    return RedirectToAction("Index");
+    }
+
+
+
+
 }

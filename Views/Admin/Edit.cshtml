@@ -1,0 +1,35 @@
+@model FSSA.Models.User
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2>Edit User</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="UserId" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PasswordHash" class="form-label">Password</label>
+        <input asp-for="PasswordHash" class="form-control" type="password" placeholder="Leave blank to keep current password"/>
+        <span class="form-text">Leave blank if you do not want to change the password.</span>
+    </div>
+
+    <div class="mb-3">
+        <label>Roles</label>
+        <select name="selectedRoles" class="form-select" multiple asp-items="ViewBag.Roles"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
