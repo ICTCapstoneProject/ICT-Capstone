@@ -113,7 +113,7 @@ public class AdminController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public IActionResult Deleted(int id)
+    public IActionResult DeleteConfirmed(int id)
     {
         var user = _context.Users.FirstOrDefault(u => u.UserId == id);
         if (user == null) return NotFound();

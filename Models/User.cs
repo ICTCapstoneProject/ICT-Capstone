@@ -19,14 +19,14 @@ namespace FSSA.Models
         [Column("email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage ="password is required")]
+        [Required(ErrorMessage ="Password is required")]
         [Column("password_hash")]
         public string PasswordHash { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
-        
-        public ICollection<UserRole> UserRoles { get; set; }
+
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
     }
 }
