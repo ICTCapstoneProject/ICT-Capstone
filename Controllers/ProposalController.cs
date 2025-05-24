@@ -31,7 +31,7 @@ namespace FSSA.Controllers
             return View();
         }
 
-        
+
 
         // POST: /Proposal/Create
         [HttpPost]
@@ -55,7 +55,7 @@ namespace FSSA.Controllers
                 proposal.CreatedAt = DateTime.Now;
                 proposal.UpdatedAt = DateTime.Now;
 
-                
+
                 if (MethodImage != null && MethodImage.Length > 0)
                 {
                     var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
@@ -229,7 +229,7 @@ namespace FSSA.Controllers
 
             return View(model);
         }
-        
+
 
         public IActionResult Edit(int id)
         {
@@ -410,7 +410,7 @@ namespace FSSA.Controllers
             if (EndDate.HasValue)
                 query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
 
-        
+
             // Search Keyword
             if (!string.IsNullOrEmpty(SearchKeyword))
                 query = query.Where(p => p.Title.Contains(SearchKeyword));
@@ -445,6 +445,48 @@ namespace FSSA.Controllers
             };
 
             return View(viewModel);
+        }
+
+        // Method for retrieving data for the Summary view
+        public IActionResult Summary(int id)
+        {
+            // Search for the Proposal using the Proposal ID
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+
+            // If the proposal is not found (null result), return NotFound
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            // Search for user who created the proposal
+            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+
+            // Look up the name of the project level (e.g., Undergraduate, Graduate)
+            // If not found, return "Unknown"
+            var projectLevel = _context.ProjectLevels
+                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            // Collate the data to send to the view
+            var model = new MyProposalViewModel
+            {
+                Id = proposal.Id,
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                MethodImage = proposal.MethodImage,
+                ProjectLevel = projectLevel,
+                Resources = proposal.Resources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate,
+                SubmittedByName = user?.Name ?? "Unknown", // Use "Unknown" if user not found
+                StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown"
+            };
+
+            // Return the "Summary" view and pass the data to it.
+            return View("Summary", model);
         }
     }
 }
