@@ -9,19 +9,22 @@
 <form id="proposalForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
+        <input asp-for="Title" class="form-control" placeholder="e.g, DNA analysis for x crime scene..."/>
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Synopsis" class="form-label"></label>
-        <textarea asp-for="Synopsis" class="form-control"></textarea>
+        <label class="form-label">Synopsis</label>
+        <div class="form-control field-preview" data-target="Synopsis" data-label="Synopsis" data-placeholder="The purpose of this research proposal is to..." style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
+            Tap here to fill out your synopsis. (What is The Purpose of Your Proposal?) If you'd like to make modifications, simply tap again.
+        </div>
+        <textarea asp-for="Synopsis" class="form-control d-none modal-field" id="SynopsisField"></textarea>
         <span asp-validation-for="Synopsis" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Method" class="form-label"></label>
-        <textarea asp-for="Method" class="form-control"></textarea>
+        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing scheme goes here..."></textarea>
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
@@ -32,43 +35,108 @@
         </label>
 
         <small class="text-muted">
-            <span class="d-block">Optionally, Upload Media Associated to Method Contents:</span>
+            <span class="d-block">Optionally, Upload Media Associated to Method Contents. E.g, Word Document Containing ChemDraw Diagram:</span>
             <span id="methodFileName" class="fst-italic text-primary small"></span>
             <button type="button" id="clearFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
         </small>
     </div>
 
-        <input type="file" id="MethodImage" name="MethodImage" class="d-none" onchange="updateMethodFileName()" />
+        <input type="file" id="MethodImage" name="MethodImage"
+       class="d-none"
+       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+       onchange="updateMethodFileName()" />
     </div>
-    <div class="mb-3">
+    <div class="mb-1">
         <label class="form-label">Project Level</label>
         <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
             <option value="">-- Pick a Project Level --</option>
         </select>
         <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
     </div>
+    <small class="text-muted d-block mb-3">
+        What is the Academic Level of the Proposed Research?
+    </small>
 
-    <div class="mb-3">
-        <label asp-for="Resources" class="form-label"></label>
-        <textarea asp-for="Resources" class="form-control"></textarea>
-        <span asp-validation-for="Resources" class="text-danger"></span>
+    <div class="mb-1">
+        <label class="form-label">Lead Researcher</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+            <select id="ResearcherId" name="ResearcherId" class="form-select">
+                <option value="">*Type to Search for a Lead Researcher for the Proposed Research</option>
+                <option value="1">John Smith</option>
+                <option value="2">Jane Doe</option>
+                <option value="3">Alex Johnson</option>
+                <option value="4">Sarah Lee</option>
+                <option value="5">Michael Green</option>
+                <option value="6">Alicia Tan</option>
+            </select>
+        </div>
+        <small class="text-muted">This will be the individual primarily responsible for the research outcome.</small>
     </div>
 
     <div class="mb-3">
-        <label asp-for="EthicalConsiderations" class="form-label"></label>
-        <textarea asp-for="EthicalConsiderations" class="form-control"></textarea>
+        <label class="form-label">Student/Co-Researchers (Optional)</label>
+        <button type="button" class="btn btn-outline-primary mb-2 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#coResearchersModal">
+            <i class="bi-person-plus me-2"></i> Add...
+        </button>
+        <div class="bg-white border rounded" style="min-height: 170px; max-height: 170px; overflow-y: auto;">
+            <ul id="coResearchersList" class="list-group list-group-flush mb-0"></ul>
+        </div>
+        <input type="hidden" name="CoResearchersJson" id="CoResearchersJson" />
+        <small class="text-muted">If Applicable, Tap on the <strong>Add...</strong> Button to Add Additional Researchers to this Research Proposal.</small><br>
+        <small class="text-muted">Remove Unintended Additions Using the <strong>x</strong> to the Far Right of an Added Researcher.</small>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Physical Resources</label>
+        <textarea name="PhysicalResources" class="form-control" rows="3" placeholder="e.g., Laboratory equipment, workspace, chemicals..."></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Financial Resources</label>
+        <button type="button" class="btn btn-outline-success mb-2" data-bs-toggle="modal" data-bs-target="#financialResourcesModal">
+            <i class="bi-wallet2"></i>
+        </button>
+        <small class="text-muted d-block mb-2">
+            Tap on the <strong>Wallet</strong> to Add a New Financial Resource to the Blank Space Below. <br>
+            Tap on the <strong>×</strong> to the Far Right of Any Resource to Remove Any Unwanted Resources.
+        </small>
+        <div class="financial-resources-container bg-white border rounded" style="min-height: 110px; max-height: 110px; overflow-y: auto;">
+            <ul id="financialResourcesList" class="list-group list-group-flush mb-0"></ul>
+        </div>
+        <div class="mt-2 fw-bold">Total: $<span id="totalCost">0.00</span></div>
+        <input type="hidden" name="FinancialResourcesJson" id="FinancialResourcesJson" />
+    </div>
+    
+
+    <div class="mb-3">
+        <label class="form-label">Ethical Considerations</label>
+        <div class="form-control field-preview"
+            data-target="EthicalConsiderations"
+            data-label="Ethical Considerations"
+            data-placeholder="e.g., Research will be conducted with participant consent, confidentiality, and safety in mind..."
+            style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; background-color: #fff; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 0.375rem; cursor: pointer;">
+            Tap here to fill out your ethical considerations. If you'd like to make modifications, simply tap again.
+        </div>
+        <textarea asp-for="EthicalConsiderations" class="form-control d-none modal-field" id="EthicalConsiderationsField"></textarea>
         <span asp-validation-for="EthicalConsiderations" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Outcomes" class="form-label"></label>
-        <textarea asp-for="Outcomes" class="form-control"></textarea>
+        <label class="form-label">Outcomes</label>
+        <div class="form-control field-preview" data-target="Outcomes" data-label="Outcomes" style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
+            Tap here to fill out your outcomes. If you'd like to make modifications, simply tap again.
+        </div>
+        <textarea asp-for="Outcomes" class="form-control d-none modal-field" id="OutcomesField"></textarea>
         <span asp-validation-for="Outcomes" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Milestones" class="form-label"></label>
-        <textarea asp-for="Milestones" class="form-control"></textarea>
+        <label class="form-label">Milestones</label>
+        <div class="form-control field-preview" data-target="Milestones" data-label="Milestones" style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
+            Tap here to fill out your milestones. If you'd like to make modifications, simply tap again.
+        </div>
+        <textarea asp-for="Milestones" class="form-control d-none modal-field" id="MilestonesField"></textarea>
         <span asp-validation-for="Milestones" class="text-danger"></span>
     </div>
 
@@ -77,6 +145,59 @@
         <input asp-for="EstimatedCompletionDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
     </div>
+     <div class="modal fade" id="financialResourcesModal" tabindex="-1" aria-labelledby="financialResourcesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Financial Resource</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="resourceTitle" class="form-label">Resource Title</label>
+                        <input type="text" class="form-control" id="resourceTitle" placeholder="e.g., Software License" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="resourceCost" class="form-label">Estimated Cost ($)</label>
+                        <input type="number" class="form-control" id="resourceCost" min="0.00" step="0.01" placeholder="e.g., 110.95" />
+                        <div class="form-text">Use the arrows or type to enter an estimated cost for this resource.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="addResourceBtn"><i class="bi-calculator">+ Resource</i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="coResearchersModal" tabindex="-1" aria-labelledby="coResearchersModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="coResearchersModalLabel">Add Co-Researcher</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="coResearcherSelect" class="form-label">Select Researcher</label>
+        <select id="coResearcherSelect" class="form-select" data-placeholder="Type to search for a Co-Researcher">
+          <option value="">-- Select Researcher --</option>
+          <option value="101">Emily Carter</option>
+          <option value="102">Daniel Wang</option>
+          <option value="103">Priya Patel</option>
+          <option value="104">Liam Nguyen</option>
+          <option value="105">Olivia Brown</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="addCoResearcherBtn">
+            <i class="bi bi-person-plus"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
     <button type="button" class="btn btn-dark mb-3" id="triggerModalBtn">Submit</button>
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -97,7 +218,24 @@
         </div>
     </div>
 </form>
-
+    
+    <div class="modal fade" id="genericFieldModal" tabindex="-1" aria-labelledby="genericFieldModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="genericFieldModalLabel">Edit Field</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="genericFieldTextarea" class="form-control" rows="20"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="saveGenericFieldBtn">Save Field</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -145,4 +283,173 @@
             });
         });
     </script>
+
+   <script>
+        const resources = [];
+
+        document.getElementById('addResourceBtn').addEventListener('click', function () {
+            const title = document.getElementById('resourceTitle').value.trim();
+            const cost = parseFloat(document.getElementById('resourceCost').value);
+
+            if (!title || isNaN(cost) || cost < 0) {
+                alert("Please enter a valid title and non-negative cost.");
+                return;
+            }
+
+            resources.unshift({ title, cost }); 
+            updateFinancialResourcesUI();
+
+            bootstrap.Modal.getInstance(document.getElementById('financialResourcesModal')).hide();
+            document.getElementById('resourceTitle').value = '';
+            document.getElementById('resourceCost').value = '';
+        });
+
+        function updateFinancialResourcesUI() {
+            const list = document.getElementById('financialResourcesList');
+            const totalDisplay = document.getElementById('totalCost');
+            const hiddenField = document.getElementById('FinancialResourcesJson');
+
+            list.innerHTML = '';
+            let total = 0;
+
+            resources.forEach((r, i) => {
+                total += r.cost;
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                item.innerHTML = `
+                    ${r.title} - $${r.cost.toFixed(2)}
+                    <button type="button" class="btn" onclick="removeResource(${i})">&times;</button>
+                `;
+                list.appendChild(item);
+            });
+
+            totalDisplay.textContent = total.toFixed(2);
+            hiddenField.value = JSON.stringify(resources);
+        }
+
+        function removeResource(index) {
+            resources.splice(index, 1);
+            updateFinancialResourcesUI();
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let currentTargetId = null;
+
+            const modal = new bootstrap.Modal(document.getElementById("genericFieldModal"));
+            const textarea = document.getElementById("genericFieldTextarea");
+            const saveBtn = document.getElementById("saveGenericFieldBtn");
+            const modalTitle = document.getElementById("genericFieldModalLabel");
+
+            document.querySelectorAll(".field-preview").forEach(preview => {
+                preview.addEventListener("click", function () {
+                    currentTargetId = this.dataset.target;
+                    const originalTextarea = document.getElementById(currentTargetId + "Field");
+                    textarea.value = originalTextarea.value || "";
+                    textarea.placeholder = this.dataset.placeholder || "";
+                    modalTitle.textContent = `Proposal ${this.dataset.label || 'Field'}`;
+
+                    modal.show();
+                });
+            });
+
+            saveBtn.addEventListener("click", function () {
+                if (!currentTargetId) return;
+
+                const previewBox = document.querySelector(`.field-preview[data-target="${currentTargetId}"]`);
+                const hiddenField = document.getElementById(currentTargetId + "Field");
+
+                hiddenField.value = textarea.value;
+                previewBox.textContent = textarea.value || `Tap here to fill out your ${currentTargetId.toLowerCase()}. If you'd like to make modifications, simply tap again.`;
+
+                modal.hide();
+            });
+        });
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        new TomSelect("#ResearcherId", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
+        });
+
+        new TomSelect("#StudentId", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
+        });
+        new TomSelect("#coResearcherSelect", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            dropdownParent: "#coResearchersModal" 
+        });
+    });
+</script>
+
+<script>
+    const coResearchers = [];
+
+    document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
+        const select = document.getElementById("coResearcherSelect");
+        const name = select.options[select.selectedIndex].text;
+        const id = select.value;
+
+        if (!id || coResearchers.find(r => r.id === id)) return;
+
+        coResearchers.push({ id, name });
+        updateCoResearcherUI();
+
+        bootstrap.Modal.getInstance(document.getElementById("coResearchersModal")).hide();
+        select.value = "";
+    });
+
+    function updateCoResearcherUI() {
+    const list = document.getElementById("coResearchersList");
+    list.innerHTML = "";
+
+    coResearchers.forEach((r, i) => {
+        const item = document.createElement("li");
+        item.className = "list-group-item d-flex justify-content-between align-items-center";
+        item.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-person-fill"></i> ${r.name}
+            </div>
+            <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
+        `;
+        list.appendChild(item);
+    });
+
+    document.getElementById("CoResearchersJson").value = JSON.stringify(coResearchers);
+}
+
+    function removeCoResearcher(index) {
+        coResearchers.splice(index, 1);
+        updateCoResearcherUI();
+    }
+</script>
+
+    <style>
+    .ts-dropdown-content {
+        max-height: 10.5em; 
+        overflow-y: auto;
+    }
+
+    .ts-dropdown-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    .ts-dropdown-content::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+    </style>
 }
