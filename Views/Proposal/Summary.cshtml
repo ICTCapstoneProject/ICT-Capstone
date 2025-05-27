@@ -107,7 +107,7 @@
 
         <!-- Estimated completion date -->
         <dt class="col-sm-3">@Html.DisplayNameFor(MyProposalViewModel => MyProposalViewModel.EstimatedCompletionDate)</dt>
-        <dd class="col-sm-9">@((Model.EstimatedCompletionDate != DateTime.MinValue) ? Model.EstimatedCompletionDate.ToString("yyyy-MM-dd") : "(No date provided)")</dd>
+        <dd class="col-sm-9">@((Model.EstimatedCompletionDate != DateTime.MinValue) ? Model.EstimatedCompletionDate.ToString("dd/MM/yyyy") : "(No date provided)")</dd>
 
     </dl>
 </div>
