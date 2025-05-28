@@ -71,30 +71,50 @@ public class AdminController : Controller
             .Select(ur => ur.RoleId)
             .ToList();
 
+        var viewModel = new UserEditViewModel
+        {
+            UserId = user.UserId,
+            Name = user.Name,
+            Email = user.Email,
+            PasswordHash = "",
+            ExistingPasswordHash = user.PasswordHash,
+            SelectedRoles = selectedRoleIds,
+            AdminConfirmation = ""
+        };
+
         ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", selectedRoleIds);
-        return View(user);
+        return View(viewModel);
     }
 
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(User updatedUser, List<int> selectedRoles)
+    public IActionResult Edit(UserEditViewModel model)
     {
-        var user = _context.Users.FirstOrDefault(u => u.UserId == updatedUser.UserId);
-        if (user == null) return NotFound();
-
-        user.Name = updatedUser.Name;
-        user.Email = updatedUser.Email;
-        if (!string.IsNullOrWhiteSpace(updatedUser.PasswordHash))
+        if (model.AdminConfirmation != "AdminPrivileges")
         {
-            user.PasswordHash = updatedUser.PasswordHash;
+            ModelState.AddModelError("AdminConfirmation", "Admin override confirmation failed.");
         }
 
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", model.SelectedRoles);
+            return View(model);
+        }
 
+        var user = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
+        if (user == null) return NotFound();
+
+        user.Name = model.Name;
+        user.Email = model.Email;
+
+        user.PasswordHash = string.IsNullOrWhiteSpace(model.PasswordHash)
+            ? model.ExistingPasswordHash
+            : model.PasswordHash;
 
         var existingRoles = _context.UserRoles.Where(ur => ur.UserId == user.UserId);
         _context.UserRoles.RemoveRange(existingRoles);
-        foreach (var roleId in selectedRoles)
+        foreach (var roleId in model.SelectedRoles)
         {
             _context.UserRoles.Add(new UserRole { UserId = user.UserId, RoleId = roleId });
         }
