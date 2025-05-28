@@ -180,14 +180,16 @@
       </div>
       <div class="modal-body">
         <label for="coResearcherSelect" class="form-label">Select Researcher</label>
-        <select id="coResearcherSelect" class="form-select" data-placeholder="Type to search for a Co-Researcher">
-          <option value="">-- Select Researcher --</option>
-          <option value="101">Emily Carter</option>
-          <option value="102">Daniel Wang</option>
-          <option value="103">Priya Patel</option>
-          <option value="104">Liam Nguyen</option>
-          <option value="105">Olivia Brown</option>
+        <div id="coResearcherContainer" class="position-relative">
+        <select id="coResearcherSelect" class="form-select">
+            <option value="" disabled selected hidden>Type to search for a Co-Researcher</option>
+            <option value="101">Emily Carter</option>
+            <option value="102">Daniel Wang</option>
+            <option value="103">Priya Patel</option>
+            <option value="104">Liam Nguyen</option>
+            <option value="105">Olivia Brown</option>
         </select>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -368,33 +370,20 @@
     </script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-   <script>
+   <<script>
     document.addEventListener("DOMContentLoaded", function () {
-        new TomSelect("#ResearcherId", {
-            create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            }
-        });
-
-        new TomSelect("#StudentId", {
-            create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            }
-        });
-        new TomSelect("#coResearcherSelect", {
-            create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            },
-            dropdownParent: "#coResearchersModal" 
-        });
+    new TomSelect("#ResearcherId", {
+        create: false,
+        sortField: { field: "text", direction: "asc" }
     });
-</script>
+
+    new TomSelect("#coResearcherSelect", {
+    create: false,
+    sortField: { field: "text", direction: "asc" },
+    dropdownParent: "#coResearcherContainer"
+    });
+    });
+    </script>
 
 <script>
     const coResearchers = [];
