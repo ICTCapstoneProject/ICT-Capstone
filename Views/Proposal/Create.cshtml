@@ -29,7 +29,7 @@
             </label>
 
             <small class="text-muted">
-                <span class="d-block">Optionally, Upload Supporting Documents for the Synopsis Section. E.g., Literature Review Draft:</span>
+                <span class="d-block">Optionally, Tap on the <strong>Blue Cloud</strong> to Upload Supporting Documents for Your <strong>Synopsis</strong> Section. E.g., Literature Review Draft:</span>
                 <span id="synopsisFileName" class="fst-italic text-primary small"></span>
                 <button type="button" id="clearSynopsisFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
             </small>
@@ -43,7 +43,7 @@
 
     <div class="mb-3">
         <label asp-for="Method" class="form-label"></label>
-        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing info goes here..."></textarea>
+        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing information goes here..."></textarea>
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
@@ -54,7 +54,7 @@
         </label>
 
         <small class="text-muted">
-            <span class="d-block">Optionally, Upload Media Associated to Method Contents. E.g, Your Word Document Containing Your ChemDraw Diagram:</span>
+            <span class="d-block">Optionally, Tap on the <strong>Blue Cloud</strong> to Upload Media Associated to Your <strong>Method</strong> Contents. E.g, Your Word Document Containing Your ChemDraw Diagram:</span>
             <span id="methodFileName" class="fst-italic text-primary small"></span>
             <button type="button" id="clearFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
         </small>
@@ -68,7 +68,7 @@
     <div class="mb-1">
         <label class="form-label">Project Level</label>
         <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
-            <option value="">-- Pick a Project Level --</option>
+            <option value="">-- Tap to Pick a Project Level --</option>
         </select>
         <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
     </div>
@@ -81,7 +81,7 @@
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
             <select id="ResearcherId" name="ResearcherId" class="form-select">
-                <option value="">*Type to Search for a Lead Researcher for the Proposed Research</option>
+                <option value="">*Type to Search for a Lead Researcher to Assign to the Proposed Research</option>
                 <option value="1">John Smith</option>
                 <option value="2">Jane Doe</option>
                 <option value="3">Alex Johnson</option>
@@ -90,7 +90,8 @@
                 <option value="6">Alicia Tan</option>
             </select>
         </div>
-        <small class="text-muted">This will be the individual primarily responsible for the research outcome.</small>
+        <small class="text-muted">Tap on the Name of the Individual You Would Like to Lead the Research of Your Proposal.</small><br>
+        <small class="text-muted">Tap the Name Again, and Hit <strong>Backspace/Delete</strong>, or Simply Select a Different Name From the Menu, to Pick a Different Research Lead.</small>
     </div>
 
     <div class="mb-3">
@@ -108,7 +109,7 @@
 
     <div class="mb-3">
         <label class="form-label">Physical Resources</label>
-        <textarea name="PhysicalResources" class="form-control" rows="3" placeholder="e.g., Laboratory equipment, workspace, chemicals..."></textarea>
+        <textarea name="PhysicalResources" class="form-control" rows="3" placeholder="e.g., Laboratory equipment, workspace, or chemical resource information goes here..."></textarea>
     </div>
 
     <div class="mb-3">
@@ -117,7 +118,7 @@
             <i class="bi-wallet2"></i>
         </button>
         <small class="text-muted d-block mb-2">
-            Tap on the <strong>Wallet</strong> to Add a New Financial Resource to the Blank Space Below. <br>
+            Tap on the <strong>Green Wallet</strong> to Add a New Financial Resource to the Blank Space Below. <br>
             Tap on the <strong>×</strong> to the Far Right of Any Resource to Remove Any Unwanted Resources.
         </small>
         <div class="financial-resources-container bg-white border rounded" style="min-height: 110px; max-height: 110px; overflow-y: auto;">
@@ -148,7 +149,7 @@
             </label>
 
             <small class="text-muted">
-                <span class="d-block">Optionally, Upload Supporting Documents for the Ethical Considerations Section. E.g., Consent Form Template:</span>
+                <span class="d-block">Optionally, Tap on the <strong>Blue Cloud</strong> to Upload Supporting Documents for the Ethical Considerations Section. E.g., Consent Form Template:</span>
                 <span id="ethicsFileName" class="fst-italic text-primary small"></span>
                 <button type="button" id="clearEthicsFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
             </small>
