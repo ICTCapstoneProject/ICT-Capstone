@@ -1,41 +1,57 @@
-@model FSSA.Models.User
+@model FSSA.Models.UserCreateViewModel
 
 @{
     ViewData["Title"] = "Create User";
 }
 
+<h1 class="mb-4">Create a New User</h1>
+
+<div class="card shadow border-0">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="mb-1">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g, Guest User"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <small class="text-muted d-block mb-3">
+                What is This User's Name?
+            </small>
+
+            <div class="mb-1">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="e.g, Guest@example.com"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <small class="text-muted d-block mb-3">
+                What is This User's Email?
+            </small>
 
 
-<h2>Create a New User</h2>
+            <div class="mb-1">
+                <label asp-for="PasswordHash" class="form-label">Password</label>
+                <input asp-for="PasswordHash" class="form-control" type="password" placeholder="e.g, SecurePassword123"/>
+                <span asp-validation-for="PasswordHash" class="text-danger"></span>
+            </div>
+            <small class="text-muted d-block mb-3">
+                What is This User's Password Going to Be?
+            </small>
 
-<form asp-action="Create" method="post">
 
-    <div class="mb-3">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="mb-1">
+                <label asp-for="SelectedRoles" class="form-label">Assign Roles</label>
+                <select asp-for="SelectedRoles" class="form-select" multiple asp-items="ViewBag.Roles"></select>
+                <span asp-validation-for="SelectedRoles" class="text-danger"></span>
+            </div>
+            <small class="text-muted d-block mb-3">
+                Tap on a Role From the Above Menu to Assign it to This User
+            </small>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PasswordHash" class="form-label">Password</label>
-        <input asp-for="PasswordHash" class="form-control" type="password" />
-        <span asp-validation-for="PasswordHash" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label for="Roles">Assign Roles</label>
-        <select name="selectedRoles" class="form-select" multiple asp-items="ViewBag.Roles"></select>
-    </div>
-
-    <button type="submit" class="btn btn-success">Create</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

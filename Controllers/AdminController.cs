@@ -28,6 +28,7 @@ public class AdminController : Controller
         return View(users);
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
         ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName");
@@ -36,23 +37,26 @@ public class AdminController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(User user, List<int> selectedRoles)
+    public IActionResult Create(UserCreateViewModel model)
     {
-
-
-
         if (!ModelState.IsValid)
         {
-            ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", selectedRoles);
-            return View(user);
+            ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", model.SelectedRoles);
+            return View(model);
         }
 
+        var user = new User
+        {
+            Name = model.Name,
+            Email = model.Email,
+            PasswordHash = model.PasswordHash,
+            CreatedAt = DateTime.Now
+        };
 
-        user.CreatedAt = DateTime.Now;
         _context.Users.Add(user);
         _context.SaveChanges();
 
-        foreach (var roleId in selectedRoles)
+        foreach (var roleId in model.SelectedRoles)
         {
             _context.UserRoles.Add(new UserRole { UserId = user.UserId, RoleId = roleId });
         }
