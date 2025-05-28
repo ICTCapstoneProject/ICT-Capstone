@@ -47,6 +47,15 @@
                 Tap on a Role From the Above Menu to Assign it to This User
             </small>
 
+            <div class="mb-1">
+                <label asp-for="AdminConfirmation" class="form-label">Admin Override Confirmation</label>
+                <input asp-for="AdminConfirmation" class="form-control" placeholder="Type 'AdminPrivileges' to authorize" />
+                <span asp-validation-for="AdminConfirmation" class="text-danger"></span>
+            </div>
+            <small class="text-muted d-block mb-3">
+                This is a protected operation. To proceed, type <strong>AdminPrivileges</strong> to confirm.
+            </small>
+
             <button type="submit" class="btn btn-primary">Create</button>
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
         </form>

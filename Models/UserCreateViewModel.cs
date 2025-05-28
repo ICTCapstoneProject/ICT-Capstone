@@ -18,6 +18,9 @@ namespace FSSA.Models
         [Required(ErrorMessage = "At least one role must be selected.")]
         [MinLength(1, ErrorMessage = "Please select at least one role.")]
         public List<int> SelectedRoles { get; set; } = new();
+
+        [Required(ErrorMessage = "Admin override confirmation is required.")]
+        public string AdminConfirmation { get; set; }
     }
 
 }

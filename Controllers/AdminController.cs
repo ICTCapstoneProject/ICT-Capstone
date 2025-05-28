@@ -39,6 +39,13 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Create(UserCreateViewModel model)
     {
+
+        
+        if (model.AdminConfirmation != "AdminPrivileges")
+        {
+            ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
+        }
+
         if (!ModelState.IsValid)
         {
             ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName", model.SelectedRoles);
@@ -97,7 +104,7 @@ public class AdminController : Controller
     {
         if (model.AdminConfirmation != "AdminPrivileges")
         {
-            ModelState.AddModelError("AdminConfirmation", "Admin override confirmation failed.");
+            ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
         }
 
         if (!ModelState.IsValid)

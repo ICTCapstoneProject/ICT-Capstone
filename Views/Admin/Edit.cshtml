@@ -27,7 +27,7 @@
             <div class="mb-3">
                 <label asp-for="PasswordHash" class="form-label">Password</label>
                 <input asp-for="PasswordHash" class="form-control" type="password" placeholder="Leave blank to keep current password" />
-                <span class="form-text">Leave blank if you do not wish to change the password.</span>
+                <span class="form-text">Leave blank if you do not wish to change the password. Otherwise, type to set a new one.</span>
                 <span asp-validation-for="PasswordHash" class="text-danger"></span>
             </div>
 
