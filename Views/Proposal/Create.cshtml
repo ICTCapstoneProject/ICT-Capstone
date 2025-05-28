@@ -124,7 +124,11 @@
 
     <div class="mb-3">
         <label class="form-label">Outcomes</label>
-        <div class="form-control field-preview" data-target="Outcomes" data-label="Outcomes" style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
+        <div class="form-control field-preview"
+        data-target="Outcomes"
+        data-label="Outcomes"
+        data-placeholder="e.g., The project aims to develop forensic workflows, publish findings, and improve lab protocols..."
+        style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
             Tap here to fill out your outcomes. If you'd like to make modifications, simply tap again.
         </div>
         <textarea asp-for="Outcomes" class="form-control d-none modal-field" id="OutcomesField"></textarea>
@@ -133,7 +137,11 @@
 
     <div class="mb-3">
         <label class="form-label">Milestones</label>
-        <div class="form-control field-preview" data-target="Milestones" data-label="Milestones" style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
+        <div class="form-control field-preview"
+        data-target="Milestones"
+        data-label="Milestones"
+        data-placeholder="e.g., &#10;Milestone 1: Literature Review &#10;Milestone 2: Sample Collection &#10;Milestone 3: Lab Testing &#10;Month 4: Final Report..."
+        style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
             Tap here to fill out your milestones. If you'd like to make modifications, simply tap again.
         </div>
         <textarea asp-for="Milestones" class="form-control d-none modal-field" id="MilestonesField"></textarea>
