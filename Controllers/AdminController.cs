@@ -139,19 +139,36 @@ public class AdminController : Controller
         var user = _context.Users.FirstOrDefault(u => u.UserId == id);
         if (user == null) return NotFound();
 
-        return View(user);
+        var viewModel = new UserDeleteViewModel
+        {
+            UserId = user.UserId,
+            Name = user.Name
+        };
+
+        return View(viewModel);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public IActionResult DeleteConfirmed(int id)
+    public IActionResult DeleteConfirmed(UserDeleteViewModel model)
     {
-        var user = _context.Users.FirstOrDefault(u => u.UserId == id);
-        if (user == null) return NotFound();
-        var userRoles = _context.UserRoles.Where(ur => ur.UserId == id);
+        if (model.AdminConfirmation != "AdminPrivileges")
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
+            if (user == null) return NotFound();
+
+            ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
+            return View("Delete", new UserDeleteViewModel { UserId = user.UserId });
+        }
+
+        var userToDelete = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
+        if (userToDelete == null) return NotFound();
+
+        var userRoles = _context.UserRoles.Where(ur => ur.UserId == model.UserId);
         _context.UserRoles.RemoveRange(userRoles);
-        _context.Users.Remove(user);
+        _context.Users.Remove(userToDelete);
         _context.SaveChanges();
+
         return RedirectToAction("Index");
     }
 

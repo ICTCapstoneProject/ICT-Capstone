@@ -1,4 +1,4 @@
-@model FSSA.Models.User
+@model FSSA.Models.UserDeleteViewModel
 
 @{
     ViewData["Title"] = "Delete User";
@@ -7,11 +7,25 @@
 <h2>Delete User</h2>
 
 <div class="alert alert-warning">
-    You are attempting to delete <strong>@Model.Name</strong>'s account. Are you sure you want to delete user <strong>@Model.Name</strong>'s account?
+    You are attempting to delete this user. Are you sure you want to proceed?
 </div>
 
 <form asp-action="Delete" method="post">
     <input type="hidden" asp-for="UserId" />
+
+    <div class="mb-1">
+        <label asp-for="AdminConfirmation" class="form-label"></label>
+        <input asp-for="AdminConfirmation" class="form-control" placeholder="Type 'AdminPrivileges' to authorize" />
+        <span asp-validation-for="AdminConfirmation" class="text-danger"></span>
+    </div>
+    <small class="text-muted d-block mb-3">
+        This operation is protected. You must type <strong>AdminPrivileges</strong> to confirm deletion.
+    </small>
+
     <a asp-action="Index" class="btn btn-secondary">No, Cancel</a>
-    <button type="submit" class="btn btn-danger">Yes, Delete it</button>
+    <button type="submit" class="btn btn-danger">Yes, Delete It</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
