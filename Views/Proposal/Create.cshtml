@@ -142,6 +142,25 @@
     </div>
 
     <div class="mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <label for="EthicsAttachment" class="btn btn-outline-primary d-inline-flex align-items-center mb-3">
+                <i class="bi bi-cloud-upload"></i>
+            </label>
+
+            <small class="text-muted">
+                <span class="d-block">Optionally, Upload Supporting Documents for the Ethical Considerations Section. E.g., Consent Form Template:</span>
+                <span id="ethicsFileName" class="fst-italic text-primary small"></span>
+                <button type="button" id="clearEthicsFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
+            </small>
+        </div>
+
+        <input type="file" id="EthicsAttachment" name="EthicsAttachment"
+            class="d-none"
+            accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+            onchange="updateEthicsFileName()" />
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Outcomes</label>
         <div class="form-control field-preview"
         data-target="Outcomes"
@@ -311,6 +330,58 @@
                 clearBtn.style.display = 'none';
             });
         });
+
+        function updateSynopsisFileName() {
+            const input = document.getElementById('SynopsisAttachment');
+            const display = document.getElementById('synopsisFileName');
+            const clearBtn = document.getElementById('clearSynopsisFileBtn');
+
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                display.textContent = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const clearBtn = document.getElementById('clearSynopsisFileBtn');
+            const fileInput = document.getElementById('SynopsisAttachment');
+            const fileName = document.getElementById('synopsisFileName');
+
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileName.textContent = '';
+                clearBtn.style.display = 'none';
+            });
+        });
+
+        function updateEthicsFileName() {
+            const input = document.getElementById('EthicsAttachment');
+            const display = document.getElementById('ethicsFileName');
+            const clearBtn = document.getElementById('clearEthicsFileBtn');
+
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                display.textContent = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const clearBtn = document.getElementById('clearEthicsFileBtn');
+            const fileInput = document.getElementById('EthicsAttachment');
+            const fileName = document.getElementById('ethicsFileName');
+
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileName.textContent = '';
+                clearBtn.style.display = 'none';
+            });
+        });
     </script>
 
    <script>
@@ -466,34 +537,6 @@
         coResearchers.splice(index, 1);
         updateCoResearcherUI();
     }
-</script>
-
-<script>
-    function updateSynopsisFileName() {
-        const input = document.getElementById('SynopsisAttachment');
-        const display = document.getElementById('synopsisFileName');
-        const clearBtn = document.getElementById('clearSynopsisFileBtn');
-
-        if (input.files.length > 0) {
-            display.textContent = input.files[0].name;
-            clearBtn.style.display = 'inline-block';
-        } else {
-            display.textContent = '';
-            clearBtn.style.display = 'none';
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const clearBtn = document.getElementById('clearSynopsisFileBtn');
-        const fileInput = document.getElementById('SynopsisAttachment');
-        const fileName = document.getElementById('synopsisFileName');
-
-        clearBtn.addEventListener('click', function () {
-            fileInput.value = '';
-            fileName.textContent = '';
-            clearBtn.style.display = 'none';
-        });
-    });
 </script>
 
     <style>
