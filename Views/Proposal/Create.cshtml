@@ -23,6 +23,25 @@
     </div>
 
     <div class="mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <label for="SynopsisAttachment" class="btn btn-outline-primary d-inline-flex align-items-center mb-3">
+                <i class="bi bi-cloud-upload"></i>
+            </label>
+
+            <small class="text-muted">
+                <span class="d-block">Optionally, Upload Supporting Documents for the Synopsis Section. E.g., Literature Review Draft:</span>
+                <span id="synopsisFileName" class="fst-italic text-primary small"></span>
+                <button type="button" id="clearSynopsisFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
+            </small>
+        </div>
+
+        <input type="file" id="SynopsisAttachment" name="SynopsisAttachment"
+            class="d-none"
+            accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+            onchange="updateSynopsisFileName()" />
+    </div>
+
+    <div class="mb-3">
         <label asp-for="Method" class="form-label"></label>
         <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing info goes here..."></textarea>
         <span asp-validation-for="Method" class="text-danger"></span>
@@ -30,12 +49,12 @@
 
    <div class="mb-3">
     <div class="d-flex align-items-center gap-2">
-        <label for="MethodImage" class="btn btn-outline-primary d-inline-flex align-items-center mb-0">
+        <label for="MethodImage" class="btn btn-outline-primary d-inline-flex align-items-center mb-3">
             <i class="bi bi-cloud-upload"></i>
         </label>
 
         <small class="text-muted">
-            <span class="d-block">Optionally, Upload Media Associated to Method Contents. E.g, Word Document Containing ChemDraw Diagram:</span>
+            <span class="d-block">Optionally, Upload Media Associated to Method Contents. E.g, Your Word Document Containing Your ChemDraw Diagram:</span>
             <span id="methodFileName" class="fst-italic text-primary small"></span>
             <button type="button" id="clearFileBtn" class="btn-close btn-sm align-middle ms-2" aria-label="Remove file" style="display: none;"></button>
         </small>
@@ -342,7 +361,7 @@
             updateFinancialResourcesUI();
         }
     </script>
-    
+
    <script>
     document.addEventListener("DOMContentLoaded", function () {
         let currentTargetId = null;
@@ -392,7 +411,7 @@
     </script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-   <<script>
+   <script>
     document.addEventListener("DOMContentLoaded", function () {
     new TomSelect("#ResearcherId", {
         create: false,
@@ -441,12 +460,40 @@
     });
 
     document.getElementById("CoResearchersJson").value = JSON.stringify(coResearchers);
-}
+    }
 
     function removeCoResearcher(index) {
         coResearchers.splice(index, 1);
         updateCoResearcherUI();
     }
+</script>
+
+<script>
+    function updateSynopsisFileName() {
+        const input = document.getElementById('SynopsisAttachment');
+        const display = document.getElementById('synopsisFileName');
+        const clearBtn = document.getElementById('clearSynopsisFileBtn');
+
+        if (input.files.length > 0) {
+            display.textContent = input.files[0].name;
+            clearBtn.style.display = 'inline-block';
+        } else {
+            display.textContent = '';
+            clearBtn.style.display = 'none';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const clearBtn = document.getElementById('clearSynopsisFileBtn');
+        const fileInput = document.getElementById('SynopsisAttachment');
+        const fileName = document.getElementById('synopsisFileName');
+
+        clearBtn.addEventListener('click', function () {
+            fileInput.value = '';
+            fileName.textContent = '';
+            clearBtn.style.display = 'none';
+        });
+    });
 </script>
 
     <style>
