@@ -24,7 +24,7 @@
 
     <div class="mb-3">
         <label asp-for="Method" class="form-label"></label>
-        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing scheme goes here..."></textarea>
+        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing info goes here..."></textarea>
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
@@ -342,39 +342,53 @@
             updateFinancialResourcesUI();
         }
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let currentTargetId = null;
+    
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentTargetId = null;
+        const previewHelpHTMLMap = {}; // Store the original help text
 
-            const modal = new bootstrap.Modal(document.getElementById("genericFieldModal"));
-            const textarea = document.getElementById("genericFieldTextarea");
-            const saveBtn = document.getElementById("saveGenericFieldBtn");
-            const modalTitle = document.getElementById("genericFieldModalLabel");
+        const modal = new bootstrap.Modal(document.getElementById("genericFieldModal"));
+        const textarea = document.getElementById("genericFieldTextarea");
+        const saveBtn = document.getElementById("saveGenericFieldBtn");
+        const modalTitle = document.getElementById("genericFieldModalLabel");
 
-            document.querySelectorAll(".field-preview").forEach(preview => {
-                preview.addEventListener("click", function () {
-                    currentTargetId = this.dataset.target;
-                    const originalTextarea = document.getElementById(currentTargetId + "Field");
-                    textarea.value = originalTextarea.value || "";
-                    textarea.placeholder = this.dataset.placeholder || "";
-                    modalTitle.textContent = `Proposal ${this.dataset.label || 'Field'}`;
+        document.querySelectorAll(".field-preview").forEach(preview => {
+            const fieldId = preview.dataset.target;
+            previewHelpHTMLMap[fieldId] = preview.innerHTML; // Set once, per field
 
-                    modal.show();
-                });
-            });
+            preview.addEventListener("click", function () {
+                currentTargetId = fieldId;
 
-            saveBtn.addEventListener("click", function () {
-                if (!currentTargetId) return;
+                const hiddenField = document.getElementById(fieldId + "Field");
+                textarea.value = hiddenField.value || "";
+                textarea.placeholder = this.dataset.placeholder || "";
 
-                const previewBox = document.querySelector(`.field-preview[data-target="${currentTargetId}"]`);
-                const hiddenField = document.getElementById(currentTargetId + "Field");
-
-                hiddenField.value = textarea.value;
-                previewBox.textContent = textarea.value || `Tap here to fill out your ${currentTargetId.toLowerCase()}. If you'd like to make modifications, simply tap again.`;
-
-                modal.hide();
+                modalTitle.textContent = `Proposal ${this.dataset.label || 'Field'}`;
+                modal.show();
             });
         });
+
+        saveBtn.addEventListener("click", function () {
+            if (!currentTargetId) return;
+
+            const previewBox = document.querySelector(`.field-preview[data-target="${currentTargetId}"]`);
+            const hiddenField = document.getElementById(currentTargetId + "Field");
+            const userInput = textarea.value.trim();
+
+            hiddenField.value = userInput;
+
+            if (userInput.length > 0) {
+                previewBox.textContent = userInput;
+                previewBox.classList.remove("text-muted", "fst-italic");
+            } else {
+                previewBox.innerHTML = previewHelpHTMLMap[currentTargetId]; // For reverting it back to original helptext from the capture
+                previewBox.classList.remove("text-muted", "fst-italic");
+            }
+
+            modal.hide();
+        });
+    });
     </script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
