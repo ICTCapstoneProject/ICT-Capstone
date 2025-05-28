@@ -19,17 +19,36 @@ namespace FSSA.Controllers
 
         // GET: /Proposal/Create
         public IActionResult Create()
+{
+    ViewBag.ProjectLevels = _context.ProjectLevels
+        .Select(pl => new SelectListItem
         {
-            ViewBag.ProjectLevels = _context.ProjectLevels
-                .Select(pl => new SelectListItem
-                {
-                    Value = pl.LevelId.ToString(),
-                    Text = pl.LevelName
-                })
-                .ToList();
+            Value = pl.LevelId.ToString(),
+            Text = pl.LevelName
+        }).ToList();
 
-            return View();
+    var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+
+    if (researcherRoleId != null)
+        {
+            ViewBag.Researchers = _context.UserRoles
+                .Where(ur => ur.RoleId == researcherRoleId)
+                .Include(ur => ur.User)
+                .Select(ur => new SelectListItem
+                {
+                    Value = ur.User.UserId.ToString(),
+                    Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                })
+                .OrderBy(r => r.Text)
+                .ToList();
         }
+        else
+        {
+            ViewBag.Researchers = new List<SelectListItem>();
+        }
+
+        return View();
+    }
 
 
 

@@ -81,13 +81,11 @@
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
             <select id="ResearcherId" name="ResearcherId" class="form-select">
-                <option value="">*Type to Search for a Lead Researcher to Assign to the Proposed Research</option>
-                <option value="1">John Smith</option>
-                <option value="2">Jane Doe</option>
-                <option value="3">Alex Johnson</option>
-                <option value="4">Sarah Lee</option>
-                <option value="5">Michael Green</option>
-                <option value="6">Alicia Tan</option>
+                <option value="" disabled selected hidden>*Type to Search for a Lead Researcher to Assign to the Proposed Research</option>
+                @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
+                {
+                    <option value="@researcher.Value">@researcher.Text</option>
+                }
             </select>
         </div>
         <small class="text-muted">Tap on the Name of the Individual You Would Like to Lead the Research of Your Proposal.</small><br>
@@ -230,11 +228,10 @@
         <div id="coResearcherContainer" class="position-relative">
         <select id="coResearcherSelect" class="form-select">
             <option value="" disabled selected hidden>Type to search for a Co-Researcher</option>
-            <option value="101">Emily Carter</option>
-            <option value="102">Daniel Wang</option>
-            <option value="103">Priya Patel</option>
-            <option value="104">Liam Nguyen</option>
-            <option value="105">Olivia Brown</option>
+            @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
+                {
+                    <option value="@researcher.Value">@researcher.Text</option>
+                }
         </select>
         </div>
       </div>
