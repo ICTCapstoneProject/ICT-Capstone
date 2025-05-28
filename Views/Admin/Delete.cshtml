@@ -7,11 +7,11 @@
 <h2>Delete User</h2>
 
 <div class="alert alert-warning">
-    Are you sure you want to delete user <strong>@Model.Name</strong>?
+    You are attempting to delete <strong>@Model.Name</strong>'s account. Are you sure you want to delete user <strong>@Model.Name</strong>'s account?
 </div>
 
 <form asp-action="Delete" method="post">
     <input type="hidden" asp-for="UserId" />
-    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <a asp-action="Index" class="btn btn-secondary">No, Cancel</a>
+    <button type="submit" class="btn btn-danger">Yes, Delete it</button>
 </form>
