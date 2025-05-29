@@ -7,8 +7,8 @@
 <h1 class="mb-4">User Management Suite</h1>
 
 <div class="card shadow border-0">
-    <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-semibold">Registered Users</h5>
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">Account Modifications & Resets</h5>
         <a asp-action="Create" class="btn btn-dark">
             <i class="bi-person-lines-fill"></i> Create...
         </a>
@@ -30,7 +30,7 @@
                     {
                         <tr>
                             <td class="fw-semibold"><strong>#@user.UserId</strong></td>
-                            <td><strong>@user.Name</strong></td>
+                            <td>@user.Name</td>
                             <td class="text-muted">@user.Email</td>
                             <td>
                                 @foreach (var role in user.Roles)
@@ -40,10 +40,10 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-warning" title="Edit User">
+                                    <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-dark" title="Edit User">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@user.UserId" class="btn btn-danger" title="Delete User">
+                                    <a asp-action="Delete" asp-route-id="@user.UserId" class="btn btn-warning" title="Delete User">
                                         <i class="bi bi-trash3"></i>
                                     </a>
                                 </div>

@@ -633,11 +633,23 @@ public IActionResult Edit(
             _context.Attachments.Add(attachment);
         }
     }
+    var email = User.Identity?.Name;
+    var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
+    _context.SaveChanges();
+    
+        _context.ProposalLogs.Add(new ProposalLog
+    {
+        ProposalId = proposal.Id,
+        StatusId = proposal.StatusId,
+        ChangedBy = user?.UserId ?? 0, // whoever is editing
+        Action = "modified",
+        Timestamp = DateTime.Now
+    });
     _context.SaveChanges();
 
     // 5. Fetch UPDATED proposal and related data
-    var updatedProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
+            var updatedProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
 
     var updatedProjectLevelName = _context.ProjectLevels
         .FirstOrDefault(l => l.LevelId == updatedProposal.ProjectLevelId)?.LevelName ?? "Unknown";
@@ -674,8 +686,6 @@ public IActionResult Edit(
     ViewBag.UpdatedCoResearcherNames = updatedCoResearcherNames;
 
     // Optionally: also pass the logged-in user's name for messaging
-    var email = User.Identity?.Name;
-    var user = _context.Users.FirstOrDefault(u => u.Email == email);
     ViewBag.SubmitterName = user?.Name ?? "Unknown";
 
     return View("EditSuccess", updatedProposal);
