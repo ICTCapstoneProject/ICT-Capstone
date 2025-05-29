@@ -27,6 +27,7 @@ namespace FSSA.DTOs
         public string FileName { get; set; }
         public string FileUrl { get; set; }
         public string TypeName { get; set; }
+        public int Id { get; set; }
     }
 }
 
@@ -408,28 +409,83 @@ namespace FSSA.Controllers
         {
             var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
             if (proposal == null)
-            {
                 return NotFound();
-            }
 
+            // Add ProjectLevels
             ViewBag.ProjectLevels = _context.ProjectLevels
                 .Select(pl => new SelectListItem
                 {
                     Value = pl.LevelId.ToString(),
                     Text = pl.LevelName
-                })
-                .ToList();
+                }).ToList();
 
-            ViewBag.CurrentLevelName = _context.ProjectLevels
-                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+            // Add Researchers list
+            var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+            if (researcherRoleId != null)
+            {
+                ViewBag.Researchers = _context.UserRoles
+                    .Where(ur => ur.RoleId == researcherRoleId)
+                    .Include(ur => ur.User)
+                    .Select(ur => new SelectListItem
+                    {
+                        Value = ur.User.UserId.ToString(),
+                        Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                    })
+                    .OrderBy(r => r.Text)
+                    .ToList();
+            }
 
-            ViewBag.Attachments = _context.Attachments
-                .Where(a => a.ProposalId == proposal.Id)
-                .ToList();
+            // Add OriginalProposal
+            ViewBag.OriginalProposal = new Proposal
+            {
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                ProjectLevelId = proposal.ProjectLevelId,
+                PhysicalResources = proposal.PhysicalResources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate,
+                LeadResearcherId = proposal.LeadResearcherId
+            };
+
+            // Financial Resources
+            ViewBag.OriginalFinancialResources = _context.FinancialResources
+                .Where(fr => fr.ProposalId == id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToList();
+
+            // Co-Researchers
+            ViewBag.OriginalCoResearchers = _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == id)
+                .Join(_context.Users,
+                    pr => pr.UserId,
+                    u => u.UserId,
+                    (pr, u) => new CoResearcherDto
+                    {
+                        Id = u.UserId.ToString(),
+                        Name = u.Name
+                    }).ToList();
+
+            // Attachments
+            ViewBag.OriginalAttachments = _context.Attachments
+                .Where(a => a.ProposalId == id)
+                .Join(_context.AttachmentTypes,
+                    a => a.TypeId,
+                    t => t.TypeId,
+                    (a, t) => new AttachmentDto
+                    {
+                        FileName = a.FileName,
+                        FileUrl = a.FileUrl,
+                        TypeName = t.TypeName
+                    }).ToList();
 
             return View(proposal);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
