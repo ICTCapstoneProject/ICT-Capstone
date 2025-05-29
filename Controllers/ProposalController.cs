@@ -71,15 +71,16 @@ namespace FSSA.Controllers
 
 
         // POST: /Proposal/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(
-            Proposal proposal,
-            List<IFormFile> Attachments,
-            List<string> AttachmentTypes,
-            List<int> CoResearchers,
-            List<FinancialResourceDto> FinancialResources
-        )
+       [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(
+        Proposal proposal,
+        List<IFormFile> Attachments,
+        List<string> AttachmentTypes,
+        [FromForm] List<int> CoResearchers,
+        [FromForm] List<FinancialResourceDto> FinancialResources,
+        [FromForm] int ResearcherId
+    )
         {
             if (!ModelState.IsValid)
             {
@@ -106,6 +107,8 @@ namespace FSSA.Controllers
             proposal.SubmittedBy = userId.Value;
             proposal.CreatedAt = DateTime.Now;
             proposal.UpdatedAt = DateTime.Now;
+
+            proposal.LeadResearcherId = ResearcherId;
 
             _context.Proposals.Add(proposal);
             _context.SaveChanges(); // Save to generate Proposal.Id
