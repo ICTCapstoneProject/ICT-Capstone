@@ -123,7 +123,7 @@
             <ul id="financialResourcesList" class="list-group list-group-flush mb-0"></ul>
         </div>
         <div class="mt-2 fw-bold">Total: $<span id="totalCost">0.00</span></div>
-        <input type="hidden" name="FinancialResourcesJson" id="FinancialResourcesJson" />
+        <div id="financialResourceHiddenFields"></div>
     </div>
     
 
@@ -383,52 +383,65 @@
     </script>
 
    <script>
-        const resources = [];
+       const resources = [];
 
-        document.getElementById('addResourceBtn').addEventListener('click', function () {
-            const title = document.getElementById('resourceTitle').value.trim();
-            const cost = parseFloat(document.getElementById('resourceCost').value);
+document.getElementById('addResourceBtn').addEventListener('click', function () {
+    const title = document.getElementById('resourceTitle').value.trim();
+    const cost = parseFloat(document.getElementById('resourceCost').value);
 
-            if (!title || isNaN(cost) || cost < 0) {
-                alert("Please enter a valid title and non-negative cost.");
-                return;
-            }
+    if (!title || isNaN(cost) || cost < 0) {
+        alert("Please enter a valid title and non-negative cost.");
+        return;
+    }
 
-            resources.unshift({ title, cost }); 
-            updateFinancialResourcesUI();
+    resources.push({ title, cost });
+    updateFinancialResourcesUI();
 
-            bootstrap.Modal.getInstance(document.getElementById('financialResourcesModal')).hide();
-            document.getElementById('resourceTitle').value = '';
-            document.getElementById('resourceCost').value = '';
-        });
+    bootstrap.Modal.getInstance(document.getElementById('financialResourcesModal')).hide();
+    document.getElementById('resourceTitle').value = '';
+    document.getElementById('resourceCost').value = '';
+});
 
-        function updateFinancialResourcesUI() {
-            const list = document.getElementById('financialResourcesList');
-            const totalDisplay = document.getElementById('totalCost');
-            const hiddenField = document.getElementById('FinancialResourcesJson');
+function updateFinancialResourcesUI() {
+    const list = document.getElementById('financialResourcesList');
+    const totalDisplay = document.getElementById('totalCost');
+    const hiddenFieldContainer = document.getElementById('financialResourceHiddenFields');
 
-            list.innerHTML = '';
-            let total = 0;
+    list.innerHTML = '';
+    hiddenFieldContainer.innerHTML = '';
+    let total = 0;
 
-            resources.forEach((r, i) => {
-                total += r.cost;
-                const item = document.createElement('li');
-                item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                item.innerHTML = `
-                    ${r.title} - $${r.cost.toFixed(2)}
-                    <button type="button" class="btn" onclick="removeResource(${i})">&times;</button>
-                `;
-                list.appendChild(item);
-            });
+    resources.forEach((r, i) => {
+        total += r.cost;
+        const item = document.createElement('li');
+        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+        item.innerHTML = `
+            ${r.title} - $${r.cost.toFixed(2)}
+            <button type="button" class="btn" onclick="removeResource(${i})">&times;</button>
+        `;
+        list.appendChild(item);
 
-            totalDisplay.textContent = total.toFixed(2);
-            hiddenField.value = JSON.stringify(resources);
-        }
+        const titleInput = document.createElement('input');
+        titleInput.type = 'hidden';
+        titleInput.name = 'ResourceTitles';
+        titleInput.value = r.title;
 
-        function removeResource(index) {
-            resources.splice(index, 1);
-            updateFinancialResourcesUI();
-        }
+        const costInput = document.createElement('input');
+        costInput.type = 'hidden';
+        costInput.name = 'ResourceCosts';
+        costInput.value = r.cost;
+
+        hiddenFieldContainer.appendChild(titleInput);
+        hiddenFieldContainer.appendChild(costInput);
+    });
+
+    totalDisplay.textContent = total.toFixed(2);
+}
+
+function removeResource(index) {
+    resources.splice(index, 1);
+    updateFinancialResourcesUI();
+}
     </script>
 
    <script>

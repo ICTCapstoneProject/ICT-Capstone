@@ -78,7 +78,8 @@ namespace FSSA.Controllers
         List<IFormFile> Attachments,
         List<string> AttachmentTypes,
         [FromForm] List<int> CoResearchers,
-        [FromForm] List<FinancialResourceDto> FinancialResources,
+        [FromForm] List<string> ResourceTitles,
+        [FromForm] List<decimal> ResourceCosts,
         [FromForm] int ResearcherId
     )
         {
@@ -149,15 +150,18 @@ namespace FSSA.Controllers
                 });
             }
 
-            foreach (var fr in FinancialResources)
-            {
-                _context.FinancialResources.Add(new FinancialResource
+            for (int i = 0; i < ResourceTitles.Count; i++)
                 {
-                    ProposalId = proposal.Id,
-                    Title = fr.Title,
-                    Cost = (decimal)fr.Cost
-                });
-            }
+                    if (!string.IsNullOrWhiteSpace(ResourceTitles[i]))
+                    {
+                        _context.FinancialResources.Add(new FinancialResource
+                        {
+                            ProposalId = proposal.Id,
+                            Title = ResourceTitles[i],
+                            Cost = i < ResourceCosts.Count ? ResourceCosts[i] : 0
+                        });
+                    }
+                }
 
             _context.ProposalLogs.Add(new ProposalLog
             {
