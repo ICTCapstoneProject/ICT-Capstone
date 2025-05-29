@@ -551,6 +551,11 @@ function removeResource(index) {
         container.appendChild(hidden);
     });
 }
+
+function removeCoResearcher(index) {
+    coResearchers.splice(index, 1);
+    updateCoResearcherUI();
+    }
 </script>
 
     <style>
