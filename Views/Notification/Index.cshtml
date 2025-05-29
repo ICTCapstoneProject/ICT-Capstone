@@ -1,0 +1,68 @@
+@model List<FSSA.Models.Notification>
+@{
+    ViewData["Title"] = "My Notifications";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Notifications</h2>
+                @if (Model.Any(n => !n.IsRead))
+                {
+                    <form method="post" asp-action="MarkAllAsRead" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-check-all"></i> Mark All as Read
+                        </button>
+                    </form>
+                }
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-bell-slash text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">No notifications</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var notification in Model)
+                    {
+                        <div class="list-group-item list-group-item-action @(!notification.IsRead ? "list-group-item-info" : "")">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        @if (!notification.IsRead)
+                                        {
+                                            <span class="badge bg-primary me-2">New</span>
+                                        }
+                                        <span class="badge bg-secondary me-2">@notification.NotificationType</span>
+                                        <small class="text-muted">@notification.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small>
+                                    </div>
+                                    <p class="mb-1">@Html.Raw(notification.Message)</p>
+                                    @if (notification.ProposalId.HasValue && notification.Proposal != null)
+                                    {
+                                        <small class="text-muted">
+                                            Related Proposal: <a href="#" class="text-decoration-none">@notification.Proposal.Title</a>
+                                        </small>
+                                    }
+                                </div>
+                                @if (!notification.IsRead)
+                                {
+                                    <form method="post" asp-action="MarkAsRead" style="display:inline;">
+                                        <input type="hidden" name="id" value="@notification.NotificationId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success ms-2">
+                                            <i class="bi bi-check"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
