@@ -1,97 +1,269 @@
 @model FSSA.Models.Proposal
+@using FSSA.DTOs
+
 @{
     ViewData["Title"] = "Submission Successful";
+
     string submitterName = ViewBag.SubmitterName ?? "Unknown";
     string levelName = ViewBag.LevelName ?? "Unknown";
-    string methodImagePath = ViewBag.MethodAttachmentPath as string;
-    var financialResources = ViewBag.FinancialResources as List<FSSA.DTOs.FinancialResourceDto> ?? new();
+    string leadResearcherName = ViewBag.LeadResearcherName ?? "Unknown";
+    var financialResources = ViewBag.FinancialResources as List<FinancialResourceDto> ?? new();
+    var coResearchers = ViewBag.CoResearchers as List<CoResearcherDto> ?? new();
+    var attachments = ViewBag.Attachments as List<AttachmentDto> ?? new();
+    Func<string, string> truncate = s => s?.Length > 150 ? s.Substring(0, 150) + "..." : s;
 }
 
-<div class="alert alert-success" role="alert">
+<style>
+    .field-preview {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        overflow: hidden;
+        height: 10em;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+        
+    }
+
+    .field-preview:hover {
+        background-color: #e9ecef;
+    }
+
+    .view-full {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 0.2em 0.5em;
+        font-size: 0.85em;
+        background: rgba(255, 255, 255, 0.8);
+        border-top-left-radius: 0.25rem;
+    }
+</style>
+
+<div class="alert alert-success shadow-sm border border-success-subtle rounded" role="alert">
     <h4 class="alert-heading">Submission Successful</h4>
-    <p class="mb-0">Proposal <strong>@Model.Id</strong>, <em>"@Model.Title"</em> was successfully created by <strong>@submitterName</strong>.</p>
+    <p class="mb-0">
+        Proposal <strong>@Model.Id</strong>, <em>"@Model.Title"</em> was successfully created by <strong>@submitterName</strong>.
+    </p>
 </div>
 
-<div class="card mt-4">
-    <div class="card-header">
-        <h5 class="mb-0">Proposal Summary</h5>
+<div class="card mt-4 shadow-sm border-0">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Proposal Contents</h5>
     </div>
     <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-4">Title:</dt>
-            <dd class="col-sm-8">@Model.Title</dd>
+        <dl class="row row-cols-1">
+            <div class="mb-4">
+                <dt class="h6">Title:</dt>
+                <dd>
+                    <div class="border rounded p-2 bg-light">'@Model.Title'</div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Synopsis:</dt>
-            <dd class="col-sm-8">@Model.Synopsis</dd>
-
-            <dt class="col-sm-4">Method:</dt>
-            <dd class="col-sm-8">@Model.Method</dd>
-
-            @if (!string.IsNullOrEmpty(methodImagePath))
-            {
-                <dt class="col-sm-4">Method Image:</dt>
-                <dd class="col-sm-8">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#methodImageModal" class="text-decoration-underline text-primary">
-                        @System.IO.Path.GetFileName(methodImagePath)
-                    </a>
-
-                    <div class="modal fade" id="methodImageModal" tabindex="-1" aria-labelledby="methodImageModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content border-0 shadow-lg">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="methodImageModalLabel">Method Image</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    <img src="@methodImagePath" alt="Method Image" class="img-fluid rounded" style="max-width: 100%; max-height: 500px; object-fit: contain;" />
-                                </div>
-                            </div>
-                        </div>
+            <div class="mb-4">
+                <dt class="h6">Synopsis:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#synopsisModal">
+                        @truncate(Model.Synopsis)
+                        <span class="view-full">...</span>
                     </div>
                 </dd>
-            }
+            </div>
 
-            <dt class="col-sm-4">Project Level:</dt>
-            <dd class="col-sm-8">@levelName</dd>
+            <div class="mb-4">
+                <dt class="h6">Method:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#methodModal">
+                        @truncate(Model.Method)
+                        <span class="view-full">...</span>
+                    </div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Physical Resources:</dt>
-            <dd class="col-sm-8">@Model.PhysicalResources</dd>
+            <div class="mb-4">
+                <dt class="h6">Project Level:</dt>
+                <dd>
+                    <div class="border rounded p-2 bg-light">@levelName</div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Financial Resources:</dt>
-            <dd class="col-sm-8">
-                @if (financialResources.Any())
-                {
-                    <ul>
-                        @foreach (var fr in financialResources)
-                        {
-                            <li>@fr.Title - @fr.Cost.ToString("C")</li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <span>(None listed)</span>
-                }
-            </dd>
+            <div class="mb-4">
+                <dt class="h6">Physical Resources:</dt>
+                <dd>
+                    <div class="border rounded p-2 bg-light">@Model.PhysicalResources</div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Ethical Considerations:</dt>
-            <dd class="col-sm-8">@Model.EthicalConsiderations</dd>
+            <div class="mb-4">
+                <dt class="h6">Financial Resources:</dt>
+                <dd>
+                    @if (financialResources.Any())
+                    {
+                        <div class="border rounded p-2 bg-light" style="max-height: 150px; overflow-y: auto;">
+                            <ul class="mb-0 ps-3">
+                                @foreach (var fr in financialResources)
+                                {
+                                    <li>@fr.Title - @fr.Cost.ToString("C")</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    else { <span>(None listed)</span> }
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Outcomes:</dt>
-            <dd class="col-sm-8">@Model.Outcomes</dd>
+            <div class="mb-4">
+                <dt class="h6">Ethical Considerations:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#ethicsModal">
+                        @truncate(Model.EthicalConsiderations)
+                        <span class="view-full">...</span>
+                    </div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Milestones:</dt>
-            <dd class="col-sm-8">@Model.Milestones</dd>
+            <div class="mb-4">
+                <dt class="h6">Outcomes:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#outcomesModal">
+                        @truncate(Model.Outcomes)
+                        <span class="view-full">...</span>
+                    </div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Estimated Completion:</dt>
-            <dd class="col-sm-8">@Model.EstimatedCompletionDate.ToShortDateString()</dd>
+            <div class="mb-4">
+                <dt class="h6">Milestones:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#milestonesModal">
+                        @truncate(Model.Milestones)
+                        <span class="view-full">...</span>
+                    </div>
+                </dd>
+            </div>
 
-            <dt class="col-sm-4">Submitted By:</dt>
-            <dd class="col-sm-8">@submitterName</dd>
+            <div class="mb-4">
+                <dt class="h6">Estimated Completion:</dt>
+                <dd>
+                    <div class="border rounded p-2 bg-light">@Model.EstimatedCompletionDate.ToShortDateString()</div>
+                </dd>
+            </div>
+
+            <div class="mb-4">
+                <dt class="h6">Lead Researcher:</dt>
+                <dd>
+                    <div class="border rounded p-2 bg-light">@leadResearcherName</div>
+                </dd>
+            </div>
+            <div class="mb-4">
+                <dt class="h6">Co-Researchers:</dt>
+                <dd>
+                    @if (coResearchers.Any())
+                    {
+                        <div class="border rounded p-2 bg-light" style="max-height: 120px; overflow-y: auto;">
+                            <ul class="mb-0 ps-3">
+                                @foreach (var researcher in coResearchers)
+                                {
+                                    <li>@researcher.Name</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    else { <span>(None listed)</span> }
+                </dd>
+            </div>
+
+            <div class="mb-4">
+                <dt class="h6">Attachments:</dt>
+                <dd>
+                    @if (attachments.Any())
+                    {
+                        <div class="border rounded p-2 bg-light" style="max-height: 150px; overflow-y: auto;">
+                            <ul class="list-unstyled mb-0 ps-2">
+                                @foreach (var file in attachments)
+                                {
+                                    <li class="mb-1 d-flex align-items-center">
+                                        <a href="@file.FileUrl" download class="text-primary me-2" title="Download">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                        <strong>@file.TypeName:</strong>
+                                        &nbsp;<span class="text-muted">'#@file.FileName'</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    else { <span>(No attachments uploaded)</span> }
+                </dd>
+            </div>
         </dl>
     </div>
 </div>
 
-<div class="mt-3">
-    <a href="@Url.Action("Index", "Home")" class="btn btn-dark">Return to Dashboard</a>
+<div class="mt-4 text-right mb-3">
+    <a href="@Url.Action("Index", "Home")" class="btn btn-dark">
+        <i class="bi bi-house-door-fill me-1"></i>Return to Dashboard
+    </a>
+</div>
+
+<div class="modal fade" id="synopsisModal" tabindex="-1" aria-labelledby="synopsisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Synopsis</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; min-height: 400px; max-height: 400px; overflow-y auto;">@Model.Synopsis</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="methodModal" tabindex="-1" aria-labelledby="methodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Method</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; min-height: 400px; max-height: 400px; overflow-y auto;">@Model.Method</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ethicsModal" tabindex="-1" aria-labelledby="ethicsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Ethical Considerations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; min-height: 400px; max-height: 400px; overflow-y auto;">@Model.EthicalConsiderations</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="outcomesModal" tabindex="-1" aria-labelledby="outcomesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Outcomes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; min-height: 400px; max-height: 400px; overflow-y auto;">@Model.Outcomes</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="milestonesModal" tabindex="-1" aria-labelledby="milestonesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Milestones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; min-height: 400px; max-height: 400px; overflow-y auto;">@Model.Milestones</div>
+        </div>
+    </div>
 </div>

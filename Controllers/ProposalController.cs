@@ -21,6 +21,13 @@ namespace FSSA.DTOs
         public string Id { get; set; }
         public string Name { get; set; }
     }
+
+    public class AttachmentDto
+    {
+        public string FileName { get; set; }
+        public string FileUrl { get; set; }
+        public string TypeName { get; set; }
+    }
 }
 
 namespace FSSA.Controllers
@@ -195,8 +202,49 @@ namespace FSSA.Controllers
             var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
             var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId);
 
+            // Fetch all attachments joined with their type names
+            var attachments = _context.Attachments
+                .Where(a => a.ProposalId == id)
+                .Join(_context.AttachmentTypes,
+                    a => a.TypeId,
+                    t => t.TypeId,
+                    (a, t) => new AttachmentDto
+                    {
+                        FileName = a.FileName,
+                        FileUrl = a.FileUrl,
+                        TypeName = t.TypeName
+                    })
+                .ToList();
+
+            // Financial resources
+            var financialResources = _context.FinancialResources
+                .Where(fr => fr.ProposalId == id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToList();
+
+            // Co-researchers
+            var coResearchers = _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == id)
+                .Join(_context.Users,
+                    pr => pr.UserId,
+                    u => u.UserId,
+                    (pr, u) => new CoResearcherDto
+                    {
+                        Id = u.UserId.ToString(),
+                        Name = u.Name
+                    })
+                .ToList();
+            var leadResearcher = _context.Users.FirstOrDefault(u => u.UserId == proposal.LeadResearcherId);
+
             ViewBag.SubmitterName = user?.Name ?? "Unknown User";
             ViewBag.LevelName = level?.LevelName ?? "Unknown Level";
+            ViewBag.LeadResearcherName = leadResearcher?.Name ?? "Unknown";
+            ViewBag.Attachments = attachments;
+            ViewBag.FinancialResources = financialResources;
+            ViewBag.CoResearchers = coResearchers;
 
             return View(proposal);
         }
@@ -556,7 +604,7 @@ namespace FSSA.Controllers
                 combo => combo.p.StatusId,
                 s => s.StatusId,
                 (combo, s) => new { combo.p, combo.pl, combo.u, s })
-            .ToList() // Force evaluation so we can deserialize JSON after
+            .ToList() 
             .Select(entry => new MyProposalViewModel
             {
                 Id = entry.p.Id,
