@@ -483,136 +483,203 @@ namespace FSSA.Controllers
                         FileUrl = a.FileUrl,
                         TypeName = t.TypeName
                     }).ToList();
+            
+            // Project Level Name
+            ViewBag.OriginalProjectLevel = _context.ProjectLevels
+                .Where(pl => pl.LevelId == proposal.ProjectLevelId)
+                .Select(pl => pl.LevelName)
+                .FirstOrDefault() ?? "N/A";
+
+            // Lead Researcher Name
+            ViewBag.OriginalLeadResearcher = _context.Users
+                .Where(u => u.UserId == proposal.LeadResearcherId)
+                .Select(u => u.Name)
+                .FirstOrDefault() ?? "N/A";
 
             return View(proposal);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Proposal proposal, List<IFormFile> NewAttachments, List<string> AttachmentTypes, List<int> DeleteAttachmentIds)
+[ValidateAntiForgeryToken]
+public IActionResult Edit(
+    Proposal proposal,
+    List<IFormFile> NewAttachments,
+    List<string> AttachmentTypes,
+    List<int> DeleteAttachmentIds
+)
+{
+    if (!ModelState.IsValid)
+    {
+        ViewBag.ProjectLevels = _context.ProjectLevels
+            .Select(pl => new SelectListItem
+            {
+                Value = pl.LevelId.ToString(),
+                Text = pl.LevelName
+            })
+            .ToList();
+
+        ViewBag.CurrentLevelName = _context.ProjectLevels
+            .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+        ViewBag.Attachments = _context.Attachments
+            .Where(a => a.ProposalId == proposal.Id)
+            .ToList();
+
+        return View(proposal);
+    }
+
+    // 1. Get "original" proposal snapshot BEFORE editing
+    var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
+    if (existingProposal == null)
+        return NotFound();
+
+    // Create a POCO copy for original state
+    var originalProposal = new Proposal
+    {
+        Id = existingProposal.Id,
+        Title = existingProposal.Title,
+        Synopsis = existingProposal.Synopsis,
+        Method = existingProposal.Method,
+        ProjectLevelId = existingProposal.ProjectLevelId,
+        PhysicalResources = existingProposal.PhysicalResources,
+        EthicalConsiderations = existingProposal.EthicalConsiderations,
+        Outcomes = existingProposal.Outcomes,
+        Milestones = existingProposal.Milestones,
+        EstimatedCompletionDate = existingProposal.EstimatedCompletionDate,
+        LeadResearcherId = existingProposal.LeadResearcherId
+        // Add other fields as needed
+    };
+
+    // Get human-readable project level and lead researcher for original
+    var origProjectLevelName = _context.ProjectLevels
+        .FirstOrDefault(l => l.LevelId == originalProposal.ProjectLevelId)?.LevelName ?? "Unknown";
+    var origLeadResearcherName = _context.Users
+        .FirstOrDefault(u => u.UserId == originalProposal.LeadResearcherId)?.Name ?? "Unknown";
+        
+    
+
+    // Get financial resources, co-researchers, attachments for original
+            var origFinancialResources = _context.FinancialResources
+        .Where(fr => fr.ProposalId == originalProposal.Id)
+        .ToList();
+    var origAttachments = _context.Attachments
+        .Where(a => a.ProposalId == originalProposal.Id)
+        .ToList();
+    var origCoResearchers = _context.ProposalResearchers
+        .Where(pr => pr.ProposalId == originalProposal.Id)
+        .Select(pr => pr.UserId)
+        .ToList();
+    var origCoResearcherNames = _context.Users
+        .Where(u => origCoResearchers.Contains(u.UserId))
+        .Select(u => u.Name)
+        .ToList();
+
+    // 2. Apply all changes to the actual entity
+    existingProposal.Title = proposal.Title;
+    existingProposal.Synopsis = proposal.Synopsis;
+    existingProposal.Method = proposal.Method;
+    existingProposal.ProjectLevelId = proposal.ProjectLevelId;
+    existingProposal.PhysicalResources = proposal.PhysicalResources;
+    existingProposal.EthicalConsiderations = proposal.EthicalConsiderations;
+    existingProposal.Outcomes = proposal.Outcomes;
+    existingProposal.Milestones = proposal.Milestones;
+    existingProposal.EstimatedCompletionDate = proposal.EstimatedCompletionDate;
+    existingProposal.LeadResearcherId = proposal.LeadResearcherId;
+    existingProposal.UpdatedAt = DateTime.Now;
+
+    // 3. Handle deleted attachments
+    if (DeleteAttachmentIds != null && DeleteAttachmentIds.Any())
+    {
+        var toDelete = _context.Attachments
+            .Where(a => DeleteAttachmentIds.Contains(a.FileId))
+            .ToList();
+
+        foreach (var att in toDelete)
         {
-            if (!ModelState.IsValid)
+            var filePath = Path.Combine("wwwroot", att.FileUrl.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
+
+            _context.Attachments.Remove(att);
+        }
+    }
+
+    // 4. Handle new attachments
+    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+    if (!Directory.Exists(uploadsPath))
+        Directory.CreateDirectory(uploadsPath);
+
+    for (int i = 0; i < NewAttachments.Count; i++)
+    {
+        var file = NewAttachments[i];
+        if (file?.Length > 0 && i < AttachmentTypes.Count && int.TryParse(AttachmentTypes[i], out int typeId))
+        {
+            var uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadsPath, uniqueName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                ViewBag.ProjectLevels = _context.ProjectLevels
-                    .Select(pl => new SelectListItem
-                    {
-                        Value = pl.LevelId.ToString(),
-                        Text = pl.LevelName
-                    })
-                    .ToList();
-
-                ViewBag.CurrentLevelName = _context.ProjectLevels
-                    .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
-
-                ViewBag.Attachments = _context.Attachments
-                    .Where(a => a.ProposalId == proposal.Id)
-                    .ToList();
-
-                return View(proposal);
+                file.CopyTo(stream);
             }
 
-            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
-            if (existingProposal == null)
-                return NotFound();
-
-            // Get user ID
-            var email = User.Identity?.Name;
-            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
-            var history = new ProposalHistory
-
-            {
-                ProposalId = existingProposal.Id,
-                Title = existingProposal.Title,
-                Synopsis = existingProposal.Synopsis,
-                Method = existingProposal.Method,
-                ProjectLevelId = existingProposal.ProjectLevelId,
-                PhysicalResources = existingProposal.PhysicalResources,
-                EthicalConsiderations = existingProposal.EthicalConsiderations,
-                Outcomes = existingProposal.Outcomes,
-                Milestones = existingProposal.Milestones,
-                EstimatedCompletionDate = existingProposal.EstimatedCompletionDate,
-                LeadResearcherId = existingProposal.LeadResearcherId,
-                StatusId = existingProposal.StatusId,
-                Action = "modified",
-                Timestamp = DateTime.Now,
-                ChangedBy = userId
-            };
-            _context.ProposalHistories.Add(history);
-
-            // Apply changes to the proposal
-            existingProposal.Title = proposal.Title;
-            existingProposal.Synopsis = proposal.Synopsis;
-            existingProposal.Method = proposal.Method;
-            existingProposal.ProjectLevelId = proposal.ProjectLevelId;
-            existingProposal.PhysicalResources = proposal.PhysicalResources;
-            existingProposal.EthicalConsiderations = proposal.EthicalConsiderations;
-            existingProposal.Outcomes = proposal.Outcomes;
-            existingProposal.Milestones = proposal.Milestones;
-            existingProposal.EstimatedCompletionDate = proposal.EstimatedCompletionDate;
-            existingProposal.LeadResearcherId = proposal.LeadResearcherId;
-            existingProposal.UpdatedAt = DateTime.Now;
-
-            // Handle deleted attachments
-            if (DeleteAttachmentIds != null && DeleteAttachmentIds.Any())
-            {
-                var toDelete = _context.Attachments
-                    .Where(a => DeleteAttachmentIds.Contains(a.FileId))
-                    .ToList();
-
-                foreach (var att in toDelete)
-                {
-                    var filePath = Path.Combine("wwwroot", att.FileUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath))
-                        System.IO.File.Delete(filePath);
-
-                    _context.Attachments.Remove(att);
-                }
-            }
-
-            // Handle new attachments
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            if (!Directory.Exists(uploadsPath))
-                Directory.CreateDirectory(uploadsPath);
-
-            for (int i = 0; i < NewAttachments.Count; i++)
-            {
-                var file = NewAttachments[i];
-                if (file?.Length > 0 && i < AttachmentTypes.Count && int.TryParse(AttachmentTypes[i], out int typeId))
-                {
-                    var uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine(uploadsPath, uniqueName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        file.CopyTo(stream);
-                    }
-
-                    var attachment = new Attachment
-                    {
-                        ProposalId = proposal.Id,
-                        FileName = file.FileName,
-                        FileUrl = "/uploads/" + uniqueName,
-                        TypeId = typeId
-                    };
-
-                    _context.Attachments.Add(attachment);
-                }
-            }
-
-            // Log the update in proposal_log
-            _context.ProposalLogs.Add(new ProposalLog
+            var attachment = new Attachment
             {
                 ProposalId = proposal.Id,
-                StatusId = existingProposal.StatusId,
-                ChangedBy = userId,
-                Action = "modified",
-                Timestamp = DateTime.Now
-            });
+                FileName = file.FileName,
+                FileUrl = "/uploads/" + uniqueName,
+                TypeId = typeId
+            };
 
-            _context.SaveChanges();
-
-            return RedirectToAction("EditSuccess", new { id = proposal.Id });
+            _context.Attachments.Add(attachment);
         }
+    }
+
+    _context.SaveChanges();
+
+    // 5. Fetch UPDATED proposal and related data
+    var updatedProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
+
+    var updatedProjectLevelName = _context.ProjectLevels
+        .FirstOrDefault(l => l.LevelId == updatedProposal.ProjectLevelId)?.LevelName ?? "Unknown";
+    var updatedLeadResearcherName = _context.Users
+        .FirstOrDefault(u => u.UserId == updatedProposal.LeadResearcherId)?.Name ?? "Unknown";
+
+    var updatedFinancialResources = _context.FinancialResources
+        .Where(fr => fr.ProposalId == updatedProposal.Id)
+        .ToList();
+    var updatedAttachments = _context.Attachments
+        .Where(a => a.ProposalId == updatedProposal.Id)
+        .ToList();
+    var updatedCoResearchers = _context.ProposalResearchers
+        .Where(pr => pr.ProposalId == updatedProposal.Id)
+        .Select(pr => pr.UserId)
+        .ToList();
+    var updatedCoResearcherNames = _context.Users
+        .Where(u => updatedCoResearchers.Contains(u.UserId))
+        .Select(u => u.Name)
+        .ToList();
+
+    // 6. Pass to ViewBag for EditSuccess view
+    ViewBag.OriginalProposal = originalProposal;
+    ViewBag.OrigProjectLevelName = origProjectLevelName;
+    ViewBag.OrigLeadResearcherName = origLeadResearcherName;
+    ViewBag.OrigFinancialResources = origFinancialResources;
+    ViewBag.OrigAttachments = origAttachments;
+    ViewBag.OrigCoResearcherNames = origCoResearcherNames;
+
+    ViewBag.UpdatedProjectLevelName = updatedProjectLevelName;
+    ViewBag.UpdatedLeadResearcherName = updatedLeadResearcherName;
+    ViewBag.UpdatedFinancialResources = updatedFinancialResources;
+    ViewBag.UpdatedAttachments = updatedAttachments;
+    ViewBag.UpdatedCoResearcherNames = updatedCoResearcherNames;
+
+    // Optionally: also pass the logged-in user's name for messaging
+    var email = User.Identity?.Name;
+    var user = _context.Users.FirstOrDefault(u => u.Email == email);
+    ViewBag.SubmitterName = user?.Name ?? "Unknown";
+
+    return View("EditSuccess", updatedProposal);
+}
 
         public IActionResult EditSuccess(int id)
         {
