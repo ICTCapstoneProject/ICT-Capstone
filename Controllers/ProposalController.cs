@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FSSA.Controllers
 {
@@ -131,7 +132,7 @@ namespace FSSA.Controllers
             {
                 return Unauthorized();
             }
-            
+
             bool canToggle = User.IsInRole("researcher") || User.IsInRole("manager") || User.IsInRole("assistant director");
 
             List<MyProposalViewModel> proposals;
@@ -459,7 +460,7 @@ namespace FSSA.Controllers
                 return NotFound();
             }
 
-            // Search for user who created the proposal
+            // Search for the user {userID} who created the proposal
             var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
 
             // Look up the name of the project level (e.g., Undergraduate, Graduate)
@@ -487,6 +488,52 @@ namespace FSSA.Controllers
 
             // Return the "Summary" view and pass the data to it.
             return View("Summary", model);
+        }
+
+        // This action can only be accessed by users in the "manager" or "assistant director" roles
+        [Authorize(Roles = "manager, assistant director")]
+        public async Task<IActionResult> Review(int id)
+        {
+            // Search for the Proposal using the Proposal ID
+            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+
+            // If the proposal is not found (null result), return NotFound
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            // Search for the user {userID} who created the proposal
+            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+
+            // Look up the name of the project level (e.g., Undergraduate, Graduate)
+            // If not found, return "Unknown"
+            var projectLevel = _context.ProjectLevels
+                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            // Create a new view model and populate it with data from the Proposal entity
+            var viewModel = new ProposalReviewViewModel
+            {
+                Id = proposal.Id,
+                Title = proposal.Title,
+                Synopsis = proposal.Synopsis,
+                Method = proposal.Method,
+                MethodImage = proposal.MethodImage,
+                ProjectLevel = projectLevel,
+                Resources = proposal.Resources,
+                EthicalConsiderations = proposal.EthicalConsiderations,
+                Outcomes = proposal.Outcomes,
+                Milestones = proposal.Milestones,
+                EstimatedCompletionDate = proposal.EstimatedCompletionDate,
+                SubmittedByName = user?.Name ?? "Unknown", // Use "Unknown" if user not found
+                StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown",
+                
+                // Initializes an empty dictionary to store reviewer comments keyed by field name
+                FieldComments = new Dictionary<string, string>()
+            };
+
+            // Return the Review.cshtml view and pass it the populated view model
+            return View(viewModel);
         }
     }
 }
