@@ -1,6 +1,7 @@
 using FSSA.Models; 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using ProjectManagerMvc.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
     });
 
+
+// Add the INotificationService to the services collection
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
