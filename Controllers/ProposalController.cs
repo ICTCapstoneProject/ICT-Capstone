@@ -5,16 +5,19 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using ProjectManagerMvc.Services; 
 
 namespace FSSA.Controllers
 {
     public class ProposalController : Controller
     {
         private readonly ProjectManagerContext _context;
+        private readonly INotificationService _notificationService; 
 
-        public ProposalController(ProjectManagerContext context)
+        public ProposalController(ProjectManagerContext context, INotificationService notificationService) 
         {
             _context = context;
+            _notificationService = notificationService; 
         }
 
         // GET: /Proposal/Create
@@ -36,7 +39,7 @@ namespace FSSA.Controllers
         // POST: /Proposal/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Proposal proposal, IFormFile MethodImage)
+        public async Task<IActionResult> Create(Proposal proposal, IFormFile MethodImage) 
         {
             if (ModelState.IsValid)
             {
@@ -74,7 +77,7 @@ namespace FSSA.Controllers
                 }
 
                 _context.Proposals.Add(proposal);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync(); 
 
                 _context.ProposalLogs.Add(new ProposalLog
                 {
@@ -84,7 +87,27 @@ namespace FSSA.Controllers
                     Action = "submitted",
                     Timestamp = DateTime.Now
                 });
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+
+                // Notify Chair and Reviewer when proposal is submitted
+                var submitter = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId.Value);
+                var submitterName = submitter?.Name ?? "Unknown User";
+
+                await _notificationService.CreateNotificationForRoleAsync(
+                    "Chair", 
+                    $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                    proposal.Id,
+                    "ProposalSubmission",
+                    userId.Value
+                );
+
+                await _notificationService.CreateNotificationForRoleAsync(
+                    "Reviewer", 
+                    $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                    proposal.Id,
+                    "ProposalSubmission",
+                    userId.Value
+                );
 
                 return RedirectToAction("Success", new { id = proposal.Id });
             }
@@ -257,14 +280,14 @@ namespace FSSA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Proposal updatedProposal)
+        public async Task<IActionResult> Edit(Proposal updatedProposal) 
         {
             if (!ModelState.IsValid)
             {
                 return View(updatedProposal);
             }
 
-            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == updatedProposal.Id);
+            var existingProposal = await _context.Proposals.FirstOrDefaultAsync(p => p.Id == updatedProposal.Id);
             if (existingProposal == null)
             {
                 return NotFound();
@@ -297,7 +320,7 @@ namespace FSSA.Controllers
             existingProposal.EstimatedCompletionDate = updatedProposal.EstimatedCompletionDate;
             existingProposal.UpdatedAt = DateTime.Now;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             var email = User.Identity?.Name;
             var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
@@ -310,7 +333,16 @@ namespace FSSA.Controllers
                 Action = "modified",
                 Timestamp = DateTime.Now
             });
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            // Notify Chair when proposal is modified
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Chair", 
+                $"Proposal '{existingProposal.Title}' has been modified and requires re-approval.",
+                existingProposal.Id,
+                "ProposalModification",
+                userId
+            );
 
             var submitter = _context.Users.FirstOrDefault(u => u.UserId == existingProposal.SubmittedBy);
             var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == existingProposal.ProjectLevelId);
@@ -445,6 +477,76 @@ namespace FSSA.Controllers
             };
 
             return View(viewModel);
+        }
+
+        // For updating proposal status and sending notifications
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int proposalId, int newStatusId)
+        {
+            var proposal = await _context.Proposals.FirstOrDefaultAsync(p => p.Id == proposalId);
+            if (proposal == null)
+                return NotFound();
+
+            var oldStatusId = proposal.StatusId;
+            proposal.StatusId = newStatusId;
+            proposal.UpdatedAt = DateTime.Now;
+
+            var email = User.Identity?.Name;
+            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
+
+            _context.ProposalLogs.Add(new ProposalLog
+            {
+                ProposalId = proposal.Id,
+                StatusId = newStatusId,
+                ChangedBy = userId,
+                Action = "status_changed",
+                Timestamp = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+
+            // Get status names
+            var newStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.StatusId == newStatusId);
+            var statusName = newStatus?.StatusName ?? "Unknown Status";
+
+            // Notify on status updates
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Chair", 
+                $"Proposal '{proposal.Title}' status changed to {statusName}.",
+                proposal.Id,
+                "StatusChange"
+            );
+
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Reviewer", 
+                $"Proposal '{proposal.Title}' status changed to {statusName}.",
+                proposal.Id,
+                "StatusChange"
+            );
+
+            // Notify when proposal is completed
+            if (statusName.ToLower().Contains("completed"))
+            {
+                await _notificationService.CreateNotificationForRoleAsync(
+                    "All", 
+                    $"Proposal '{proposal.Title}' has been completed.",
+                    proposal.Id,
+                    "ProposalCompletion"
+                );
+            }
+
+            // Notify when proposal is approved
+            if (statusName.ToLower().Contains("approved"))
+            {
+                await _notificationService.CreateNotificationForRoleAsync(
+                    "Manager", 
+                    $"Proposal '{proposal.Title}' has been approved. Assign members.",
+                    proposal.Id,
+                    "AssignmentRequired"
+                );
+            }
+
+            return RedirectToAction("Details", new { id = proposalId });
         }
     }
 }

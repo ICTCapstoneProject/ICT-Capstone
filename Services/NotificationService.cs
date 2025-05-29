@@ -30,13 +30,24 @@ namespace ProjectManagerMvc.Services
 
         public async Task CreateNotificationForRoleAsync(string roleName, string message, int? proposalId = null, string notificationType = "General", int? excludeUserId = null)
         {
-            var usersWithRole = await _context.Users
-                .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role)
-                .Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == roleName))
-                .ToListAsync();
+            List<User> targetUsers;
 
-            foreach (var user in usersWithRole)
+            if (roleName.ToLower() == "all")
+            {
+                // Send to all users
+                targetUsers = await _context.Users.ToListAsync();
+            }
+            else
+            {
+                // Send to specific role
+                targetUsers = await _context.Users
+                    .Include(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                    .Where(u => u.UserRoles.Any(ur => ur.Role.RoleName == roleName))
+                    .ToListAsync();
+            }
+
+            foreach (var user in targetUsers)
             {
                 if (excludeUserId.HasValue && user.UserId == excludeUserId.Value)
                     continue;
