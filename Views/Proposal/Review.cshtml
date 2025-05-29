@@ -1,0 +1,113 @@
+﻿@model ProposalReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Proposal";
+}
+
+<h2>@Model.Title</h2>
+
+<!-- Navigation buttons -->
+<div class="d-flex gap-2 mb-3">
+    <a asp-action="Search" class="btn btn-secondary">Back to Proposals</a>
+</div>
+
+<!-- View Layout -->
+<div class="container">
+
+    <div class="row">
+        <!-- Title Field -->
+        <div class="col-sm-2">Title</div>
+        <div class="col-sm-5">@Model.Title</div>
+    </div>
+    
+    <div class="row">
+        <!-- Synopsis Field -->
+        <div class="col-sm-2"><strong>Synopsis</strong></div>
+        <div class="col-sm-5">@Model.Synopsis</div>
+        <div class="col-sm-3">
+            <!-- Text area for Synopsis field comments  -->
+            <textarea name="FieldComments[Synopsis]" class="form-control">@Model.FieldComments.GetValueOrDefault("Synopsis")</textarea>
+        </div>
+    </div>
+
+    <!-- Method Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Method</strong></div>
+        <div class="col-sm-5">@Model.Method</div>
+        <div class="col-sm-3">
+            <!-- Text area for Method field comments  -->
+            <textarea name="FieldComments[Method]" class="form-control">@Model.FieldComments.GetValueOrDefault("Method")</textarea>
+        </div>
+    </div>
+
+    <!-- Project Level Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Project Level</strong></div>
+        <div class="col-sm-5">@Model.ProjectLevel</div>
+    </div>
+    
+
+    <!-- Resources Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Resources</strong></div>
+        <div class="col-sm-5">@Model.Resources</div>
+        <div class="col-sm-3">
+            <!-- Text area for Resources field comments  -->
+            <textarea name="FieldComments[Resources]" class="form-control">@Model.FieldComments.GetValueOrDefault("Resources")</textarea>
+        </div>
+    </div>
+
+    <!-- Ethical Considerations Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Ethical Considerations</strong></div>
+        <div class="col-sm-5">@Model.EthicalConsiderations</div>
+        <div class="col-sm-3">
+            <!-- Text area for Ethical Consideration field comments  -->
+            <textarea name="FieldComments[EthicalConsiderations]" class="form-control">@Model.FieldComments.GetValueOrDefault("EthicalConsiderations")</textarea>
+        </div>
+    </div>
+
+    <!-- Outcomes Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Outcomes</strong></div>
+        <div class="col-sm-5">@Model.Outcomes</div>
+        <div class="col-sm-3">
+            <!-- Text area for Outcomes field comments  -->
+            <textarea name="FieldComments[Outcomes]" class="form-control">@Model.FieldComments.GetValueOrDefault("Outcomes")</textarea>
+        </div>
+    </div>
+
+    <!-- Milestones Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Milestones</strong></div>
+        <div class="col-sm-5">@Model.Milestones</div>
+        <div class="col-sm-3">
+            <!-- Text area for Milestones field comments  -->
+            <textarea name="FieldComments[Milestones]" class="form-control">@Model.FieldComments.GetValueOrDefault("Milestones")</textarea>
+        </div>
+    </div>
+
+    <!-- Estimated Completion Date Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Estimated Completion Date</strong></div>
+        <div class="col-sm-5">@Model.EstimatedCompletionDate.ToString("yyyy-MM-dd")</div>
+    </div>
+
+    <!-- Status Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Status</strong></div>
+        <div class="col-sm-5">@Model.StatusName</div>
+    </div>
+
+    <!-- Submitted By Field -->
+    <div class="row">
+        <div class="col-sm-2"><strong>Submitted By</strong></div>
+        <div class="col-sm-5">@Model.SubmittedByName</div>
+    </div>
+</div>
+
+<!-- Submit button to save comments -->
+<form asp-action="SaveReviewComments" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <button type="submit" class="btn btn-primary mt-3">Save Comments</button>
+</form>
