@@ -82,9 +82,9 @@ namespace FSSA.Controllers
     [ValidateAntiForgeryToken]
     public IActionResult Create(
         Proposal proposal,
-        [FromForm] IFormFile SynopsisAttachment,
-        [FromForm] IFormFile MethodImage,
-        [FromForm] IFormFile EthicsAttachment,
+        [FromForm] IFormFile? SynopsisAttachment,
+        [FromForm] IFormFile? MethodImage,
+        [FromForm] IFormFile? EthicsAttachment,
         [FromForm] List<int> CoResearchers,
         [FromForm] List<string> ResourceTitles,
         [FromForm] List<decimal> ResourceCosts,
@@ -92,16 +92,38 @@ namespace FSSA.Controllers
     )
         {
             if (!ModelState.IsValid)
-            {
-                ViewBag.ProjectLevels = _context.ProjectLevels
-                    .Select(pl => new SelectListItem
-                    {
-                        Value = pl.LevelId.ToString(),
-                        Text = pl.LevelName
-                    }).ToList();
+                {
+                    foreach (var modelStateEntry in ModelState)
+                            {
+                                foreach (var error in modelStateEntry.Value.Errors)
+                                {
+                                    Console.WriteLine($"Model error in {modelStateEntry.Key}: {error.ErrorMessage}");
+                                }
+                            }
+                    ViewBag.ProjectLevels = _context.ProjectLevels
+                        .Select(pl => new SelectListItem
+                        {
+                            Value = pl.LevelId.ToString(),
+                            Text = pl.LevelName
+                        }).ToList();
 
-                return View(proposal);
-            }
+                    var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+
+                    ViewBag.Researchers = (researcherRoleId != null)
+                        ? _context.UserRoles
+                            .Where(ur => ur.RoleId == researcherRoleId)
+                            .Include(ur => ur.User)
+                            .Select(ur => new SelectListItem
+                            {
+                                Value = ur.User.UserId.ToString(),
+                                Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                            })
+                            .OrderBy(r => r.Text)
+                            .ToList()
+                        : new List<SelectListItem>();
+
+                    return View(proposal);
+                }
 
             var identity = User.Identity;
             if (identity == null || !identity.IsAuthenticated)
