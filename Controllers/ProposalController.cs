@@ -528,7 +528,7 @@ namespace FSSA.Controllers
                 SubmittedByName = user?.Name ?? "Unknown", // Use "Unknown" if user not found
                 StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown",
                 
-                // Initializes an empty dictionary to store reviewer comments keyed by field name
+                // Creates an empty dictionary to store reviewer comments keyed by field name
                 FieldComments = new Dictionary<string, string>()
             };
 
