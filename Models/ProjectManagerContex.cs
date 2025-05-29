@@ -60,6 +60,20 @@ namespace FSSA.Models
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+
+            // User to Notification
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId);
+
+            // Notification to Proposal 
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Proposal)
+                .WithMany(p => p.Notifications) 
+                .HasForeignKey(n => n.ProposalId)
+                .IsRequired(false) 
+                .OnDelete(DeleteBehavior.SetNull); 
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic; 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -66,5 +67,7 @@ namespace FSSA.Models
         [Column("method_image")]
         [Display(Name = "Method Image")]
         public string? MethodImage { get; set; }
+
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

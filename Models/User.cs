@@ -26,6 +26,7 @@ namespace FSSA.Models
         public DateTime CreatedAt { get; set; }
         
         public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<Notification> Notifications { get; set; } 
 
     }
 }
