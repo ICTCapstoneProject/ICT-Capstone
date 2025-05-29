@@ -75,8 +75,9 @@ namespace FSSA.Controllers
     [ValidateAntiForgeryToken]
     public IActionResult Create(
         Proposal proposal,
-        List<IFormFile> Attachments,
-        List<string> AttachmentTypes,
+        [FromForm] IFormFile SynopsisAttachment,
+        [FromForm] IFormFile MethodImage,
+        [FromForm] IFormFile EthicsAttachment,
         [FromForm] List<int> CoResearchers,
         [FromForm] List<string> ResourceTitles,
         [FromForm] List<decimal> ResourceCosts,
@@ -114,14 +115,14 @@ namespace FSSA.Controllers
             _context.Proposals.Add(proposal);
             _context.SaveChanges(); // Save to generate Proposal.Id
 
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+           var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             if (!Directory.Exists(uploadsPath))
                 Directory.CreateDirectory(uploadsPath);
 
-            for (int i = 0; i < Attachments.Count; i++)
+            // Helper method to save attachment
+            void SaveAttachment(IFormFile file, int typeId, string label)
             {
-                var file = Attachments[i];
-                if (file?.Length > 0 && i < AttachmentTypes.Count && int.TryParse(AttachmentTypes[i], out int typeId))
+                if (file != null && file.Length > 0)
                 {
                     var uniqueName = Guid.NewGuid() + Path.GetExtension(file.FileName);
                     var filePath = Path.Combine(uploadsPath, uniqueName);
@@ -134,12 +135,17 @@ namespace FSSA.Controllers
                     _context.Attachments.Add(new Attachment
                     {
                         ProposalId = proposal.Id,
-                        FileName = file.FileName,
+                        FileName = $"{proposal.Id}-{proposal.Title}-{label}",
                         FileUrl = "/uploads/" + uniqueName,
                         TypeId = typeId
                     });
                 }
             }
+
+            // Save each one with the correct type and label
+            SaveAttachment(SynopsisAttachment, 1, "Synopsis Attachment");
+            SaveAttachment(MethodImage, 2, "Method Attachment");
+            SaveAttachment(EthicsAttachment, 3, "Ethics Attachment");
 
             foreach (var coResearcherId in CoResearchers)
             {
