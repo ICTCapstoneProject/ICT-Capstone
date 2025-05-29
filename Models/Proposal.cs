@@ -28,8 +28,8 @@ namespace FSSA.Models
         public int ProjectLevelId { get; set; }
 
         [Required]
-        [Column("resources")]
-        public string Resources { get; set; }
+        [Column("physical_resources")]
+        public string PhysicalResources { get; set; }
 
         [Required]
         [Display(Name = "Ethical Considerations")]
@@ -63,8 +63,10 @@ namespace FSSA.Models
         [Column("submitted_by")]
         public int SubmittedBy { get; set; }
         
-        [Column("method_image")]
-        [Display(Name = "Method Image")]
-        public string? MethodImage { get; set; }
+        [Column("lead_researcher_id")]
+        public int LeadResearcherId { get; set; }
+
+         [InverseProperty("Proposal")]
+        public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
     }
 }

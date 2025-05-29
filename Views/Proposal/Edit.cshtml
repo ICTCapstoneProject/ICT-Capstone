@@ -1,7 +1,10 @@
 @model FSSA.Models.Proposal
+@using FSSA.DTOs;
 
 @{
     ViewData["Title"] = "Edit Proposal";
+    var originalFinancial = ViewBag.OriginalFinancialResources as List<FinancialResourceDto>;
+    var initialJson = ViewBag.FinancialResourcesJson as string ?? "[]";
 }
 
 <h1>Edit Proposal</h1>
@@ -10,6 +13,7 @@
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="StatusId" />
 
+    <!-- Title -->
     <div class="mb-3 row">
         <div class="col-md-6">
             <label class="form-label">Original Title</label>
@@ -22,6 +26,7 @@
         </div>
     </div>
 
+    <!-- Synopsis -->
     <div class="mb-3 row">
         <div class="col-md-6">
             <label class="form-label">Original Synopsis</label>
@@ -34,6 +39,7 @@
         </div>
     </div>
 
+    <!-- Method -->
     <div class="mb-3 row">
         <div class="col-md-6">
             <label class="form-label">Original Method</label>
@@ -46,6 +52,7 @@
         </div>
     </div>
 
+    <!-- Project Level -->
     <div class="mb-3 row">
         <div class="col-md-6">
             <label class="form-label">Original Project Level</label>
@@ -60,80 +67,53 @@
         </div>
     </div>
 
+    <!-- Physical Resources -->
     <div class="mb-3 row">
         <div class="col-md-6">
-            <label class="form-label">Original Resources</label>
-            <textarea class="form-control" disabled>@Model.Resources</textarea>
+            <label class="form-label">Original Physical Resources</label>
+            <textarea class="form-control" disabled>@Model.PhysicalResources</textarea>
         </div>
         <div class="col-md-6">
-            <label class="form-label">New Resources</label>
-            <textarea asp-for="Resources" class="form-control"></textarea>
-            <span asp-validation-for="Resources" class="text-danger"></span>
+            <label class="form-label">New Physical Resources</label>
+            <textarea asp-for="PhysicalResources" class="form-control"></textarea>
+            <span asp-validation-for="PhysicalResources" class="text-danger"></span>
         </div>
     </div>
 
+    <!-- Financial Resources -->
     <div class="mb-3 row">
         <div class="col-md-6">
-            <label class="form-label">Original Ethical Considerations</label>
-            <textarea class="form-control" disabled>@Model.EthicalConsiderations</textarea>
+            <label class="form-label">Original Financial Resources</label>
+            <ul class="list-group">
+                @foreach (var item in originalFinancial ?? new List<FinancialResourceDto>())
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@item.Title</span>
+                        <span>$@item.Cost.ToString("F2")</span>
+                    </li>
+                }
+            </ul>
         </div>
         <div class="col-md-6">
-            <label class="form-label">New Ethical Considerations</label>
-            <textarea asp-for="EthicalConsiderations" class="form-control"></textarea>
-            <span asp-validation-for="EthicalConsiderations" class="text-danger"></span>
+            <label class="form-label">New Financial Resources</label>
+            <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#financialModal">Edit Financial Resources</button>
+            <input type="hidden" name="FinancialResourcesJson" id="FinancialResourcesJson" value='@initialJson' />
+            <div id="financialResourcesList" class="border p-2 bg-light"></div>
         </div>
     </div>
 
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Outcomes</label>
-            <textarea class="form-control" disabled>@Model.Outcomes</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Outcomes</label>
-            <textarea asp-for="Outcomes" class="form-control"></textarea>
-            <span asp-validation-for="Outcomes" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Milestones</label>
-            <textarea class="form-control" disabled>@Model.Milestones</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Milestones</label>
-            <textarea asp-for="Milestones" class="form-control"></textarea>
-            <span asp-validation-for="Milestones" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Estimated Completion Date</label>
-            <input class="form-control" value="@Model.EstimatedCompletionDate.ToString("dd-MM-yyyy")" disabled />
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Estimated Completion Date</label>
-            <input asp-for="EstimatedCompletionDate" class="form-control" type="date" value="" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-            <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
-        </div>
-    </div>
-
+    <!-- Confirmation -->
     <button type="button" class="btn btn-warning mb-3" id="triggerModalBtn">Modify Proposal</button>
-
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Confirm Edit</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Confirm Edit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">You Are Rewriting An Existing Proposal. Publish?</p>
-                    <div class="alert alert-warning">
-                        NOTE: These Changes Will Be Broadcasted to the Dashboard!
-                    </div>
+                    <p>You Are Rewriting An Existing Proposal. Publish?</p>
+                    <div class="alert alert-warning">NOTE: These Changes Will Be Broadcasted to the Dashboard!</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -144,22 +124,77 @@
     </div>
 </form>
 
+<!-- Financial Modal -->
+<div class="modal fade" id="financialModal" tabindex="-1" aria-labelledby="financialModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Financial Resources</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="financialInputs"></div>
+                <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addFinancialEntry()">+ Add Resource</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" onclick="saveFinancialChanges()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const form = document.getElementById("proposalForm");
-            const triggerBtn = document.getElementById("triggerModalBtn");
-            const modalEl = document.getElementById("confirmModal");
+        const jsonInput = document.getElementById("FinancialResourcesJson");
+        const displayList = document.getElementById("financialResourcesList");
+        const inputsDiv = document.getElementById("financialInputs");
 
-            if (form && triggerBtn && modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                triggerBtn.addEventListener("click", function () {
-                    if ($(form).valid()) {
-                        modal.show();
-                    }
-                });
-            }
+        function renderFinancialList() {
+            const data = JSON.parse(jsonInput.value || "[]");
+            displayList.innerHTML = '';
+            data.forEach(item => {
+                const entry = document.createElement('div');
+                entry.className = 'd-flex justify-content-between mb-1';
+                entry.innerHTML = `<span>${item.title}</span><span>$${parseFloat(item.cost).toFixed(2)}</span>`;
+                displayList.appendChild(entry);
+            });
+        }
+
+        function addFinancialEntry(title = "", cost = "") {
+            const wrapper = document.createElement('div');
+            wrapper.className = "d-flex gap-2 mb-2";
+            wrapper.innerHTML = `
+                <input type="text" class="form-control" placeholder="Title" value="${title}" />
+                <input type="number" class="form-control" placeholder="Cost" value="${cost}" />
+                <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">✕</button>`;
+            inputsDiv.appendChild(wrapper);
+        }
+
+        function saveFinancialChanges() {
+            const entries = inputsDiv.querySelectorAll("div");
+            const list = [];
+            entries.forEach(entry => {
+                const [titleInput, costInput] = entry.querySelectorAll("input");
+                const title = titleInput.value.trim();
+                const cost = parseFloat(costInput.value);
+                if (title && !isNaN(cost)) {
+                    list.push({ title, cost });
+                }
+            });
+            jsonInput.value = JSON.stringify(list);
+            renderFinancialList();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderFinancialList();
+            const data = JSON.parse(jsonInput.value || "[]");
+            data.forEach(entry => addFinancialEntry(entry.title, entry.cost));
+
+            const modal = new bootstrap.Modal(document.getElementById("confirmModal"));
+            document.getElementById("triggerModalBtn").addEventListener("click", function () {
+                if ($("#proposalForm").valid()) modal.show();
+            });
         });
     </script>
 }

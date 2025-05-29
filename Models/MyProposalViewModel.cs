@@ -1,8 +1,11 @@
-using System.ComponentModel;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
+using FSSA.DTOs;
 
-public class MyProposalViewModel
+
+namespace FSSA.Models{
+    public class MyProposalViewModel
 {
     public int Id { get; set; }
 
@@ -18,8 +21,11 @@ public class MyProposalViewModel
     [Display(Name = "Project Level")]
     public string ProjectLevel { get; set; }
 
-    [Display(Name = "Resources")]
-    public string Resources { get; set; }
+    [Display(Name = "Physical Resources")]
+    public string PhysicalResources { get; set; }
+
+    [Display(Name = "Financial Resources")]
+    public List<FinancialResourceDto> FinancialResources { get; set; } = new List<FinancialResourceDto>();
 
     [Display(Name = "Ethical Considerations")]
     public string EthicalConsiderations { get; set; }
@@ -39,6 +45,17 @@ public class MyProposalViewModel
     [Display(Name = "Project Status")]
     public string StatusName { get; set; }
 
-    [Display(Name = "Method Image")]
-    public string MethodImage { get; set; } 
+    [Display(Name = "Attachments")]
+    public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    [Display(Name = "Lead Researcher")]
+    public string LeadResearcherName { get; set; }
+
+    [Display(Name = "Co-Researchers")]
+    public List<CoResearcherDto> CoResearchers { get; set; } = new List<CoResearcherDto>();
+
+    public string MethodImage { get; set; }
+    }
+
 }
+

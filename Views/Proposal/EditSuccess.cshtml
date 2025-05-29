@@ -5,6 +5,9 @@
     var updated = Model;
     string submitterName = ViewBag.SubmitterName ?? "Unknown";
     string levelName = ViewBag.LevelName ?? "Unknown";
+    var originalLevelName = ViewBag.OriginalLevel ?? "Unknown";
+    var originalFinancials = ViewBag.OriginalFinancialResources as List<FSSA.DTOs.FinancialResourceDto> ?? new();
+    var updatedFinancials = ViewBag.UpdatedFinancialResources as List<FSSA.DTOs.FinancialResourceDto> ?? new();
 }
 
 <div class="alert alert-warning" role="alert">
@@ -23,8 +26,24 @@
                 <p><strong>Title:</strong> @original.Title</p>
                 <p><strong>Synopsis:</strong> @original.Synopsis</p>
                 <p><strong>Method:</strong> @original.Method</p>
-                <p><strong>Project Level:</strong> @ViewBag.OriginalLevel</p>
-                <p><strong>Resources:</strong> @original.Resources</p>
+                <p><strong>Project Level:</strong> @originalLevelName</p>
+
+                <p><strong>Physical Resources:</strong> @original.PhysicalResources</p>
+                <p><strong>Financial Resources:</strong></p>
+                @if (originalFinancials.Any())
+                {
+                    <ul>
+                        @foreach (var item in originalFinancials)
+                        {
+                            <li>@item.Title - @item.Cost.ToString("C")</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>(None listed)</p>
+                }
+
                 <p><strong>Ethical Considerations:</strong> @original.EthicalConsiderations</p>
                 <p><strong>Outcomes:</strong> @original.Outcomes</p>
                 <p><strong>Milestones:</strong> @original.Milestones</p>
@@ -37,7 +56,23 @@
                 <p><strong>Synopsis:</strong> @updated.Synopsis</p>
                 <p><strong>Method:</strong> @updated.Method</p>
                 <p><strong>Project Level:</strong> @levelName</p>
-                <p><strong>Resources:</strong> @updated.Resources</p>
+
+                <p><strong>Physical Resources:</strong> @updated.PhysicalResources</p>
+                <p><strong>Financial Resources:</strong></p>
+                @if (updatedFinancials.Any())
+                {
+                    <ul>
+                        @foreach (var item in updatedFinancials)
+                        {
+                            <li>@item.Title - @item.Cost.ToString("C")</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>(None listed)</p>
+                }
+
                 <p><strong>Ethical Considerations:</strong> @updated.EthicalConsiderations</p>
                 <p><strong>Outcomes:</strong> @updated.Outcomes</p>
                 <p><strong>Milestones:</strong> @updated.Milestones</p>

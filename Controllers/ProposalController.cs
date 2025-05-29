@@ -5,12 +5,30 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using FSSA.DTOs;
+
+namespace FSSA.DTOs
+{
+    public class FinancialResourceDto
+    {
+        public string Title { get; set; }
+        public double Cost { get; set; }
+    }
+
+    public class CoResearcherDto
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
+}
 
 namespace FSSA.Controllers
 {
     public class ProposalController : Controller
     {
         private readonly ProjectManagerContext _context;
+        private const int MethodImageTypeId = 1;
 
         public ProposalController(ProjectManagerContext context)
         {
@@ -19,103 +37,137 @@ namespace FSSA.Controllers
 
         // GET: /Proposal/Create
         public IActionResult Create()
-{
-    ViewBag.ProjectLevels = _context.ProjectLevels
-        .Select(pl => new SelectListItem
         {
-            Value = pl.LevelId.ToString(),
-            Text = pl.LevelName
-        }).ToList();
-
-    var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
-
-    if (researcherRoleId != null)
-        {
-            ViewBag.Researchers = _context.UserRoles
-                .Where(ur => ur.RoleId == researcherRoleId)
-                .Include(ur => ur.User)
-                .Select(ur => new SelectListItem
+            ViewBag.ProjectLevels = _context.ProjectLevels
+                .Select(pl => new SelectListItem
                 {
-                    Value = ur.User.UserId.ToString(),
-                    Text = ur.User.Name + " (#" + ur.User.UserId + ")"
-                })
-                .OrderBy(r => r.Text)
-                .ToList();
-        }
-        else
-        {
-            ViewBag.Researchers = new List<SelectListItem>();
-        }
+                    Value = pl.LevelId.ToString(),
+                    Text = pl.LevelName
+                }).ToList();
 
-        return View();
-    }
+            var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+
+            if (researcherRoleId != null)
+                {
+                    ViewBag.Researchers = _context.UserRoles
+                        .Where(ur => ur.RoleId == researcherRoleId)
+                        .Include(ur => ur.User)
+                        .Select(ur => new SelectListItem
+                        {
+                            Value = ur.User.UserId.ToString(),
+                            Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                        })
+                        .OrderBy(r => r.Text)
+                        .ToList();
+                }
+                else
+                {
+                    ViewBag.Researchers = new List<SelectListItem>();
+                }
+
+                return View();
+            }
 
 
 
         // POST: /Proposal/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Proposal proposal, IFormFile MethodImage)
+        public IActionResult Create(
+            Proposal proposal,
+            List<IFormFile> Attachments,
+            List<string> AttachmentTypes,
+            List<int> CoResearchers,
+            List<FinancialResourceDto> FinancialResources
+        )
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                proposal.StatusId = 1; // Still just defaulting for now
+                ViewBag.ProjectLevels = _context.ProjectLevels
+                    .Select(pl => new SelectListItem
+                    {
+                        Value = pl.LevelId.ToString(),
+                        Text = pl.LevelName
+                    }).ToList();
 
-                var identity = User.Identity;
-                if (identity == null || !identity.IsAuthenticated)
-                    return Unauthorized();
+                return View(proposal);
+            }
 
-                var email = identity.Name;
-                var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId;
-                if (userId == null)
-                    return Unauthorized();
+            var identity = User.Identity;
+            if (identity == null || !identity.IsAuthenticated)
+                return Unauthorized();
 
-                proposal.SubmittedBy = userId.Value;
-                proposal.CreatedAt = DateTime.Now;
-                proposal.UpdatedAt = DateTime.Now;
+            var email = identity.Name;
+            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId;
+            if (userId == null)
+                return Unauthorized();
 
+            proposal.StatusId = 1;
+            proposal.SubmittedBy = userId.Value;
+            proposal.CreatedAt = DateTime.Now;
+            proposal.UpdatedAt = DateTime.Now;
 
-                if (MethodImage != null && MethodImage.Length > 0)
+            _context.Proposals.Add(proposal);
+            _context.SaveChanges(); // Save to generate Proposal.Id
+
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            if (!Directory.Exists(uploadsPath))
+                Directory.CreateDirectory(uploadsPath);
+
+            for (int i = 0; i < Attachments.Count; i++)
+            {
+                var file = Attachments[i];
+                if (file?.Length > 0 && i < AttachmentTypes.Count && int.TryParse(AttachmentTypes[i], out int typeId))
                 {
-                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                    if (!Directory.Exists(uploadsPath))
-                        Directory.CreateDirectory(uploadsPath);
-
-                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(MethodImage.FileName);
-                    var filePath = Path.Combine(uploadsPath, uniqueFileName);
+                    var uniqueName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploadsPath, uniqueName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        MethodImage.CopyTo(stream);
+                        file.CopyTo(stream);
                     }
 
-                    proposal.MethodImage = "/uploads/" + uniqueFileName;
+                    _context.Attachments.Add(new Attachment
+                    {
+                        ProposalId = proposal.Id,
+                        FileName = file.FileName,
+                        FileUrl = "/uploads/" + uniqueName,
+                        TypeId = typeId
+                    });
                 }
+            }
 
-                _context.Proposals.Add(proposal);
-                _context.SaveChanges();
-
-                _context.ProposalLogs.Add(new ProposalLog
+            foreach (var coResearcherId in CoResearchers)
+            {
+                _context.ProposalResearchers.Add(new ProposalResearcher
                 {
                     ProposalId = proposal.Id,
-                    StatusId = proposal.StatusId,
-                    ChangedBy = proposal.SubmittedBy,
-                    Action = "submitted",
-                    Timestamp = DateTime.Now
+                    UserId = coResearcherId
                 });
-                _context.SaveChanges();
-
-                return RedirectToAction("Success", new { id = proposal.Id });
             }
-            ViewBag.ProjectLevels = _context.ProjectLevels
-                .Select(pl => new SelectListItem
-                {
-                    Value = pl.LevelId.ToString(),
-                    Text = pl.LevelName
-                })
-                .ToList();
 
-            return View(proposal);
+            foreach (var fr in FinancialResources)
+            {
+                _context.FinancialResources.Add(new FinancialResource
+                {
+                    ProposalId = proposal.Id,
+                    Title = fr.Title,
+                    Cost = (decimal)fr.Cost
+                });
+            }
+
+            _context.ProposalLogs.Add(new ProposalLog
+            {
+                ProposalId = proposal.Id,
+                StatusId = proposal.StatusId,
+                ChangedBy = proposal.SubmittedBy,
+                Action = "submitted",
+                Timestamp = DateTime.Now
+            });
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Success", new { id = proposal.Id });
         }
 
         // GET: /Proposal/Success/{id}
@@ -141,78 +193,70 @@ namespace FSSA.Controllers
         {
             var email = User.Identity?.Name;
             if (string.IsNullOrEmpty(email))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
-            {
                 return Unauthorized();
-            }
-            
+
             bool canToggle = User.IsInRole("researcher") || User.IsInRole("manager") || User.IsInRole("assistant director");
 
-            List<MyProposalViewModel> proposals;
+            var baseQuery = _context.Proposals
+                .Where(p => !showOnlyMine || p.SubmittedBy == user.UserId)
+                .Include(p => p.Attachments)
+                .Join(_context.ProjectLevels,
+                    p => p.ProjectLevelId,
+                    pl => pl.LevelId,
+                    (p, pl) => new { p, ProjectLevelName = pl.LevelName })
+                .Join(_context.Users,
+                    combo => combo.p.SubmittedBy,
+                    u => u.UserId,
+                    (combo, u) => new { combo.p, combo.ProjectLevelName, SubmitterName = u.Name })
+                .Join(_context.Statuses,
+                    combo => combo.p.StatusId,
+                    s => s.StatusId,
+                    (combo, s) => new { combo.p, combo.ProjectLevelName, combo.SubmitterName, StatusName = s.StatusName });
 
-            if (canToggle && showOnlyMine)
-            {
-                proposals = _context.Proposals
-                    .Where(p => p.SubmittedBy == user.UserId)
-                    .Join(_context.ProjectLevels,
-                        p => p.ProjectLevelId,
-                        pl => pl.LevelId,
-                        (p, pl) => new { p, pl })
-                    .Join(_context.Users,
-                        combo => combo.p.SubmittedBy,
-                        u => u.UserId,
-                        (combo, u) => new { combo.p, combo.pl, u })
-                    .Join(_context.Statuses,
-                        combo => combo.p.StatusId,
-                        s => s.StatusId,
-                        (combo, s) => new MyProposalViewModel
+            var proposals = baseQuery
+                .AsEnumerable()
+                .Select(x => new MyProposalViewModel
+                {
+                    Id = x.p.Id,
+                    Title = x.p.Title,
+                    Synopsis = x.p.Synopsis,
+                    Method = x.p.Method,
+                    ProjectLevel = x.ProjectLevelName,
+                    PhysicalResources = x.p.PhysicalResources,
+                    EthicalConsiderations = x.p.EthicalConsiderations,
+                    Outcomes = x.p.Outcomes,
+                    Milestones = x.p.Milestones,
+                    EstimatedCompletionDate = x.p.EstimatedCompletionDate,
+                    SubmittedByName = x.SubmitterName,
+                    StatusName = x.StatusName,
+                    Attachments = x.p.Attachments.ToList(),
+                    FinancialResources = _context.FinancialResources
+                        .Where(fr => fr.ProposalId == x.p.Id)
+                        .Select(fr => new FinancialResourceDto
                         {
-                            Id = combo.p.Id,
-                            Title = combo.p.Title,
-                            Synopsis = combo.p.Synopsis,
-                            MethodImage = combo.p.MethodImage,
-                            ProjectLevel = combo.pl.LevelName,
-                            EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
-                            SubmittedByName = combo.u.Name,
-                            StatusName = s.StatusName
-                        })
-                    .ToList();
-            }
-            else
-            {
-                proposals = _context.Proposals
-                    .Join(_context.ProjectLevels,
-                        p => p.ProjectLevelId,
-                        pl => pl.LevelId,
-                        (p, pl) => new { p, pl })
-                    .Join(_context.Users,
-                        combo => combo.p.SubmittedBy,
-                        u => u.UserId,
-                        (combo, u) => new { combo.p, combo.pl, u })
-                    .Join(_context.Statuses,
-                        combo => combo.p.StatusId,
-                        s => s.StatusId,
-                        (combo, s) => new MyProposalViewModel
-                        {
-                            Id = combo.p.Id,
-                            Title = combo.p.Title,
-                            Synopsis = combo.p.Synopsis,
-                            MethodImage = combo.p.MethodImage,
-                            ProjectLevel = combo.pl.LevelName,
-                            EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
-                            SubmittedByName = combo.u.Name,
-                            StatusName = s.StatusName
-                        })
-                    .ToList();
-            }
+                            Title = fr.Title,
+                            Cost = (double)fr.Cost
+                        }).ToList(),
+                    LeadResearcherName = _context.Users
+                        .FirstOrDefault(u => u.UserId == x.p.LeadResearcherId)?.Name ?? "Unknown",
+                    CoResearchers = _context.ProposalResearchers
+                        .Where(pr => pr.ProposalId == x.p.Id)
+                        .Join(_context.Users,
+                            pr => pr.UserId,
+                            u => u.UserId,
+                            (pr, u) => new CoResearcherDto
+                            {
+                                Id = u.UserId.ToString(),
+                                Name = u.Name
+                            }).ToList()
+                }).ToList();
 
-            ViewBag.canToggle = canToggle;         // This is for controlling toggle visibility
-            ViewBag.ShowingMine = showOnlyMine;         // And this is to determine the toggle state
+            ViewBag.canToggle = canToggle;
+            ViewBag.ShowingMine = showOnlyMine;
 
             return View("ViewProposals", proposals);
         }
@@ -220,15 +264,39 @@ namespace FSSA.Controllers
 
         public IActionResult Details(int id)
         {
-            var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+            var proposal = _context.Proposals
+                .Include(p => p.Attachments)
+                .FirstOrDefault(p => p.Id == id);
+
             if (proposal == null)
             {
                 return NotFound();
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
-            var projectLevel = _context.ProjectLevels
-                                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+            var submitter = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+            var leadResearcher = _context.Users.FirstOrDefault(u => u.UserId == proposal.LeadResearcherId);
+
+            var projectLevelName = _context.ProjectLevels
+                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+            var financialResources = _context.FinancialResources
+                .Where(fr => fr.ProposalId == proposal.Id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToList();
+
+            var coResearchers = _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == proposal.Id)
+                .Join(_context.Users,
+                    pr => pr.UserId,
+                    u => u.UserId,
+                    (pr, u) => new CoResearcherDto
+                    {
+                        Id = u.UserId.ToString(),
+                        Name = u.Name
+                    }).ToList();
 
             var model = new MyProposalViewModel
             {
@@ -236,14 +304,17 @@ namespace FSSA.Controllers
                 Title = proposal.Title,
                 Synopsis = proposal.Synopsis,
                 Method = proposal.Method,
-                MethodImage = proposal.MethodImage,
-                ProjectLevel = projectLevel,
-                Resources = proposal.Resources,
+                ProjectLevel = projectLevelName,
+                PhysicalResources = proposal.PhysicalResources,
                 EthicalConsiderations = proposal.EthicalConsiderations,
                 Outcomes = proposal.Outcomes,
                 Milestones = proposal.Milestones,
                 EstimatedCompletionDate = proposal.EstimatedCompletionDate,
-                SubmittedByName = user?.Name ?? "Unknown"
+                SubmittedByName = submitter?.Name ?? "Unknown",
+                LeadResearcherName = leadResearcher?.Name ?? "Unknown",
+                FinancialResources = financialResources,
+                CoResearchers = coResearchers,
+                Attachments = proposal.Attachments.ToList()
             };
 
             return View(model);
@@ -269,78 +340,139 @@ namespace FSSA.Controllers
             ViewBag.CurrentLevelName = _context.ProjectLevels
                 .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
 
+            ViewBag.Attachments = _context.Attachments
+                .Where(a => a.ProposalId == proposal.Id)
+                .ToList();
+
             return View(proposal);
         }
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Proposal updatedProposal)
+        public IActionResult Edit(Proposal proposal, List<IFormFile> NewAttachments, List<string> AttachmentTypes, List<int> DeleteAttachmentIds)
         {
             if (!ModelState.IsValid)
             {
-                return View(updatedProposal);
+                ViewBag.ProjectLevels = _context.ProjectLevels
+                    .Select(pl => new SelectListItem
+                    {
+                        Value = pl.LevelId.ToString(),
+                        Text = pl.LevelName
+                    })
+                    .ToList();
+
+                ViewBag.CurrentLevelName = _context.ProjectLevels
+                    .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+
+                ViewBag.Attachments = _context.Attachments
+                    .Where(a => a.ProposalId == proposal.Id)
+                    .ToList();
+
+                return View(proposal);
             }
 
-            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == updatedProposal.Id);
+            var existingProposal = _context.Proposals.FirstOrDefault(p => p.Id == proposal.Id);
             if (existingProposal == null)
-            {
                 return NotFound();
-            }
 
-            // Store old values first
-            var originalClone = new Proposal
+            // Get user ID
+            var email = User.Identity?.Name;
+            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
+            var history = new ProposalHistory
+
             {
+                ProposalId = existingProposal.Id,
                 Title = existingProposal.Title,
                 Synopsis = existingProposal.Synopsis,
                 Method = existingProposal.Method,
                 ProjectLevelId = existingProposal.ProjectLevelId,
-                Resources = existingProposal.Resources,
+                PhysicalResources = existingProposal.PhysicalResources,
                 EthicalConsiderations = existingProposal.EthicalConsiderations,
                 Outcomes = existingProposal.Outcomes,
                 Milestones = existingProposal.Milestones,
                 EstimatedCompletionDate = existingProposal.EstimatedCompletionDate,
-                SubmittedBy = existingProposal.SubmittedBy
+                LeadResearcherId = existingProposal.LeadResearcherId,
+                StatusId = existingProposal.StatusId,
+                Action = "modified",
+                Timestamp = DateTime.Now,
+                ChangedBy = userId
             };
+            _context.ProposalHistories.Add(history);
 
-            // Then update
-            existingProposal.Title = updatedProposal.Title;
-            existingProposal.Synopsis = updatedProposal.Synopsis;
-            existingProposal.Method = updatedProposal.Method;
-            existingProposal.ProjectLevelId = updatedProposal.ProjectLevelId;
-            existingProposal.Resources = updatedProposal.Resources;
-            existingProposal.EthicalConsiderations = updatedProposal.EthicalConsiderations;
-            existingProposal.Outcomes = updatedProposal.Outcomes;
-            existingProposal.Milestones = updatedProposal.Milestones;
-            existingProposal.EstimatedCompletionDate = updatedProposal.EstimatedCompletionDate;
+            // Apply changes to the proposal
+            existingProposal.Title = proposal.Title;
+            existingProposal.Synopsis = proposal.Synopsis;
+            existingProposal.Method = proposal.Method;
+            existingProposal.ProjectLevelId = proposal.ProjectLevelId;
+            existingProposal.PhysicalResources = proposal.PhysicalResources;
+            existingProposal.EthicalConsiderations = proposal.EthicalConsiderations;
+            existingProposal.Outcomes = proposal.Outcomes;
+            existingProposal.Milestones = proposal.Milestones;
+            existingProposal.EstimatedCompletionDate = proposal.EstimatedCompletionDate;
+            existingProposal.LeadResearcherId = proposal.LeadResearcherId;
             existingProposal.UpdatedAt = DateTime.Now;
 
-            _context.SaveChanges();
+            // Handle deleted attachments
+            if (DeleteAttachmentIds != null && DeleteAttachmentIds.Any())
+            {
+                var toDelete = _context.Attachments
+                    .Where(a => DeleteAttachmentIds.Contains(a.FileId))
+                    .ToList();
 
-            var email = User.Identity?.Name;
-            var userId = _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
+                foreach (var att in toDelete)
+                {
+                    var filePath = Path.Combine("wwwroot", att.FileUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                        System.IO.File.Delete(filePath);
 
+                    _context.Attachments.Remove(att);
+                }
+            }
+
+            // Handle new attachments
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            if (!Directory.Exists(uploadsPath))
+                Directory.CreateDirectory(uploadsPath);
+
+            for (int i = 0; i < NewAttachments.Count; i++)
+            {
+                var file = NewAttachments[i];
+                if (file?.Length > 0 && i < AttachmentTypes.Count && int.TryParse(AttachmentTypes[i], out int typeId))
+                {
+                    var uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploadsPath, uniqueName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+
+                    var attachment = new Attachment
+                    {
+                        ProposalId = proposal.Id,
+                        FileName = file.FileName,
+                        FileUrl = "/uploads/" + uniqueName,
+                        TypeId = typeId
+                    };
+
+                    _context.Attachments.Add(attachment);
+                }
+            }
+
+            // Log the update in proposal_log
             _context.ProposalLogs.Add(new ProposalLog
             {
-                ProposalId = existingProposal.Id,
+                ProposalId = proposal.Id,
                 StatusId = existingProposal.StatusId,
                 ChangedBy = userId,
                 Action = "modified",
                 Timestamp = DateTime.Now
             });
+
             _context.SaveChanges();
 
-            var submitter = _context.Users.FirstOrDefault(u => u.UserId == existingProposal.SubmittedBy);
-            var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == existingProposal.ProjectLevelId);
-
-            // Finally, use old states and pass through ViewBag
-            ViewBag.Original = originalClone;
-            ViewBag.OriginalLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == originalClone.ProjectLevelId)?.LevelName ?? "Unknown";
-            ViewBag.SubmitterName = submitter?.Name ?? "Unknown";
-            ViewBag.LevelName = level?.LevelName ?? "Unknown";
-
-            return View("EditSuccess", existingProposal);
+            return RedirectToAction("EditSuccess", new { id = proposal.Id });
         }
 
         public IActionResult EditSuccess(int id)
@@ -348,164 +480,204 @@ namespace FSSA.Controllers
             var updated = _context.Proposals.FirstOrDefault(p => p.Id == id);
             if (updated == null) return NotFound();
 
-            var originalLog = _context.ProposalLogs
-                .Where(log => log.ProposalId == id && log.Action == "submitted")
-                .OrderBy(log => log.Timestamp)
+            // Get the most recent modification snapshot BEFORE the current edit
+            var originalHistory = _context.ProposalHistories
+                .Where(h => h.ProposalId == id && h.Action == "modified")
+                .OrderByDescending(h => h.Timestamp)
                 .FirstOrDefault();
 
-            var original = originalLog != null
-                ? _context.Proposals.AsNoTracking().FirstOrDefault(p => p.Id == id)
-                : updated;
+            // Fallback to submitted state if no modified history
+            if (originalHistory == null)
+            {
+                originalHistory = _context.ProposalHistories
+                    .Where(h => h.ProposalId == id && h.Action == "submitted")
+                    .OrderBy(h => h.Timestamp)
+                    .FirstOrDefault();
+            }
 
             var user = _context.Users.FirstOrDefault(u => u.UserId == updated.SubmittedBy);
             var level = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == updated.ProjectLevelId);
-            var origLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == original.ProjectLevelId);
 
-            ViewBag.SubmitterName = user?.Name ?? "Unknown";
-            ViewBag.LevelName = level?.LevelName ?? "Unknown";
-            ViewBag.Original = original;
-            ViewBag.OriginalLevel = origLevel?.LevelName ?? "Unknown";
+            string submitterName = user?.Name ?? "Unknown";
+            string levelName = level?.LevelName ?? "Unknown";
+            string origLevelName = originalHistory != null
+                ? _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == originalHistory.ProjectLevelId)?.LevelName ?? "Unknown"
+                : "Unknown";
+
+            ViewBag.SubmitterName = submitterName;
+            ViewBag.LevelName = levelName;
+            ViewBag.OriginalLevel = origLevelName;
+            ViewBag.Original = originalHistory;
 
             return View("EditSuccess", updated);
         }
 
         public IActionResult Search(
-            List<string> StatusFilters,
-            List<string> ProjectLevelFilters,
-            DateTime? StartDate,
-            DateTime? EndDate,
-            string SearchKeyword,
-            string SortBy,
-            int page = 1,
-            int pageSize = 10)
+        List<string> StatusFilters,
+        List<string> ProjectLevelFilters,
+        DateTime? StartDate,
+        DateTime? EndDate,
+        string SearchKeyword,
+        string SortBy,
+        int page = 1,
+        int pageSize = 10)
         {
-            ViewBag.ProjectLevels = _context.ProjectLevels
-                .Select(pl => new { pl.LevelId, pl.LevelName })
-                .ToList();
+        ViewBag.ProjectLevels = _context.ProjectLevels
+            .Select(pl => new { pl.LevelId, pl.LevelName })
+            .ToList();
 
-            ViewBag.Statuses = _context.Statuses
-                .Select(s => new { s.StatusId, s.StatusName })
-                .ToList();
+        ViewBag.Statuses = _context.Statuses
+            .Select(s => new { s.StatusId, s.StatusName })
+            .ToList();
 
-            var query = _context.Proposals
-                .Join(_context.ProjectLevels,
-                    p => p.ProjectLevelId,
-                    pl => pl.LevelId,
-                    (p, pl) => new { p, pl })
+        var query = _context.Proposals
+            .Join(_context.ProjectLevels,
+                p => p.ProjectLevelId,
+                pl => pl.LevelId,
+                (p, pl) => new { p, pl })
+            .Join(_context.Users,
+                combo => combo.p.SubmittedBy,
+                u => u.UserId,
+                (combo, u) => new { combo.p, combo.pl, u })
+            .Join(_context.Statuses,
+                combo => combo.p.StatusId,
+                s => s.StatusId,
+                (combo, s) => new { combo.p, combo.pl, combo.u, s })
+            .ToList() // Force evaluation so we can deserialize JSON after
+            .Select(entry => new MyProposalViewModel
+            {
+                Id = entry.p.Id,
+                Title = entry.p.Title,
+                Synopsis = entry.p.Synopsis,
+                Method = entry.p.Method,
+                MethodImage = _context.Attachments
+                .Where(a => a.ProposalId == entry.p.Id && a.TypeId == MethodImageTypeId)
+                .Select(a => a.FileUrl)
+                .FirstOrDefault(),
+                ProjectLevel = entry.pl.LevelName,
+                PhysicalResources = entry.p.PhysicalResources,
+                FinancialResources = _context.FinancialResources
+                .Where(fr => fr.ProposalId == entry.p.Id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToList(),
+                EthicalConsiderations = entry.p.EthicalConsiderations,
+                Outcomes = entry.p.Outcomes,
+                Milestones = entry.p.Milestones,
+                EstimatedCompletionDate = entry.p.EstimatedCompletionDate,
+                SubmittedByName = entry.u.Name,
+                StatusName = entry.s.StatusName,
+                CoResearchers = _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == entry.p.Id)
                 .Join(_context.Users,
-                    combo => combo.p.SubmittedBy,
+                    pr => pr.UserId,
                     u => u.UserId,
-                    (combo, u) => new { combo.p, combo.pl, u })
-                .Join(_context.Statuses,
-                    combo => combo.p.StatusId,
-                    s => s.StatusId,
-                    (combo, s) => new MyProposalViewModel
+                    (pr, u) => new CoResearcherDto
                     {
-                        Id = combo.p.Id,
-                        Title = combo.p.Title,
-                        Synopsis = combo.p.Synopsis,
-                        Method = combo.p.Method,
-                        MethodImage = combo.p.MethodImage,
-                        ProjectLevel = combo.pl.LevelName,
-                        Resources = combo.p.Resources,
-                        EthicalConsiderations = combo.p.EthicalConsiderations,
-                        Outcomes = combo.p.Outcomes,
-                        Milestones = combo.p.Milestones,
-                        EstimatedCompletionDate = combo.p.EstimatedCompletionDate,
-                        SubmittedByName = combo.u.Name,
-                        StatusName = s.StatusName
-                    });
+                        Id = u.UserId.ToString(),
+                        Name = u.Name
+                    }).ToList(),
+                Attachments = _context.Attachments
+                    .Where(a => a.ProposalId == entry.p.Id)
+                    .ToList()
+            })
+            .AsQueryable();
 
-            if (ProjectLevelFilters != null && ProjectLevelFilters.Any())
-                query = query.Where(p => ProjectLevelFilters.Contains(p.ProjectLevel));
+        if (ProjectLevelFilters != null && ProjectLevelFilters.Any())
+            query = query.Where(p => ProjectLevelFilters.Contains(p.ProjectLevel));
 
-            // Status Filters
-            if (StatusFilters != null && StatusFilters.Any())
-                query = query.Where(p => StatusFilters.Contains(p.StatusName));
+        if (StatusFilters != null && StatusFilters.Any())
+            query = query.Where(p => StatusFilters.Contains(p.StatusName));
 
-            // Date Filters
-            if (StartDate.HasValue)
-                query = query.Where(p => p.EstimatedCompletionDate >= StartDate.Value);
-            if (EndDate.HasValue)
-                query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
+        if (StartDate.HasValue)
+            query = query.Where(p => p.EstimatedCompletionDate >= StartDate.Value);
+        if (EndDate.HasValue)
+            query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
 
+        if (!string.IsNullOrEmpty(SearchKeyword))
+            query = query.Where(p => p.Title.Contains(SearchKeyword));
 
-            // Search Keyword
-            if (!string.IsNullOrEmpty(SearchKeyword))
-                query = query.Where(p => p.Title.Contains(SearchKeyword));
+        query = SortBy == "Title" ? query.OrderBy(p => p.Title) : query.OrderByDescending(p => p.EstimatedCompletionDate);
 
-            // Sort
-            switch (SortBy)
-            {
-                case "Title":
-                    query = query.OrderBy(p => p.Title);
-                    break;
-                default:
-                    query = query.OrderByDescending(p => p.EstimatedCompletionDate);
-                    break;
-            }
+        var totalCount = query.Count();
+        var pagedProposals = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            // Pagination
-            int totalCount = query.Count();
-            var pagedProposals = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var viewModel = new ProposalSearchViewModel
-            {
-                Proposals = pagedProposals,
-                TotalCount = totalCount,
-                PageIndex = page,
-                PageSize = pageSize,
-                StatusFilters = StatusFilters ?? new List<string>(),
-                ProjectLevelFilters = ProjectLevelFilters ?? new List<string>(),
-                StartDate = StartDate,
-                EndDate = EndDate,
-                SearchKeyword = SearchKeyword,
-                SortBy = SortBy
-            };
-
-            return View(viewModel);
-        }
-
-        // Method for retrieving data for the Summary view
-        public IActionResult Summary(int id)
+        var viewModel = new ProposalSearchViewModel
         {
-            // Search for the Proposal using the Proposal ID
+            Proposals = pagedProposals,
+            TotalCount = totalCount,
+            PageIndex = page,
+            PageSize = pageSize,
+            StatusFilters = StatusFilters ?? new List<string>(),
+            ProjectLevelFilters = ProjectLevelFilters ?? new List<string>(),
+            StartDate = StartDate,
+            EndDate = EndDate,
+            SearchKeyword = SearchKeyword,
+            SortBy = SortBy
+        };
+
+        return View(viewModel);
+        }
+       
+      public IActionResult Summary(int id)
+        {
             var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
-
-            // If the proposal is not found (null result), return NotFound
             if (proposal == null)
-            {
                 return NotFound();
-            }
 
-            // Search for user who created the proposal
             var user = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
+            var projectLevel = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+            var statusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown";
 
-            // Look up the name of the project level (e.g., Undergraduate, Graduate)
-            // If not found, return "Unknown"
-            var projectLevel = _context.ProjectLevels
-                .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+            var financialResources = _context.FinancialResources
+                .Where(fr => fr.ProposalId == proposal.Id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToList();
 
-            // Collate the data to send to the view
+            var coResearchers = _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == proposal.Id)
+                .Join(_context.Users,
+                    pr => pr.UserId,
+                    u => u.UserId,
+                    (pr, u) => new CoResearcherDto
+                    {
+                        Id = u.UserId.ToString(),
+                        Name = u.Name
+                    }).ToList();
+
+            var attachments = _context.Attachments
+                .Where(a => a.ProposalId == proposal.Id)
+                .ToList();
+
             var model = new MyProposalViewModel
             {
                 Id = proposal.Id,
                 Title = proposal.Title,
                 Synopsis = proposal.Synopsis,
                 Method = proposal.Method,
-                MethodImage = proposal.MethodImage,
+                MethodImage = _context.Attachments
+                    .Where(a => a.ProposalId == proposal.Id && a.TypeId == MethodImageTypeId)
+                    .Select(a => a.FileUrl)
+                    .FirstOrDefault(),
                 ProjectLevel = projectLevel,
-                Resources = proposal.Resources,
+                PhysicalResources = proposal.PhysicalResources,
+                FinancialResources = financialResources,
                 EthicalConsiderations = proposal.EthicalConsiderations,
                 Outcomes = proposal.Outcomes,
                 Milestones = proposal.Milestones,
                 EstimatedCompletionDate = proposal.EstimatedCompletionDate,
-                SubmittedByName = user?.Name ?? "Unknown", // Use "Unknown" if user not found
-                StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown"
+                SubmittedByName = user?.Name ?? "Unknown",
+                StatusName = statusName,
+                CoResearchers = coResearchers,
+                Attachments = attachments
             };
 
-            // Return the "Summary" view and pass the data to it.
             return View("Summary", model);
         }
-    }
+}
 }

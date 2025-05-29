@@ -1,3 +1,4 @@
+using FSSA.Models;
 public class ProposalSearchViewModel
 {
     public List<MyProposalViewModel> Proposals { get; set; }
