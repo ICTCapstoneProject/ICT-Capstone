@@ -49,7 +49,7 @@ body {
 }
 
 .sidebar .nav-link.active {
-  background-color: #444;
+  background-color: transparent;
   font-weight: bold;
 }
 
@@ -76,4 +76,38 @@ footer.footer {
 
 .edit-highlight {
   background-color: #fff5f5 !important; 
+}
+
+.sidebar .nav-link {
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar .nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: transparent;
+  border-radius: 0 4px 4px 0;
+  transition: top 0.3s ease, background-color 0.3s ease;
+}
+
+.sidebar .nav-link.active::before {
+  background-color: white;
+}
+
+.sidebar .nav-link.active {
+  font-weight: bold;
+  position: relative;
+}
+
+.list-group-item-action:hover {
+  background-color: #d0f0c0 !important; 
+}
+
+.user-row:hover {
+  background-color: #fff9d6 !important; 
 }

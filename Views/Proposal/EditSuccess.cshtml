@@ -1,52 +1,21 @@
 @model FSSA.Models.Proposal
+
 @{
-    ViewData["Title"] = "Proposal Updated";
-    var original = ViewBag.Original as FSSA.Models.Proposal;
-    var updated = Model;
-    string submitterName = ViewBag.SubmitterName ?? "Unknown";
-    string levelName = ViewBag.LevelName ?? "Unknown";
+    ViewData["Title"] = "Modification Success";
 }
 
-<div class="alert alert-warning" role="alert">
-    <h4 class="alert-heading">Proposal Successfully Edited</h4>
-    <p class="mb-0">Proposal <strong>@updated.Id</strong>, <em>"@updated.Title"</em> was modified by <strong>@submitterName</strong>. These changes have been made visible on the Dashboard.</p>
+<div class="alert alert-warning mt-4 mb-5 shadow-sm">
+    <h4 class="alert-heading">Modification Success</h4>
+    <p class="mb-0">
+        You have successfully modified <strong>#@Model.Id "@Model.Title"</strong>.
+    </p>
+    <p class="mb-2">
+        Tap the <b>‘View Proposal’</b> button below to view your changes in detail.
+    </p>
 </div>
-
-<div class="card mt-4">
-    <div class="card-header">
-        <h5 class="mb-0">Comparison Summary</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 border-end">
-                <h6 class="text-muted">Original Version</h6>
-                <p><strong>Title:</strong> @original.Title</p>
-                <p><strong>Synopsis:</strong> @original.Synopsis</p>
-                <p><strong>Method:</strong> @original.Method</p>
-                <p><strong>Project Level:</strong> @ViewBag.OriginalLevel</p>
-                <p><strong>Resources:</strong> @original.Resources</p>
-                <p><strong>Ethical Considerations:</strong> @original.EthicalConsiderations</p>
-                <p><strong>Outcomes:</strong> @original.Outcomes</p>
-                <p><strong>Milestones:</strong> @original.Milestones</p>
-                <p><strong>Estimated Completion:</strong> @original.EstimatedCompletionDate.ToString("dd-MM-yyyy")</p>
-            </div>
-
-            <div class="col-md-6">
-                <h6 class="text-muted">New Version</h6>
-                <p><strong>Title:</strong> @updated.Title</p>
-                <p><strong>Synopsis:</strong> @updated.Synopsis</p>
-                <p><strong>Method:</strong> @updated.Method</p>
-                <p><strong>Project Level:</strong> @levelName</p>
-                <p><strong>Resources:</strong> @updated.Resources</p>
-                <p><strong>Ethical Considerations:</strong> @updated.EthicalConsiderations</p>
-                <p><strong>Outcomes:</strong> @updated.Outcomes</p>
-                <p><strong>Milestones:</strong> @updated.Milestones</p>
-                <p><strong>Estimated Completion:</strong> @updated.EstimatedCompletionDate.ToString("dd-MM-yyyy")</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="mt-3">
-    <a href="@Url.Action("Index", "Home")" class="btn btn-dark mb-2">Return to Dashboard</a>
+<div class="d-flex justify-content-center mb-5">
+    <a href="@Url.Action("Details", "Proposal", new { id = Model.Id })" class="btn btn-dark btn-sm shadow px-3 py-2 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left" style="font-size: 1.2em;"></i>
+        Inspect Proposal
+    </a>
 </div>

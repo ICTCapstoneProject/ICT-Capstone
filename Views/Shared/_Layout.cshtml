@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -11,10 +16,9 @@
 </head>
 <body>
     <style>
-        .list-group-item-action:hover {
-            background-color: #d0f0c0 !important; 
-        }
+        
     </style>
+
     <div class="wrapper">
         <nav class="sidebar">
             <div class="p-3 d-flex align-items-center">
@@ -23,36 +27,44 @@
             </div>
             <ul class="nav flex-column px-3">
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                    <a class="nav-link @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
+                       asp-area="" asp-controller="Home" asp-action="Index">
                         <i class="bi bi-house-door"></i> Dashboard
                     </a>
                 </li>
-                </li>
-                    <a class="nav-link" asp-area="" asp-controller="Proposal" asp-action="Search">
+                <li class="nav-item">
+                    <a class="nav-link @(currentAction == "Search" && currentController == "Proposal" ? "active" : "")"
+                       asp-area="" asp-controller="Proposal" asp-action="Search">
                         <i class="bi bi-folder"></i> Proposal Lookup
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Proposal" asp-action="Create">
+                    <a class="nav-link @(currentAction == "Create" && currentController == "Proposal" ? "active" : "")"
+                       asp-area="" asp-controller="Proposal" asp-action="Create">
                         <i class="bi bi-pencil-square"></i> Proposal Creation
                     </a>
-                
-
-
+                </li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Admin" ? "active" : "")"
+                           asp-controller="Admin" asp-action="Index">
+                            <i class="bi bi-people"></i> Admin Panel
+                        </a>
+                    </li>
+                }
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
+                    <a class="nav-link @(currentAction == "Privacy" && currentController == "Home" ? "active" : "")"
+                       asp-area="" asp-controller="Home" asp-action="Privacy">
                         <i class="bi bi-shield-lock"></i> Privacy
                     </a>
                 </li>
-
                 <li class="nav-item mt-auto">
-                    <form asp-controller="Account" asp-action="Logout" method="post" class="w-100">
-                        <button type="submit" class="nav-link btn btn-link text-start text-danger ps-3" style="width: 100%;">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </button>
-                    </form>
+                    <button type="button" class="nav-link btn btn-link text-start text-danger ps-3 w-100"
+                            data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
                 </li>
-
             </ul>
         </nav>
 
@@ -60,7 +72,6 @@
             <main role="main">
                 @RenderBody()
             </main>
-
             <footer class="footer mt-auto">
                 <div class="container text-center">
                     &copy; 2025 - ProjectManagerMvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -69,9 +80,31 @@
         </div>
     </div>
 
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to log out?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-danger">Yes, Log Out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

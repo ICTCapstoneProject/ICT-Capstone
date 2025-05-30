@@ -2,156 +2,480 @@
 
 @{
     ViewData["Title"] = "Edit Proposal";
+    var original = ViewBag.OriginalProposal;
 }
 
 <h1>Edit Proposal</h1>
 
-<form id="proposalForm" asp-action="Edit" method="post">
+<form id="proposalForm" asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="StatusId" />
 
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Title</label>
-            <input class="form-control" value="@Model.Title" disabled />
+    <div class="row gx-4 gy-4">
+    <div class="col-lg-6 col-md-12 border-end">
+        <div class="p-3 p-lg-4">
+            <!-- Title -->
+            <div class="mb-4">
+                <label asp-for="Title" class="form-label fw-semibold">New Title</label>
+                <input asp-for="Title" class="form-control" style="height:48px;" placeholder="e.g, DNA analysis for x crime scene..." />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <!-- Synopsis -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Synopsis</label>
+                <div class="form-control field-preview"
+                     data-target="Synopsis" data-label="Synopsis"
+                     data-placeholder="The purpose of this research proposal is to..."
+                     style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
+                    Tap here to fill out a new synopsis...
+                </div>
+                <textarea asp-for="Synopsis" class="form-control d-none modal-field" id="SynopsisField"></textarea>
+                <span asp-validation-for="Synopsis" class="text-danger"></span>
+                <!-- Attachment -->
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    <label for="SynopsisAttachment" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center">
+                        <i class="bi bi-cloud-upload"></i>
+                    </label>
+                    <span id="synopsisFileName" class="fst-italic text-primary small"></span>
+                    <button type="button" id="clearSynopsisFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                </div>
+                <input type="file" id="SynopsisAttachment" name="SynopsisAttachment"
+                       class="d-none"
+                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                       onchange="updateSynopsisFileName()" />
+            </div>
+            <!-- Method -->
+            <div class="mb-4">
+                <label asp-for="Method" class="form-label fw-semibold">New Method</label>
+                <textarea asp-for="Method" class="form-control" style="height: 8em;" placeholder="e.g, Drug manufacturing info..."></textarea>
+                <span asp-validation-for="Method" class="text-danger"></span>
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    <label for="MethodImage" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center">
+                        <i class="bi bi-cloud-upload"></i>
+                    </label>
+                    <span id="methodFileName" class="fst-italic text-primary small"></span>
+                    <button type="button" id="clearFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                </div>
+                <input type="file" id="MethodImage" name="MethodImage"
+                       class="d-none"
+                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                       onchange="updateMethodFileName()" />
+            </div>
+            <!-- Project Level -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Project Level</label>
+                <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels" style="height:48px;">
+                    <option value="">-- Tap to Pick a Project Level --</option>
+                </select>
+                <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
+            </div>
+            <!-- Lead Researcher -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Lead Researcher</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <select asp-for="LeadResearcherId" class="form-select" style="height:48px;">
+                        <option value="" disabled selected hidden>*Type to Search*</option>
+                        @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
+                        {
+                            <option value="@researcher.Value">@researcher.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <!-- Co-Researchers -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Student/Co-Researchers (Optional)</label>
+                <button type="button" class="btn btn-outline-primary btn-sm mb-2 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#coResearchersModal">
+                    <i class="bi-person-plus me-2"></i> Add...
+                </button>
+                <div class="bg-light border rounded p-2" style="min-height: 80px; max-height: 120px; overflow-y:auto;">
+                    <ul id="coResearchersList" class="list-group list-group-flush mb-0"></ul>
+                </div>
+                <div id="coResearchersHiddenFields" class="mt-1"></div>
+            </div>
+            <!-- Physical Resources -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Physical Resources</label>
+                <textarea name="PhysicalResources" class="form-control" rows="3" style="min-height: 60px;" placeholder="e.g., Lab equipment, workspace...">@Model.PhysicalResources</textarea>
+            </div>
+            <!-- Financial Resources -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Financial Resources</label>
+                <button type="button" class="btn btn-outline-success btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#financialResourcesModal">
+                    <i class="bi-wallet2"></i>
+                </button>
+                <div class="bg-light border rounded p-2 mb-2" style="min-height: 110px; max-height: 110px; overflow-y: auto;">
+                    <ul id="financialResourcesList" class="list-group list-group-flush mb-0"></ul>
+                </div>
+                <div class="fw-bold mb-2">Total: $<span id="totalCost">0.00</span></div>
+                <div id="financialResourceHiddenFields"></div>
+            </div>
+            <!-- Ethical Considerations -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Ethical Considerations</label>
+                <div class="form-control field-preview"
+                    data-target="EthicalConsiderations"
+                    data-label="Ethical Considerations"
+                    data-placeholder="e.g., Research will be conducted with participant consent..."
+                    style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
+                    Tap here to fill out new ethical considerations...
+                </div>
+                <textarea asp-for="EthicalConsiderations" class="form-control d-none modal-field" id="EthicalConsiderationsField"></textarea>
+                <span asp-validation-for="EthicalConsiderations" class="text-danger"></span>
+                <div class="mt-2 d-flex align-items-center gap-2">
+                    <label for="EthicsAttachment" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center">
+                        <i class="bi bi-cloud-upload"></i>
+                    </label>
+                    <span id="ethicsFileName" class="fst-italic text-primary small"></span>
+                    <button type="button" id="clearEthicsFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                </div>
+                <input type="file" id="EthicsAttachment" name="EthicsAttachment"
+                       class="d-none"
+                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                       onchange="updateEthicsFileName()" />
+            </div>
+            <!-- Outcomes -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Outcomes</label>
+                <div class="form-control field-preview"
+                    data-target="Outcomes"
+                    data-label="Outcomes"
+                    data-placeholder="e.g., The project aims to develop workflows, publish findings..."
+                    style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
+                    Tap here to fill out your outcomes...
+                </div>
+                <textarea asp-for="Outcomes" class="form-control d-none modal-field" id="OutcomesField"></textarea>
+                <span asp-validation-for="Outcomes" class="text-danger"></span>
+            </div>
+            <!-- Milestones -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">New Milestones</label>
+                <div class="form-control field-preview"
+                    data-target="Milestones"
+                    data-label="Milestones"
+                    data-placeholder="e.g.,&#10;Milestone 1: Literature Review&#10;Milestone 2: Sample Collection&#10;Month 4: Final Report..."
+                    style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
+                    Tap here to fill out new milestones...
+                </div>
+                <textarea asp-for="Milestones" class="form-control d-none modal-field" id="MilestonesField"></textarea>
+                <span asp-validation-for="Milestones" class="text-danger"></span>
+            </div>
+            <!-- Estimated Completion Date -->
+            <div class="mb-4">
+                <label asp-for="EstimatedCompletionDate" class="form-label fw-semibold"></label>
+                <input asp-for="EstimatedCompletionDate" class="form-control" style="height:50px;" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col-md-6">
-            <label class="form-label">New Title</label>
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <!-- Original column -->
+<div class="col-lg-6 col-md-12">
+    <div class="p-3 p-lg-4">
+        <div class="bg-light p-4 rounded-3 border shadow-sm mb-3" style="min-height:100%;">
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Title</label>
+                <div class="form-control bg-grey rounded pt-2" style="height:48px;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.Title))
+                    {
+                        @original.Title
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-5">
+                <label class="form-label fw-semibold">Original Synopsis</label>
+                <div class="form-control bg-grey rounded" style="height:10em; white-space:pre-line; overflow-y:auto;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.Synopsis))
+                    {
+                        @original.Synopsis
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Method</label>
+                <div class="form-control bg-grey rounded" style="height:8em; white-space:pre-line; overflow-y:auto;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.Method))
+                    {
+                        @original.Method
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Project Level</label>
+                <div class="form-control bg-grey rounded" style="height:48px; padding: 6px 12px; display: flex; align-items: center;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(ViewBag.OriginalProjectLevel))
+                    {
+                        @ViewBag.OriginalProjectLevel
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Lead Researcher</label>
+                <div class="form-control bg-grey rounded" style="height:48px; padding: 6px 12px; display: flex; align-items: center;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(ViewBag.OriginalLeadResearcher))
+                    {
+                        @ViewBag.OriginalLeadResearcher
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Student/Co-Researchers</label>
+                <div class="form-control bg-grey rounded" style="min-height:48px; max-height:110px; overflow-y:auto;" readonly>
+                    @{
+                        var origCoResearchers = ViewBag.OriginalCoResearchers as List<FSSA.DTOs.CoResearcherDto> ?? new List<FSSA.DTOs.CoResearcherDto>();
+                    }
+                    @if (origCoResearchers.Any())
+                    {
+                        <ul class="mb-0 ps-3">
+                            @foreach (var co in origCoResearchers)
+                            {
+                                <li>
+                                    <i class="bi bi-person-fill text-primary me-1"></i>
+                                    @co.Name
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Physical Resources</label>
+                <div class="form-control bg-grey rounded pt-0" style="height:48px; padding: 6px 12px; display: flex; align-items: center;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.PhysicalResources))
+                    {
+                        @original.PhysicalResources
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Financial Resources</label>
+                <div class="form-control bg-grey rounded" style="min-height:80px; max-height:110px; overflow-y:auto;" readonly>
+                    @if (ViewBag.OriginalFinancialResources != null && ViewBag.OriginalFinancialResources.Count > 0)
+                    {
+                        <ul class="mb-0 ps-3">
+                            @foreach (var res in ViewBag.OriginalFinancialResources)
+                            {
+                                <li>@res.Title <span class="text-muted">- $@($"{res.Cost:0.00}")</span></li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Ethical Considerations</label>
+                <div class="form-control bg-grey rounded" style="height:10em; white-space:pre-line; overflow-y:auto;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.EthicalConsiderations))
+                    {
+                        @original.EthicalConsiderations
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Outcomes</label>
+                <div class="form-control bg-grey rounded" style="height:10em; white-space:pre-line; overflow-y:auto;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.Outcomes))
+                    {
+                        @original.Outcomes
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Milestones</label>
+                <div class="form-control bg-grey rounded" style="height:10em; white-space:pre-line; overflow-y:auto;" readonly>
+                    @if (!string.IsNullOrWhiteSpace(original?.Milestones))
+                    {
+                        @original.Milestones
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Original Estimated Completion</label>
+                <div class="form-control bg-grey rounded" style="height:48px; padding: 6px 12px; display: flex; align-items: center;" readonly>
+                    @if (original?.EstimatedCompletionDate != null)
+                    {
+                        @original.EstimatedCompletionDate?.ToString("yyyy-MM-dd")
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+            <div class="mb-0">
+                <label class="form-label fw-semibold">Original Attachments</label>
+                <div class="form-control bg-grey rounded" style="min-height:48px; max-height:110px; overflow-y:auto;" readonly>
+                    @if (ViewBag.OriginalAttachments != null && ViewBag.OriginalAttachments.Count > 0)
+                    {
+                        <ul class="list-unstyled mb-0">
+                           @foreach (var att in ViewBag.OriginalAttachments)
+                            {
+                                <li class="d-flex align-items-center gap-2 mb-2" style="min-height:auto;">
+                                    <a href="@att.FileUrl" download class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center" style="width:2.1em; height:2.1em;" title="Download">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    <span class="ms-1 flex-grow-1" style="font-weight:500; line-height:1.4;">@att.FileName</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span class="text-muted">N/A</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="financialResourcesModal" tabindex="-1" aria-labelledby="financialResourcesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Financial Resource</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="resourceTitle" class="form-label">Resource Title</label>
+                        <input type="text" class="form-control" id="resourceTitle" placeholder="e.g., Software License" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="resourceCost" class="form-label">Estimated Cost ($)</label>
+                        <input type="number" class="form-control" id="resourceCost" min="0.00" step="0.01" placeholder="e.g., 110.95" />
+                        <div class="form-text">Use the arrows or type to enter an estimated cost for this resource.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="addResourceBtn"><i class="bi-calculator">+ Resource</i></button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Synopsis</label>
-            <textarea class="form-control" disabled>@Model.Synopsis</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Synopsis</label>
-            <textarea asp-for="Synopsis" class="form-control"></textarea>
-            <span asp-validation-for="Synopsis" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Method</label>
-            <textarea class="form-control" disabled>@Model.Method</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Method</label>
-            <textarea asp-for="Method" class="form-control"></textarea>
-            <span asp-validation-for="Method" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Project Level</label>
-            <input class="form-control" value="@ViewBag.CurrentLevelName" disabled />
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Project Level</label>
-            <select asp-for="ProjectLevelId" class="form-select" asp-items="ViewBag.ProjectLevels">
-                <option value="">-- Pick a Project Level --</option>
-            </select>
-            <span asp-validation-for="ProjectLevelId" class="text-danger"></span>
+<div class="modal fade" id="coResearchersModal" tabindex="-1" aria-labelledby="coResearchersModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="coResearchersModalLabel">Add Co-Researcher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="coResearcherSelect" class="form-label">Select Researcher</label>
+                <div id="coResearcherContainer" class="position-relative">
+                    <select id="coResearcherSelect" class="form-select">
+                        <option value="" disabled selected hidden>Type to search for a Co-Researcher</option>
+                        @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
+                        {
+                            <option value="@researcher.Value">@researcher.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="addCoResearcherBtn">
+                    <i class="bi bi-person-plus"></i>
+                </button>
+            </div>
         </div>
     </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Resources</label>
-            <textarea class="form-control" disabled>@Model.Resources</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Resources</label>
-            <textarea asp-for="Resources" class="form-control"></textarea>
-            <span asp-validation-for="Resources" class="text-danger"></span>
-        </div>
+</div>
+   <div class="d-flex justify-content-center gap-2 mb-3">
+        <a href="@Url.Action("Search")" class="btn btn-secondary w-auto">Cancel</a>
+        <button type="button" class="btn btn-warning w-auto" id="triggerModalBtn">Modify</button>
     </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Ethical Considerations</label>
-            <textarea class="form-control" disabled>@Model.EthicalConsiderations</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Ethical Considerations</label>
-            <textarea asp-for="EthicalConsiderations" class="form-control"></textarea>
-            <span asp-validation-for="EthicalConsiderations" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Outcomes</label>
-            <textarea class="form-control" disabled>@Model.Outcomes</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Outcomes</label>
-            <textarea asp-for="Outcomes" class="form-control"></textarea>
-            <span asp-validation-for="Outcomes" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Milestones</label>
-            <textarea class="form-control" disabled>@Model.Milestones</textarea>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Milestones</label>
-            <textarea asp-for="Milestones" class="form-control"></textarea>
-            <span asp-validation-for="Milestones" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 row">
-        <div class="col-md-6">
-            <label class="form-label">Original Estimated Completion Date</label>
-            <input class="form-control" value="@Model.EstimatedCompletionDate.ToString("dd-MM-yyyy")" disabled />
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">New Estimated Completion Date</label>
-            <input asp-for="EstimatedCompletionDate" class="form-control" type="date" value="" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-            <span asp-validation-for="EstimatedCompletionDate" class="text-danger"></span>
-        </div>
-    </div>
-
-    <button type="button" class="btn btn-warning mb-3" id="triggerModalBtn">Modify Proposal</button>
-
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Confirm Edit</h5>
+                    <h5 class="modal-title" id="confirmModalLabel">WARNING: These Changes Will Be Broadcasted to the Dashboard.</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">You Are Rewriting An Existing Proposal. Publish?</p>
-                    <div class="alert alert-warning">
-                        NOTE: These Changes Will Be Broadcasted to the Dashboard!
-                    </div>
+                    Are You Sure You Want to Proceed with These Changes?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Yes, Publish My Changes.</button>
+                    <button type="submit" class="btn btn-warning">Yes, Modify</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<div class="modal fade" id="genericFieldModal" tabindex="-1" aria-labelledby="genericFieldModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="genericFieldModalLabel">Edit Field</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="genericFieldTextarea" class="form-control" rows="20"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveGenericFieldBtn">Save Field</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
+        // Confirm modal logic
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("proposalForm");
             const triggerBtn = document.getElementById("triggerModalBtn");
             const modalEl = document.getElementById("confirmModal");
-
             if (form && triggerBtn && modalEl) {
                 const modal = new bootstrap.Modal(modalEl);
                 triggerBtn.addEventListener("click", function () {
@@ -161,5 +485,227 @@
                 });
             }
         });
+
+        // File upload preview/clear logic
+        function updateMethodFileName() {
+            const input = document.getElementById('MethodImage');
+            const display = document.getElementById('methodFileName');
+            const clearBtn = document.getElementById('clearFileBtn');
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                display.textContent = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const clearBtn = document.getElementById('clearFileBtn');
+            const fileInput = document.getElementById('MethodImage');
+            const fileName = document.getElementById('methodFileName');
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileName.textContent = '';
+                clearBtn.style.display = 'none';
+            });
+        });
+        function updateSynopsisFileName() {
+            const input = document.getElementById('SynopsisAttachment');
+            const display = document.getElementById('synopsisFileName');
+            const clearBtn = document.getElementById('clearSynopsisFileBtn');
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                display.textContent = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const clearBtn = document.getElementById('clearSynopsisFileBtn');
+            const fileInput = document.getElementById('SynopsisAttachment');
+            const fileName = document.getElementById('synopsisFileName');
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileName.textContent = '';
+                clearBtn.style.display = 'none';
+            });
+        });
+        function updateEthicsFileName() {
+            const input = document.getElementById('EthicsAttachment');
+            const display = document.getElementById('ethicsFileName');
+            const clearBtn = document.getElementById('clearEthicsFileBtn');
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                clearBtn.style.display = 'inline-block';
+            } else {
+                display.textContent = '';
+                clearBtn.style.display = 'none';
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const clearBtn = document.getElementById('clearEthicsFileBtn');
+            const fileInput = document.getElementById('EthicsAttachment');
+            const fileName = document.getElementById('ethicsFileName');
+            clearBtn.addEventListener('click', function () {
+                fileInput.value = '';
+                fileName.textContent = '';
+                clearBtn.style.display = 'none';
+            });
+        });
     </script>
+
+    <script>
+        const resources = [];
+        document.getElementById('addResourceBtn').addEventListener('click', function () {
+            const title = document.getElementById('resourceTitle').value.trim();
+            const cost = parseFloat(document.getElementById('resourceCost').value);
+            if (!title || isNaN(cost) || cost < 0) {
+                alert("Please enter a valid title and non-negative cost.");
+                return;
+            }
+            resources.push({ title, cost });
+            updateFinancialResourcesUI();
+            bootstrap.Modal.getInstance(document.getElementById('financialResourcesModal')).hide();
+            document.getElementById('resourceTitle').value = '';
+            document.getElementById('resourceCost').value = '';
+        });
+        function updateFinancialResourcesUI() {
+            const list = document.getElementById('financialResourcesList');
+            const totalDisplay = document.getElementById('totalCost');
+            const hiddenFieldContainer = document.getElementById('financialResourceHiddenFields');
+            list.innerHTML = '';
+            hiddenFieldContainer.innerHTML = '';
+            let total = 0;
+            resources.forEach((r, i) => {
+                total += r.cost;
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                item.innerHTML = `
+                    ${r.title} - $${r.cost.toFixed(2)}
+                    <button type="button" class="btn" onclick="removeResource(${i})">&times;</button>
+                `;
+                list.appendChild(item);
+                const titleInput = document.createElement('input');
+                titleInput.type = 'hidden';
+                titleInput.name = 'ResourceTitles';
+                titleInput.value = r.title;
+                const costInput = document.createElement('input');
+                costInput.type = 'hidden';
+                costInput.name = 'ResourceCosts';
+                costInput.value = r.cost;
+                hiddenFieldContainer.appendChild(titleInput);
+                hiddenFieldContainer.appendChild(costInput);
+            });
+            totalDisplay.textContent = total.toFixed(2);
+        }
+        function removeResource(index) {
+            resources.splice(index, 1);
+            updateFinancialResourcesUI();
+        }
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let currentTargetId = null;
+            const previewHelpHTMLMap = {};
+            const modal = new bootstrap.Modal(document.getElementById("genericFieldModal"));
+            const textarea = document.getElementById("genericFieldTextarea");
+            const saveBtn = document.getElementById("saveGenericFieldBtn");
+            const modalTitle = document.getElementById("genericFieldModalLabel");
+            document.querySelectorAll(".field-preview").forEach(preview => {
+                const fieldId = preview.dataset.target;
+                previewHelpHTMLMap[fieldId] = preview.innerHTML;
+                preview.addEventListener("click", function () {
+                    currentTargetId = fieldId;
+                    const hiddenField = document.getElementById(fieldId + "Field");
+                    textarea.value = hiddenField.value || "";
+                    textarea.placeholder = this.dataset.placeholder || "";
+                    modalTitle.textContent = `Proposal ${this.dataset.label || 'Field'}`;
+                    modal.show();
+                });
+            });
+            saveBtn.addEventListener("click", function () {
+                if (!currentTargetId) return;
+                const previewBox = document.querySelector(`.field-preview[data-target="${currentTargetId}"]`);
+                const hiddenField = document.getElementById(currentTargetId + "Field");
+                const userInput = textarea.value.trim();
+                hiddenField.value = userInput;
+                if (userInput.length > 0) {
+                    previewBox.textContent = userInput;
+                    previewBox.classList.remove("text-muted", "fst-italic");
+                } else {
+                    previewBox.innerHTML = previewHelpHTMLMap[currentTargetId];
+                    previewBox.classList.remove("text-muted", "fst-italic");
+                }
+                modal.hide();
+            });
+        });
+    </script>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("select[name='LeadResearcherId']", {
+                create: false,
+                sortField: { field: "text", direction: "asc" }
+            });
+            new TomSelect("#coResearcherSelect", {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                dropdownParent: "#coResearcherContainer"
+            });
+        });
+    </script>
+
+
+    <script>
+        const coResearchers = [];
+        document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
+            const select = document.getElementById("coResearcherSelect");
+            const name = select.options[select.selectedIndex].text;
+            const id = select.value;
+            if (!id || coResearchers.find(r => r.id === id)) return;
+            coResearchers.push({ id, name });
+            updateCoResearcherUI();
+            bootstrap.Modal.getInstance(document.getElementById("coResearchersModal")).hide();
+            select.value = "";
+        });
+        function updateCoResearcherUI() {
+            const list = document.getElementById("coResearchersList");
+            const container = document.getElementById("coResearchersHiddenFields");
+            list.innerHTML = "";
+            container.innerHTML = "";
+            coResearchers.forEach((r, i) => {
+                const item = document.createElement("li");
+                item.className = "list-group-item d-flex justify-content-between align-items-center";
+                item.innerHTML = `
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-fill"></i> ${r.name}
+                    </div>
+                    <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
+                `;
+                list.appendChild(item);
+                const hidden = document.createElement("input");
+                hidden.type = "hidden";
+                hidden.name = "CoResearchers";
+                hidden.value = r.id;
+                container.appendChild(hidden);
+            });
+        }
+        function removeCoResearcher(index) {
+            coResearchers.splice(index, 1);
+            updateCoResearcherUI();
+        }
+    </script>
+
+    <style>
+        .ts-dropdown-content { max-height: 10.5em; overflow-y: auto; }
+        .ts-dropdown-content::-webkit-scrollbar { width: 6px; }
+        .ts-dropdown-content::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 3px; }
+         
+    </style>
 }

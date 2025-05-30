@@ -72,7 +72,7 @@
                 {
                     <a asp-controller="Proposal" asp-action="Details" asp-route-id="@proposal.Id"
                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark proposal-item"
-                        data-image="@(string.IsNullOrEmpty(proposal.MethodImage) ? "" : proposal.MethodImage)">
+                        data-image="@(proposal.Attachments.FirstOrDefault(a => a.TypeId == 1)?.FileUrl ?? "")">
                         <div>
                             <h5 class="mb-1">@proposal.Title</h5>
                             <small>

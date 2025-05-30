@@ -22,8 +22,12 @@ namespace FSSA.Models
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<EthicsReview> EthicsReviews { get; set; }
+        public DbSet<AttachmentType> AttachmentTypes { get; set; }
+        public DbSet<ProposalResearcher> ProposalResearchers { get; set; }
 
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<ProposalHistory> ProposalHistories { get; set; }
+        public DbSet<FinancialResource> FinancialResources { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +47,10 @@ namespace FSSA.Models
             modelBuilder.Entity<Comment>().ToTable("comments");
             modelBuilder.Entity<EthicsReview>().ToTable("ethics_review");
             modelBuilder.Entity<UserRole>().ToTable("user_roles");
+            modelBuilder.Entity<AttachmentType>().ToTable("attachment_types");
+            modelBuilder.Entity<FinancialResource>().ToTable("financial_resources");
+            modelBuilder.Entity<ProposalResearcher>().ToTable("proposal_researchers");
+            
 
             // This down here is a composite primary key for UserGroup
             modelBuilder.Entity<UserGroup>()
@@ -60,6 +68,24 @@ namespace FSSA.Models
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+            
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.AttachmentType)
+                .WithMany()
+                .HasForeignKey(a => a.TypeId);
+
+            modelBuilder.Entity<ProposalResearcher>()
+            .HasKey(pr => new { pr.ProposalId, pr.UserId });
+
+            modelBuilder.Entity<ProposalResearcher>()
+                .HasOne(pr => pr.Proposal)
+                .WithMany()
+                .HasForeignKey(pr => pr.ProposalId);
+
+            modelBuilder.Entity<ProposalResearcher>()
+                .HasOne(pr => pr.User)
+                .WithMany()
+                .HasForeignKey(pr => pr.UserId);
         }
     }
 }

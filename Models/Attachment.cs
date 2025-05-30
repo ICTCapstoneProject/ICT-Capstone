@@ -19,14 +19,18 @@ namespace FSSA.Models
         public string FileName { get; set; }
 
         [Required]
-        [Column("file_url")]
+        [Column("file_path")]
         public string FileUrl { get; set; }
 
         [Required]
-        [Column("uploaded_by")]
-        public int UploadedBy { get; set; }
+        [Column("type_id")]
+        public int TypeId { get; set; }
 
-        [Column("uploaded_at")]
-        public DateTime UploadedAt { get; set; }
+        [ForeignKey("TypeId")]
+        public AttachmentType AttachmentType { get; set; }
+
+        [ForeignKey("ProposalId")]
+        public virtual Proposal Proposal { get; set; }
+
     }
 }
