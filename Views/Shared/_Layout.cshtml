@@ -44,12 +44,30 @@
                         <i class="bi bi-pencil-square"></i> Proposal Creation
                     </a>
                 </li>
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Committee Chair"))
                 {
                     <li class="nav-item">
                         <a class="nav-link @(currentController == "Admin" ? "active" : "")"
                            asp-controller="Admin" asp-action="Index">
                             <i class="bi bi-people"></i> Admin Panel
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Ethics Committee") || User.IsInRole("Committee Chair"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "CommitteeApproval" ? "active" : "")"
+                        asp-controller="CommitteeApproval" asp-action="Index">
+                            <i class="bi bi-patch-check"></i> Committee Approvals
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Committee Chair"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "ChairApproval" ? "active" : "")"
+                        asp-controller="ChairApproval" asp-action="Index">
+                            <i class="bi bi-award"></i> Chair Approvals
                         </a>
                     </li>
                 }
