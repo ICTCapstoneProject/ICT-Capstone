@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Edit Proposal";
-    // Expect: ViewBag.OriginalProposal as FSSA.Models.Proposal or matching DTO
     var original = ViewBag.OriginalProposal;
 }
 
@@ -13,7 +12,6 @@
     <input type="hidden" asp-for="StatusId" />
 
     <div class="row gx-4 gy-4">
-    <!-- Editable column -->
     <div class="col-lg-6 col-md-12 border-end">
         <div class="p-3 p-lg-4">
             <!-- Title -->
@@ -76,18 +74,11 @@
                 <label class="form-label fw-semibold">New Lead Researcher</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                    <select id="ResearcherId" name="ResearcherId" class="form-select" style="height:48px;">
+                    <select asp-for="LeadResearcherId" class="form-select" style="height:48px;">
                         <option value="" disabled selected hidden>*Type to Search*</option>
                         @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
                         {
-                            if (Model.LeadResearcherId.ToString() == researcher.Value)
-                            {
-                                <option value="@researcher.Value" selected="selected">@researcher.Text</option>
-                            }
-                            else
-                            {
-                                <option value="@researcher.Value">@researcher.Text</option>
-                            }
+                            <option value="@researcher.Value">@researcher.Text</option>
                         }
                     </select>
                 </div>
@@ -380,7 +371,7 @@
         </div>
     </div>
 </div>
-    <!-- FINANCIAL RESOURCES MODAL -->
+
     <div class="modal fade" id="financialResourcesModal" tabindex="-1" aria-labelledby="financialResourcesModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content shadow">
@@ -407,7 +398,6 @@
         </div>
     </div>
 
-   <!-- CO-RESEARCHERS MODAL -->
 <div class="modal fade" id="coResearchersModal" tabindex="-1" aria-labelledby="coResearchersModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content shadow">
@@ -436,8 +426,6 @@
         </div>
     </div>
 </div>
-
-    <!-- SUBMIT BUTTON + CONFIRMATION MODAL -->
    <div class="d-flex justify-content-center gap-2 mb-3">
         <a href="@Url.Action("Search")" class="btn btn-secondary w-auto">Cancel</a>
         <button type="button" class="btn btn-warning w-auto" id="triggerModalBtn">Modify</button>
@@ -461,7 +449,6 @@
     </div>
 </form>
 
-<!-- GENERIC FIELD MODAL FOR EDITING TEXT FIELDS -->
 <div class="modal fade" id="genericFieldModal" tabindex="-1" aria-labelledby="genericFieldModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content shadow">
@@ -568,7 +555,6 @@
         });
     </script>
 
-    <!-- Financial resources JS (cart logic) -->
     <script>
         const resources = [];
         document.getElementById('addResourceBtn').addEventListener('click', function () {
@@ -619,7 +605,7 @@
         }
     </script>
 
-    <!-- Modal field editor for textareas -->
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let currentTargetId = null;
@@ -658,12 +644,12 @@
         });
     </script>
 
-    <!-- TomSelect for researcher dropdowns -->
+
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            new TomSelect("#ResearcherId", {
+            new TomSelect("select[name='LeadResearcherId']", {
                 create: false,
                 sortField: { field: "text", direction: "asc" }
             });
@@ -675,7 +661,7 @@
         });
     </script>
 
-    <!-- Co-researcher cart logic -->
+
     <script>
         const coResearchers = [];
         document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
