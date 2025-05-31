@@ -1,0 +1,27 @@
+@model List<FSSA.Models.Proposal>
+
+@{
+    ViewData["Title"] = "Committee Approvals";
+}
+
+<h2 class="mb-4">New Proposals for Committee Review</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">There are no proposals waiting for committee approval.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var proposal in Model)
+        {
+            <a asp-action="Details" asp-route-id="@proposal.Id" class="list-group-item list-group-item-action mb-2 shadow-sm border rounded text-dark text-decoration-none">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@proposal.Title</h5>
+                    <small class="text-muted">@proposal.CreatedAt.ToString("dd MMM yyyy")</small>
+                </div>
+                <p class="mb-1 text-muted">@proposal.Synopsis</p>
+            </a>
+        }
+    </div>
+}
