@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
 
-[Authorize(Roles = "Ethics Committee")]
+[Authorize(Roles = "Ethics Committee,Committee Chair")]
 public class CommitteeApprovalController : Controller
 {
     private readonly ProjectManagerContext _context;

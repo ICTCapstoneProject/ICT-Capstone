@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SQLitePCL;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Committee Chair")]
 public class AdminController : Controller
 {
     private readonly ProjectManagerContext _context;
