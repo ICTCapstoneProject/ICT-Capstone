@@ -187,18 +187,20 @@
 </div>
 
 <!-- Navigation Buttons -->
-<div class="mt-4">
+<div class="d-flex justify-content-end gap-2 mt-4">
     <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
 
-    <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button type="submit" name="actionType" value="approve" class="btn btn-success me-2">Approve</button>
-    </form>
+    <div>
+        <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" name="actionType" value="approve" class="btn btn-success me-2">Approve</button>
+        </form>
 
-    <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button type="submit" name="actionType" value="reject" class="btn btn-danger">Reject</button>
-    </form>
+        <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" name="actionType" value="reject" class="btn btn-danger">Reject</button>
+        </form>
+    </div>
 </div>
 
 
