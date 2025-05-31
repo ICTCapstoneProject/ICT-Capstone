@@ -4,64 +4,33 @@ using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
 
-[Authorize(Roles = "Ethics Committee")]
-public class CommitteeApprovalController : Controller
+[Authorize]
+public class CompleteController : Controller
 {
     private readonly ProjectManagerContext _context;
 
-    public CommitteeApprovalController(ProjectManagerContext context)
+    public CompleteController(ProjectManagerContext context)
     {
         _context = context;
     }
 
     public IActionResult Index()
     {
+        var email = User.Identity?.Name;
+        var user = _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Email == email);
+        if (user == null) return Unauthorized();
+
+        var isSubmitter = true;
+        var isCommitteeMember = user.UserRoles.Any(r => r.Role.RoleName == "Ethics Committee");
+        var isChair = user.UserRoles.Any(r => r.Role.RoleName == "Committee Chair");
+
         var proposals = _context.Proposals
-            .Where(p => p.StatusId == 1)
+            .Where(p => p.StatusId == 4 &&
+                        (p.SubmittedBy == user.UserId || isCommitteeMember || isChair))
             .Include(p => p.Attachments)
             .ToList();
 
-        return View("CommitteeApprovals", proposals);
-    }
-
-    [HttpPost]
-    public IActionResult UpdateStatus(int id, string actionType)
-    {
-        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
-        if (proposal == null) return NotFound();
-
-        switch (actionType.ToLower())
-        {
-            case "approve":
-                proposal.StatusId = 2;
-                break;
-            case "reject":
-                proposal.StatusId = 6;
-                break;
-            default:
-                return BadRequest("Invalid action");
-        }
-
-        proposal.UpdatedAt = DateTime.Now;
-        
-        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
-        if (user == null)
-            return Unauthorized();
-
-        var userId = user.UserId;
-
-        _context.ProposalLogs.Add(new ProposalLog
-        {
-            ProposalId = proposal.Id,
-            StatusId = proposal.StatusId,
-            ChangedBy = userId,
-            Action = actionType,
-            Timestamp = DateTime.Now
-        });
-
-        _context.SaveChanges();
-
-        return RedirectToAction("Index");
+        return View("Complete", proposals);
     }
 
     public IActionResult Details(int id)
@@ -75,9 +44,7 @@ public class CommitteeApprovalController : Controller
 
         var submitter = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
         var leadResearcher = _context.Users.FirstOrDefault(u => u.UserId == proposal.LeadResearcherId);
-
-        var projectLevelName = _context.ProjectLevels
-            .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
+        var projectLevelName = _context.ProjectLevels.FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
 
         var financialResources = _context.FinancialResources
             .Where(fr => fr.ProposalId == proposal.Id)
@@ -121,6 +88,32 @@ public class CommitteeApprovalController : Controller
         return View("Details", model);
     }
 
+    [HttpPost]
+    public IActionResult MarkComplete(int id)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
 
+        proposal.StatusId = 5;
+        proposal.UpdatedAt = DateTime.Now;
 
+        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+        if (user == null)
+            return Unauthorized();
+
+        var userId = user.UserId;
+
+        _context.ProposalLogs.Add(new ProposalLog
+        {
+            ProposalId = id,
+            StatusId = proposal.StatusId,
+            ChangedBy = userId,
+            Action = "marked_complete",
+            Timestamp = DateTime.Now
+        });
+
+        _context.SaveChanges();
+
+        return RedirectToAction("Index");
+    }
 }

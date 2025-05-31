@@ -88,8 +88,12 @@ public class ManagerCommenceController : Controller
         proposal.StatusId = 4;
         proposal.UpdatedAt = DateTime.Now;
 
-        var userId = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name)?.UserId ?? 0;
+        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+        if (user == null)
+            return Unauthorized();
 
+        var userId = user.UserId;
+        
         _context.ProposalLogs.Add(new ProposalLog
         {
             ProposalId = id,
