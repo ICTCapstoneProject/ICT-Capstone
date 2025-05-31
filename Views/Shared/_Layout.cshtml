@@ -71,6 +71,13 @@
                         </a>
                     </li>
                 }
+                @if (User.IsInRole("Manager"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ManagerCommence" asp-action="Index">Commence Proposals</a>
+                    </li>
+                }
+
                 <li class="nav-item">
                     <a class="nav-link @(currentAction == "Privacy" && currentController == "Home" ? "active" : "")"
                        asp-area="" asp-controller="Home" asp-action="Privacy">
