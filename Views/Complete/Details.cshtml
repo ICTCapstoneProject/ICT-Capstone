@@ -189,10 +189,9 @@
 <!-- Navigation Buttons -->
 <div class="d-flex justify-content-end mt-4 mb-3 gap-2">
     <a asp-action="Index" class="btn btn-dark">← Return to Inspection/Completion Backlog</a>
-
-    <form method="post" asp-action="MarkComplete" asp-route-id="@Model.Id" class="d-inline">
-        <button type="submit" class="btn btn-success">Mark as Complete</button>
-    </form>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#completeModal">
+        Mark as Complete
+    </button>
 </div>
 
 
@@ -262,6 +261,33 @@
             </div>
             <div class="modal-body" style="min-height: 400px; max-height: 400px; overflow-y: auto;">
                 @Model.Milestones
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Confirmation Modal -->
+<div class="modal fade" id="completeModal" tabindex="-1" aria-labelledby="completeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="completeModalLabel">
+                    <i class="bi bi-check2-circle me-2"></i>
+                    Mark Proposal as Complete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to mark Proposal <strong>#@Model.Id</strong>
+                <span class="fst-italic">'@Model.Title'</span> as <strong>Complete</strong>?
+                <br><br>
+                This action will finalise the proposal. Changes cannot be made after the fact.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="MarkComplete" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-success">Yes, Mark as Complete</button>
+                </form>
             </div>
         </div>
     </div>

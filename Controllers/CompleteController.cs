@@ -114,6 +114,26 @@ public class CompleteController : Controller
 
         _context.SaveChanges();
 
-        return RedirectToAction("Index");
+        var model = new MyProposalViewModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title
+        };
+        return View("Success", model);
+
+        return RedirectToAction("Success", new { id = proposal.Id });
+    }
+
+    public IActionResult Success(int id)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
+
+        var model = new MyProposalViewModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title
+        };
+        return View("Success", model);
     }
 }
