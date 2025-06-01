@@ -74,19 +74,28 @@
                 @if (User.IsInRole("Manager"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="ManagerCommence" asp-action="Index">Commence Proposals</a>
+                        <a class="nav-link @(currentAction == "Index" && currentController == "ManagerCommence" ? "active" : "")"
+                        asp-controller="ManagerCommence" asp-action="Index">
+                             <i class="bi bi-rocket"></i> Commence Proposals
+                        </a>
                     </li>
                 }
                 @if (User.IsInRole("Committee Chair") || User.IsInRole("Ethics Committee"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Complete" asp-action="Index">Complete Proposals</a>
+                        <a class="nav-link @(currentController == "Complete" ? "active" : "")"
+                        asp-controller="Complete" asp-action="Index">
+                            <i class="bi bi-check2-circle"></i> Complete<br>Proposal
+                        </a>
                     </li>
                 }
                 @if (User.IsInRole("Researcher"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Complete" asp-action="Index">My In-Progress Proposals</a>
+                        <a class="nav-link @(currentController == "Complete" ? "active" : "")"
+                        asp-controller="Complete" asp-action="Index">
+                            <i class="bi bi-hourglass-split"></i> My In-Progress Proposals
+                        </a>
                     </li>
                 }
 

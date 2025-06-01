@@ -1,14 +1,21 @@
 @model List<FSSA.Models.Proposal>
 
 @{
-    ViewData["Title"] = "Proposals to Commence";
+    ViewData["Title"] = "Commence Proposals";
 }
 
 <h2 class="mb-4">Proposals Awaiting Commencement</h2>
 
+<div class="alert alert-warning mb-4" style="background-color: #fff8e1;">
+   <i class="bi bi-info-circle me-2"></i>
+    Commence proposals that have cleared all approvals. Tap on a proposal and follow the navigation guide to start the project.
+</div>
+
 @if (!Model.Any())
 {
-    <div class="alert alert-info">No proposals ready to commence.</div>
+    <div class="alert alert-info">
+        You currently have...<br>No proposals to commence.
+    </div>
 }
 else
 {
