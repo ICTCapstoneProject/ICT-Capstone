@@ -508,9 +508,9 @@ public async Task<IActionResult> Edit(
     int[] CoResearchers,
     string[] ResourceTitles,
     decimal[] ResourceCosts,
-    IFormFile SynopsisAttachment,
-    IFormFile MethodImage,
-    IFormFile EthicsAttachment
+    IFormFile? SynopsisAttachment,
+    IFormFile? MethodImage,
+    IFormFile? EthicsAttachment
 )
 {
     
