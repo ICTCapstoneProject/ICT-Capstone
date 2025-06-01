@@ -6,23 +6,23 @@ namespace FSSA.Models
 {
     public class Comment
     {
-        [Key]
-        [Column("comment_id")]
-        public int CommentId { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        [Column("review_id")]
-        public int ReviewId { get; set; }
+        public string Content { get; set; } = string.Empty;
 
-        [Required]
-        [Column("commenter")]
-        public int Commenter { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.Now;
 
-        [Required]
-        [Column("comment")]
-        public string CommentText { get; set; }
+        // Foreign Keys
+        public int ProposalId { get; set; }
 
-        [Column("timestamp")]
-        public DateTime Timestamp { get; set; }
+        [ForeignKey("ProposalId")]
+        public Proposal? Proposal { get; set; }
+
+        public int UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
     }
+
 }
