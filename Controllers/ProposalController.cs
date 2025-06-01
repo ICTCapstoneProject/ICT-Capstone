@@ -81,18 +81,18 @@ namespace FSSA.Controllers
 
 
         // POST: /Proposal/Create
-       [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Create(
-        Proposal proposal,
-        [FromForm] IFormFile? SynopsisAttachment,
-        [FromForm] IFormFile? MethodImage,
-        [FromForm] IFormFile? EthicsAttachment,
-        [FromForm] List<int> CoResearchers,
-        [FromForm] List<string> ResourceTitles,
-        [FromForm] List<decimal> ResourceCosts,
-        [FromForm] int ResearcherId
-    )
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(
+            Proposal proposal,
+            [FromForm] IFormFile? SynopsisAttachment,
+            [FromForm] IFormFile? MethodImage,
+            [FromForm] IFormFile? EthicsAttachment,
+            [FromForm] List<int> CoResearchers,
+            [FromForm] List<string> ResourceTitles,
+            [FromForm] List<decimal> ResourceCosts,
+            [FromForm] int ResearcherId
+        )
         {
             if (!ModelState.IsValid)
                 {
@@ -338,7 +338,8 @@ namespace FSSA.Controllers
                             {
                                 Id = u.UserId.ToString(),
                                 Name = u.Name
-                            }).ToList()
+                            }).ToList(),
+                    Comments = x.p.Comments
                 }).ToList();
 
             ViewBag.canToggle = canToggle;
@@ -400,7 +401,8 @@ namespace FSSA.Controllers
                 LeadResearcherName = leadResearcher?.Name ?? "Unknown",
                 FinancialResources = financialResources,
                 CoResearchers = coResearchers,
-                Attachments = proposal.Attachments.ToList()
+                Attachments = proposal.Attachments.ToList(),
+                Comments = proposal.Comments
             };
 
             return View(model);
@@ -864,7 +866,8 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
                         }).ToList(),
                     Attachments = _context.Attachments
                         .Where(a => a.ProposalId == entry.p.Id)
-                        .ToList()
+                        .ToList(),
+                    Comments = entry.p.Comments
                 })
                 .AsQueryable();
 
@@ -957,7 +960,8 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
                 SubmittedByName = user?.Name ?? "Unknown",
                 StatusName = statusName,
                 CoResearchers = coResearchers,
-                Attachments = attachments
+                Attachments = attachments,
+                Comments = proposal.Comments,
             };
 
             return View("Summary", model);
