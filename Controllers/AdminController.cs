@@ -40,7 +40,7 @@ public class AdminController : Controller
     public IActionResult Create(UserCreateViewModel model)
     {
 
-        
+
         if (model.AdminConfirmation != "AdminPrivileges")
         {
             ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
@@ -69,7 +69,7 @@ public class AdminController : Controller
         }
 
         _context.SaveChanges();
-        return RedirectToAction("Index");
+        return RedirectToAction("CreateSuccess");
     }
 
     public IActionResult Edit(int id)
@@ -131,7 +131,7 @@ public class AdminController : Controller
         }
 
         _context.SaveChanges();
-        return RedirectToAction("Index");
+        return RedirectToAction("EditSuccess");
     }
 
     public IActionResult Delete(int id)
@@ -169,7 +169,25 @@ public class AdminController : Controller
         _context.Users.Remove(userToDelete);
         _context.SaveChanges();
 
-        return RedirectToAction("Index");
+        return RedirectToAction("DeleteSuccess");
+    }
+    
+    public IActionResult CreateSuccess()
+    {
+        ViewBag.Action = "created";
+        return View("Success");
+    }
+
+    public IActionResult EditSuccess()
+    {
+        ViewBag.Action = "edited";
+        return View("Success");
+    }
+
+    public IActionResult DeleteSuccess()
+    {
+        ViewBag.Action = "deleted";
+        return View("Success");
     }
 
 

@@ -1,0 +1,34 @@
+@{
+    var action = ViewBag.Action as string ?? "saved";
+    string header = action switch {
+        "created" => "User Created",
+        "edited"  => "User Edited",
+        "deleted" => "User Deleted",
+        _         => "Action Complete"
+    };
+    string description = action switch {
+        "created" => "Creation Successful: You have successfully created a new user.",
+        "edited"  => "Modification Successful: You have successfully updated the selected user's details.",
+        "deleted" => "Deletion Successful: You have successfully deleted the selected user from the system.",
+        _         => "Your action was successful."
+    };
+    string icon = action switch {
+        "deleted" => "bi bi-trash3-fill text-danger",
+        "created" => "bi bi-person-plus-fill text-success",
+        "edited"  => "bi bi-person-lines-fill text-primary",
+        _         => "bi bi-check-circle-fill text-success"
+    };
+}
+<div class="alert alert-success mt-5 mb-4 shadow-sm text-dark" role="alert">
+    <h4 class="alert-heading mb-2">
+        <i class="@icon" style="font-size:1.3em; vertical-align:middle"></i>
+        @header
+    </h4>
+    <p class="mb-0">@description</p>
+</div>
+
+<div class="d-flex gap-2 justify-content-center mb-5">
+    <a asp-action="Index" class="btn btn-dark px-3 shadow">
+         <i class="bi bi-arrow-left"></i>
+        Return to Admin Suite</a>
+</div>
