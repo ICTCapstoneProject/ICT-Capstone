@@ -190,19 +190,14 @@
 <div class="d-flex justify-content-end gap-2 mt-4 mb-3">
     <a asp-action="Index" class="btn btn-dark">← Return to Committee Approval Backlog</a>
 
-    <div>
-        <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" name="actionType" value="approve" class="btn btn-success me-2">Grant Ethics Approval</button>
-        </form>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+        Grant Ethics Approval
+    </button>
 
-        <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" name="actionType" value="reject" class="btn btn-danger">Reject</button>
-        </form>
-    </div>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+        Reject
+    </button>
 </div>
-
 
 <!-- Modals for full field text -->
 <div class="modal fade" id="synopsisModal" tabindex="-1" aria-labelledby="synopsisModalLabel" aria-hidden="true">
@@ -270,6 +265,60 @@
             </div>
             <div class="modal-body" style="min-height: 400px; max-height: 400px; overflow-y: auto;">
                 @Model.Milestones
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="approveModalLabel">
+                    <i class="bi bi-patch-check-fill me-2"></i>
+                    Confirm Ethics Approval
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Grant Ethics Approval</b> for <br> Proposal <strong>#@Model.Id</strong>
+                <span class="fst-italic">'@Model.Title'</span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" name="actionType" value="approve" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Confirmation Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="bi bi-x-octagon-fill me-2"></i>
+                    Confirm Rejection
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Reject</b> Proposal <strong>#@Model.Id</strong>
+                <span class="fst-italic">'@Model.Title'</span>?<br><br>
+                This cannot be undone.<br><br>
+                <i class="bi bi-info-circle me-2"></i>Press <strong>Cancel</strong>, leave a comment, and opt into <strong>Request Modifications</strong> for proposals that require slight tweaks.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" name="actionType" value="reject" class="btn btn-danger">Yes, Reject</button>
+                </form>
             </div>
         </div>
     </div>
