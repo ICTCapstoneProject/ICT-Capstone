@@ -56,6 +56,7 @@ namespace FSSA.Models{
 
         public string MethodImage { get; set; }
 
+        [Display(Name = "Comment")]
         public string? Comment { get; set; }
     }
 
