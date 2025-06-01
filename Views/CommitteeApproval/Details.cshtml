@@ -187,13 +187,13 @@
 </div>
 
 <!-- Navigation Buttons -->
-<div class="d-flex justify-content-end gap-2 mt-4">
-    <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
+<div class="d-flex justify-content-end gap-2 mt-4 mb-3">
+    <a asp-action="Index" class="btn btn-dark">← Return to Committee Approval Backlog</a>
 
     <div>
         <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
             <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" name="actionType" value="approve" class="btn btn-success me-2">Approve</button>
+            <button type="submit" name="actionType" value="approve" class="btn btn-success me-2">Grant Ethics Approval</button>
         </form>
 
         <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">

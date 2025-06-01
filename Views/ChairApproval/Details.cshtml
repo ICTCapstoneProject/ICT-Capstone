@@ -187,11 +187,11 @@
 </div>
 
 <!-- Navigation Buttons -->
-<div class="d-flex justify-content-end mt-4 gap-2">
-    <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
+<div class="d-flex justify-content-end mt-4 mb-3 gap-2">
+    <a asp-action="Index" class="btn btn-dark">← Return to Chair Approval Backlog</a>
 
     <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
-        <button type="submit" class="btn btn-success">Approve</button>
+        <button type="submit" class="btn btn-success">Grant Chair Approval</button>
     </form>
 </div>
 

@@ -187,8 +187,8 @@
 </div>
 
 <!-- Navigation Buttons -->
-<div class="d-flex justify-content-end mt-4 gap-2">
-    <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
+<div class="d-flex justify-content-end mt-4 mb-3 gap-2">
+    <a asp-action="Index" class="btn btn-dark">← Return to Inspection/Completion Backlog</a>
 
     <form method="post" asp-action="MarkComplete" asp-route-id="@Model.Id" class="d-inline">
         <button type="submit" class="btn btn-success">Mark as Complete</button>
