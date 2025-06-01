@@ -1,0 +1,40 @@
+@model FSSA.Models.MyProposalViewModel
+@{
+    ViewData["Title"] = "Action Complete";
+    var outcome = ViewBag.Outcome as string ?? "approved";
+    var isApproval = outcome == "approved";
+}
+
+<div class="alert alert-success border-success-subtle bg-success bg-opacity-10 text-dark rounded-3 mt-5 mb-4 shadow" role="alert" style="font-size:1.15em;">
+    @if (isApproval)
+    {
+        <div>
+            <i class="bi bi-award-fill text-success me-2"></i>
+            You have successfully <strong>granted Chair Approval</strong> to
+            <strong>Proposal #@Model.Id</strong>
+            <span class="fst-italic">'@Model.Title'</span>.<br>
+            This proposal is now eligible for <b>Commencement</b>.
+        </div>
+    }
+    else
+    {
+        <div>
+            <i class="bi bi-x-octagon-fill text-danger me-2"></i>
+            Proposal <strong>#@Model.Id</strong>
+            <span class="fst-italic">'@Model.Title'</span>
+            did not receive Chair Approval.<br>
+            Please review the proposal’s details or return to the backlog.
+        </div>
+    }
+</div>
+
+<div class="d-flex gap-2 justify-content-center mb-5">
+    <a asp-controller="ChairApproval" asp-action="Index" class="btn btn-dark shadow px-3 py-2 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        Back to Chair Approval Backlog
+    </a>
+    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary shadow px-3 py-2 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-house-door"></i>
+        Return to Dashboard
+    </a>
+</div>

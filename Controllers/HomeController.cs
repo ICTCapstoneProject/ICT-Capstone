@@ -87,9 +87,14 @@ public class HomeController : Controller
             {
                 Description = x.Action switch
                 {
-                    "submitted" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-success'>submitted</span> by {x.UserName}",
-                    "modified" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-warning'>modified</span> by {x.UserName}",
-                    _ => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was updated by {x.UserName}"
+                    "submitted"         => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-success'>submitted</span> by {x.UserName}",
+                    "modified"          => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-warning'>modified</span> by {x.UserName}",
+                    "approve" => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was granted <span class='text-info'>committee approval</span> from {x.UserName}",
+                    "chair_approve"     => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was granted <span class='text-primary'>chair approval</span> from {x.UserName}",
+                    "marked_complete"   => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span style='color: #b5e6b6;'>marked complete</span> by {x.UserName}",
+                    "commenced"         => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was set to <span style='color: #a259e6;'>commence</span> by {x.UserName}",
+                    "reject"          => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-danger'>rejected</span> by {x.UserName}",
+                    _                   => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was updated by {x.UserName}"
                 },
                 TimeAgo = GetTimeAgo(x.Timestamp)
             })

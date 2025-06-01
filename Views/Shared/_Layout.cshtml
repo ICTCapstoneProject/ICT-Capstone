@@ -44,7 +44,7 @@
                         <i class="bi bi-pencil-square"></i> Proposal Creation
                     </a>
                 </li>
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Committee Chair"))
                 {
                     <li class="nav-item">
                         <a class="nav-link @(currentController == "Admin" ? "active" : "")"
@@ -53,6 +53,52 @@
                         </a>
                     </li>
                 }
+                @if (User.IsInRole("Ethics Committee") || User.IsInRole("Committee Chair"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "CommitteeApproval" ? "active" : "")"
+                        asp-controller="CommitteeApproval" asp-action="Index">
+                            <i class="bi bi-patch-check"></i> Committee Approvals
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Committee Chair"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "ChairApproval" ? "active" : "")"
+                        asp-controller="ChairApproval" asp-action="Index">
+                            <i class="bi bi-award"></i> Chair Approvals
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Manager"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentAction == "Index" && currentController == "ManagerCommence" ? "active" : "")"
+                        asp-controller="ManagerCommence" asp-action="Index">
+                             <i class="bi bi-rocket"></i> Commence Proposals
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Committee Chair") || User.IsInRole("Ethics Committee"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Complete" ? "active" : "")"
+                        asp-controller="Complete" asp-action="Index">
+                            <i class="bi bi-check2-circle"></i> Complete<br>Proposal
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Researcher"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Complete" ? "active" : "")"
+                        asp-controller="Complete" asp-action="Index">
+                            <i class="bi bi-hourglass-split"></i> My In-Progress Proposals
+                        </a>
+                    </li>
+                }
+
                 <li class="nav-item">
                     <a class="nav-link @(currentAction == "Privacy" && currentController == "Home" ? "active" : "")"
                        asp-area="" asp-controller="Home" asp-action="Privacy">

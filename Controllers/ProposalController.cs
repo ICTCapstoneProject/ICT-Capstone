@@ -44,6 +44,14 @@ namespace FSSA.Controllers
             _context = context;
             _environment = environment;
         }
+        
+        private string BuildAttachmentFileName(int proposalId, string proposalTitle, string attachmentType, string ext)
+        {
+            // Remove/replace unsafe characters
+            var safeTitle = string.Concat(proposalTitle.Where(c => !Path.GetInvalidFileNameChars().Contains(c)));
+            var safeType = string.Concat(attachmentType.Where(c => !Path.GetInvalidFileNameChars().Contains(c)));
+            return $"{proposalId} {safeTitle} {safeType} Attachment{ext}";
+        }
 
         // GET: /Proposal/Create
         public IActionResult Create()
@@ -58,25 +66,25 @@ namespace FSSA.Controllers
             var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
 
             if (researcherRoleId != null)
-                {
-                    ViewBag.Researchers = _context.UserRoles
-                        .Where(ur => ur.RoleId == researcherRoleId)
-                        .Include(ur => ur.User)
-                        .Select(ur => new SelectListItem
-                        {
-                            Value = ur.User.UserId.ToString(),
-                            Text = ur.User.Name + " (#" + ur.User.UserId + ")"
-                        })
-                        .OrderBy(r => r.Text)
-                        .ToList();
-                }
-                else
-                {
-                    ViewBag.Researchers = new List<SelectListItem>();
-                }
-
-                return View();
+            {
+                ViewBag.Researchers = _context.UserRoles
+                    .Where(ur => ur.RoleId == researcherRoleId)
+                    .Include(ur => ur.User)
+                    .Select(ur => new SelectListItem
+                    {
+                        Value = ur.User.UserId.ToString(),
+                        Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                    })
+                    .OrderBy(r => r.Text)
+                    .ToList();
             }
+            else
+            {
+                ViewBag.Researchers = new List<SelectListItem>();
+            }
+
+            return View();
+        }
 
 
 
@@ -152,32 +160,33 @@ namespace FSSA.Controllers
                 Directory.CreateDirectory(uploadsPath);
 
             // Helper method to save attachment
-            void SaveAttachment(IFormFile file, int typeId, string label)
-            {
-                if (file != null && file.Length > 0)
+           void SaveAttachment(IFormFile file, int typeId, string typeLabel)
                 {
-                    var uniqueName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine(uploadsPath, uniqueName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    if (file != null && file.Length > 0)
                     {
-                        file.CopyTo(stream);
+                        var ext = Path.GetExtension(file.FileName);
+                        var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
+                        var filePath = Path.Combine(uploadsPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                        }
+
+                        _context.Attachments.Add(new Attachment
+                        {
+                            ProposalId = proposal.Id,
+                            FileName = fileName,
+                            FileUrl = "/uploads/" + fileName,
+                            TypeId = typeId
+                        });
                     }
-
-                    _context.Attachments.Add(new Attachment
-                    {
-                        ProposalId = proposal.Id,
-                        FileName = $"{proposal.Id}-{proposal.Title}-{label}",
-                        FileUrl = "/uploads/" + uniqueName,
-                        TypeId = typeId
-                    });
                 }
-            }
 
             // Save each one with the correct type and label
-            SaveAttachment(SynopsisAttachment, 1, "Synopsis Attachment");
-            SaveAttachment(MethodImage, 2, "Method Attachment");
-            SaveAttachment(EthicsAttachment, 3, "Ethics Attachment");
+            SaveAttachment(SynopsisAttachment, 1, "Synopsis");
+            SaveAttachment(MethodImage, 2, "Method");
+            SaveAttachment(EthicsAttachment, 3, "Ethics");
 
             foreach (var coResearcherId in CoResearchers.Distinct())
             {
@@ -508,9 +517,12 @@ public async Task<IActionResult> Edit(
     int[] CoResearchers,
     string[] ResourceTitles,
     decimal[] ResourceCosts,
-    IFormFile SynopsisAttachment,
-    IFormFile MethodImage,
-    IFormFile EthicsAttachment
+    IFormFile? SynopsisAttachment,
+    IFormFile? MethodImage,
+    IFormFile? EthicsAttachment,
+    bool RemoveSynopsisAttachment = false,
+    bool RemoveMethodImage = false,
+    bool RemoveEthicsAttachment = false
 )
 {
     
@@ -666,7 +678,7 @@ public async Task<IActionResult> Edit(
     }
 
     //  Update Attachments (helper for each type)
-    async Task SaveAttachmentAsync(IFormFile file, int typeId)
+    async Task SaveAttachmentAsync(IFormFile file, int typeId, string typeLabel)
     {
         if (file == null || file.Length == 0)
             return;
@@ -675,16 +687,15 @@ public async Task<IActionResult> Edit(
         if (!Directory.Exists(uploadsDir))
             Directory.CreateDirectory(uploadsDir);
 
-        var safeTitle = string.Concat(proposal.Title.Split(Path.GetInvalidFileNameChars()));
-        var uniqueName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-        var fileName = $"{proposal.Id}_{safeTitle}_{typeId}_{uniqueName}";
+        var ext = Path.GetExtension(file.FileName);
+        var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
         var filePath = Path.Combine(uploadsDir, fileName);
+
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }
 
-        // Remove existing attachment of this type (for this proposal)
         var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
         if (old != null)
             _context.Attachments.Remove(old);
@@ -697,11 +708,22 @@ public async Task<IActionResult> Edit(
             FileUrl = "/uploads/" + fileName
         });
     }
+    void RemoveAttachmentOfType(int typeId)
+    {
+        var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
+        if (old != null)
+            _context.Attachments.Remove(old);
+    }
+
+    // Remove if toggled
+    if (RemoveSynopsisAttachment) RemoveAttachmentOfType(1);
+    if (RemoveMethodImage) RemoveAttachmentOfType(2);
+    if (RemoveEthicsAttachment) RemoveAttachmentOfType(3);
 
     // Save new files if uploaded
-    await SaveAttachmentAsync(SynopsisAttachment, 1);
-    await SaveAttachmentAsync(MethodImage, 2);
-    await SaveAttachmentAsync(EthicsAttachment, 3);
+    await SaveAttachmentAsync(SynopsisAttachment, 1, "Synopsis");
+    await SaveAttachmentAsync(MethodImage, 2, "Method");
+    await SaveAttachmentAsync(EthicsAttachment, 3, "Ethics");
 
     // --- Log this edit action
     var userId = GetCurrentUserId();

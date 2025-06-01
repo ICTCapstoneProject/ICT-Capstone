@@ -1,0 +1,31 @@
+@model List<FSSA.Models.Proposal>
+@{
+    ViewData["Title"] = "Chair Approvals";
+}
+
+<h2 class="mb-4">Proposals Awaiting Chair Approval</h2>
+
+<div class="alert alert-warning mb-4" style="background-color: #fff8e1;">
+    <i class="bi bi-info-circle me-2"></i>
+    Inspect proposals that have passed committee review. Tap on a proposal and follow the navigation guide to grant final <strong>Chair Approval</strong> before commencement.
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No proposals to approve.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var proposal in Model)
+        {
+            <a asp-action="Details" asp-route-id="@proposal.Id" class="list-group-item list-group-item-action mb-2 shadow-sm border rounded text-dark text-decoration-none">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@proposal.Title</h5>
+                    <small class="text-muted">@proposal.CreatedAt.ToString("dd MMM yyyy")</small>
+                </div>
+                <p class="mb-1 text-muted">@proposal.Synopsis</p>
+            </a>
+        }
+    </div>
+}
