@@ -93,7 +93,7 @@ public class ChairApprovalController : Controller
             return Unauthorized();
 
         var userId = user.UserId;
-        
+
         _context.ProposalLogs.Add(new ProposalLog
         {
             ProposalId = id,
@@ -105,6 +105,20 @@ public class ChairApprovalController : Controller
 
         _context.SaveChanges();
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Success", new { id = proposal.Id, outcome = "approved" });
+    }
+    
+    public IActionResult Success(int id, string outcome)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
+
+        var model = new MyProposalViewModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title
+        };
+        ViewBag.Outcome = outcome;
+        return View("Success", model); 
     }
 }

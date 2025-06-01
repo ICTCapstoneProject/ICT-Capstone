@@ -190,10 +190,11 @@
 <div class="d-flex justify-content-end mt-4 mb-3 gap-2">
     <a asp-action="Index" class="btn btn-dark">← Return to Chair Approval Backlog</a>
 
-    <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
-        <button type="submit" class="btn btn-success">Grant Chair Approval</button>
-    </form>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+        Grant Chair Approval
+    </button>
 </div>
+
 
 
 <!-- Modals for full field text -->
@@ -262,6 +263,31 @@
             </div>
             <div class="modal-body" style="min-height: 400px; max-height: 400px; overflow-y: auto;">
                 @Model.Milestones
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="approveModalLabel">
+                    <i class="bi bi-award-fill me-2"></i>
+                    Confirm Chair Approval
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Grant Chair Approval</b> for<br>
+                Proposal <strong>#@Model.Id</strong> <span class="fst-italic">'@Model.Title'</span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-success">Yes, Approve</button>
+                </form>
             </div>
         </div>
     </div>
