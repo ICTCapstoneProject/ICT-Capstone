@@ -27,7 +27,6 @@ namespace FSSA.Models
         [Column("project_level_id")]
         public int ProjectLevelId { get; set; }
 
-        [Required]
         [Column("physical_resources")]
         public string PhysicalResources { get; set; }
 
@@ -63,6 +62,7 @@ namespace FSSA.Models
         [Column("submitted_by")]
         public int SubmittedBy { get; set; }
         
+        [Required(ErrorMessage = "A Lead Researcher is required.")]
         [Column("lead_researcher_id")]
         public int LeadResearcherId { get; set; }
 

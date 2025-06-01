@@ -88,6 +88,7 @@
                 }
             </select>
         </div>
+        <span asp-validation-for="LeadResearcherId" class="text-danger"></span>
         <small class="text-muted">Tap on the Name of the Individual You Would Like to Lead the Research of Your Proposal.</small><br>
         <small class="text-muted">Tap the Name Again, and Hit <strong>Backspace/Delete</strong>, or Simply Select a Different Name From the Menu, to Pick a Different Research Lead.</small>
     </div>
@@ -106,7 +107,7 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Physical Resources <span class="text-muted">(Required)</span></label>
+        <label class="form-label">Physical Resources <span class="text-muted">(Optional)</span></label>
         <textarea name="PhysicalResources" class="form-control" rows="3" placeholder="e.g., Laboratory equipment, workspace, or chemical resource information goes here..."></textarea>
     </div>
 
