@@ -182,6 +182,17 @@
                     else { <span>(No attachments uploaded)</span> }
                 </dd>
             </div>
+            
+            <div class="mb-4">
+                <dt class="h6">Comment:</dt>
+                <dd>
+                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#commentModal">
+                        @truncate(Model.Comment)
+                        <span class="view-full">...</span>
+                    </div>
+                </dd>
+            </div>
+
         </dl>
     </div>
 </div>
