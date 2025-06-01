@@ -30,20 +30,23 @@ public class CommitteeApprovalController : Controller
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        string outcome;
         switch (actionType.ToLower())
         {
             case "approve":
                 proposal.StatusId = 2;
+                outcome = "approved";
                 break;
             case "reject":
                 proposal.StatusId = 6;
+                outcome = "rejected";
                 break;
             default:
                 return BadRequest("Invalid action");
         }
 
         proposal.UpdatedAt = DateTime.Now;
-        
+
         var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
         if (user == null)
             return Unauthorized();
@@ -60,8 +63,7 @@ public class CommitteeApprovalController : Controller
         });
 
         _context.SaveChanges();
-
-        return RedirectToAction("Index");
+        return RedirectToAction("Success", new { id = proposal.Id, outcome = outcome });
     }
 
     public IActionResult Details(int id)
@@ -119,6 +121,20 @@ public class CommitteeApprovalController : Controller
         };
 
         return View("Details", model);
+    }
+    
+    public IActionResult Success(int id, string outcome)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
+
+        var model = new MyProposalViewModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title
+        };
+        ViewBag.Outcome = outcome;
+        return View("Success", model); 
     }
 
 
