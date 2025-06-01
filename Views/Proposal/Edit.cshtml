@@ -24,25 +24,35 @@
             <div class="mb-4">
                 <label class="form-label fw-semibold">New Synopsis</label>
                 <div class="form-control field-preview"
-                     data-target="Synopsis" data-label="Synopsis"
-                     data-placeholder="The purpose of this research proposal is to..."
-                     style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
+                    data-target="Synopsis" data-label="Synopsis"
+                    data-placeholder="The purpose of this research proposal is to..."
+                    style="height: 10em; cursor:pointer; white-space: pre-wrap; overflow-y:auto;">
                     Tap here to fill out a new synopsis...
                 </div>
                 <textarea asp-for="Synopsis" class="form-control d-none modal-field" id="SynopsisField"></textarea>
                 <span asp-validation-for="Synopsis" class="text-danger"></span>
-                <!-- Attachment -->
+                <!-- Attachment UI -->
                 <div class="mt-2 d-flex align-items-center gap-2">
                     <label for="SynopsisAttachment" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center">
                         <i class="bi bi-cloud-upload"></i>
                     </label>
                     <span id="synopsisFileName" class="fst-italic text-primary small"></span>
                     <button type="button" id="clearSynopsisFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                    @if (ViewBag.OriginalAttachments != null)
+                    {
+                        var synopsisAttachment = ((List<FSSA.DTOs.AttachmentDto>)ViewBag.OriginalAttachments).FirstOrDefault(a => a.TypeName.Contains("Synopsis"));
+                        if (synopsisAttachment != null)
+                        {
+                            <span class="ms-2 small text-success"><i class="bi bi-paperclip"></i> @synopsisAttachment.FileName</span>
+                            <input type="checkbox" name="RemoveSynopsisAttachment" id="RemoveSynopsisAttachment" value="true" class="form-check-input ms-2" />
+                            <label for="RemoveSynopsisAttachment" class="form-check-label ms-1 small">Remove</label>
+                        }
+                    }
                 </div>
                 <input type="file" id="SynopsisAttachment" name="SynopsisAttachment"
-                       class="d-none"
-                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
-                       onchange="updateSynopsisFileName()" />
+                    class="d-none"
+                    accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                    onchange="updateSynopsisFileName()" />
             </div>
             <!-- Method -->
             <div class="mb-4">
@@ -55,11 +65,21 @@
                     </label>
                     <span id="methodFileName" class="fst-italic text-primary small"></span>
                     <button type="button" id="clearFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                    @if (ViewBag.OriginalAttachments != null)
+                    {
+                        var methodAttachment = ((List<FSSA.DTOs.AttachmentDto>)ViewBag.OriginalAttachments).FirstOrDefault(a => a.TypeName.Contains("Method"));
+                        if (methodAttachment != null)
+                        {
+                            <span class="ms-2 small text-success"><i class="bi bi-paperclip"></i> @methodAttachment.FileName</span>
+                            <input type="checkbox" name="RemoveMethodImage" id="RemoveMethodImage" value="true" class="form-check-input ms-2" />
+                            <label for="RemoveMethodImage" class="form-check-label ms-1 small">Remove</label>
+                        }
+                    }
                 </div>
                 <input type="file" id="MethodImage" name="MethodImage"
-                       class="d-none"
-                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
-                       onchange="updateMethodFileName()" />
+                    class="d-none"
+                    accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                    onchange="updateMethodFileName()" />
             </div>
             <!-- Project Level -->
             <div class="mb-4">
@@ -112,7 +132,7 @@
                 <div id="financialResourceHiddenFields"></div>
             </div>
             <!-- Ethical Considerations -->
-            <div class="mb-4">
+           <div class="mb-4">
                 <label class="form-label fw-semibold">New Ethical Considerations</label>
                 <div class="form-control field-preview"
                     data-target="EthicalConsiderations"
@@ -129,11 +149,21 @@
                     </label>
                     <span id="ethicsFileName" class="fst-italic text-primary small"></span>
                     <button type="button" id="clearEthicsFileBtn" class="btn-close btn-sm" style="display:none;"></button>
+                    @if (ViewBag.OriginalAttachments != null)
+                    {
+                        var ethicsAttachment = ((List<FSSA.DTOs.AttachmentDto>)ViewBag.OriginalAttachments).FirstOrDefault(a => a.TypeName.Contains("Ethics"));
+                        if (ethicsAttachment != null)
+                        {
+                            <span class="ms-2 small text-success"><i class="bi bi-paperclip"></i> @ethicsAttachment.FileName</span>
+                            <input type="checkbox" name="RemoveEthicsAttachment" id="RemoveEthicsAttachment" value="true" class="form-check-input ms-2" />
+                            <label for="RemoveEthicsAttachment" class="form-check-label ms-1 small">Remove</label>
+                        }
+                    }
                 </div>
                 <input type="file" id="EthicsAttachment" name="EthicsAttachment"
-                       class="d-none"
-                       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
-                       onchange="updateEthicsFileName()" />
+                    class="d-none"
+                    accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+                    onchange="updateEthicsFileName()" />
             </div>
             <!-- Outcomes -->
             <div class="mb-4">

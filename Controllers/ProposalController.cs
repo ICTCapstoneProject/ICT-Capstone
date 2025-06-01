@@ -510,7 +510,10 @@ public async Task<IActionResult> Edit(
     decimal[] ResourceCosts,
     IFormFile? SynopsisAttachment,
     IFormFile? MethodImage,
-    IFormFile? EthicsAttachment
+    IFormFile? EthicsAttachment,
+    bool RemoveSynopsisAttachment = false,
+    bool RemoveMethodImage = false,
+    bool RemoveEthicsAttachment = false
 )
 {
     
@@ -697,6 +700,18 @@ public async Task<IActionResult> Edit(
             FileUrl = "/uploads/" + fileName
         });
     }
+    
+    void RemoveAttachmentOfType(int typeId)
+    {
+        var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
+        if (old != null)
+            _context.Attachments.Remove(old);
+    }
+
+    // Remove if toggled
+    if (RemoveSynopsisAttachment) RemoveAttachmentOfType(1);
+    if (RemoveMethodImage) RemoveAttachmentOfType(2);
+    if (RemoveEthicsAttachment) RemoveAttachmentOfType(3);
 
     // Save new files if uploaded
     await SaveAttachmentAsync(SynopsisAttachment, 1);
