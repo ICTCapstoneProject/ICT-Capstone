@@ -194,6 +194,10 @@
         Grant Ethics Approval
     </button>
 
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modificationModal">
+        Request Modification
+    </button>
+
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
         Reject
     </button>
@@ -290,6 +294,32 @@
                 <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
                     <input type="hidden" name="id" value="@Model.Id" />
                     <button type="submit" name="actionType" value="approve" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modificationModal" tabindex="-1" aria-labelledby="modificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modificationModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Request Modifications
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Request Modifications</b> for Proposal <strong>#@Model.Id</strong>
+                <span class="fst-italic">'@Model.Title'</span>?<br><br>
+                The proposal will be returned to the submitter for further edits.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" name="actionType" value="requestModification" class="btn btn-warning text-dark">Yes, Request Modification</button>
                 </form>
             </div>
         </div>
