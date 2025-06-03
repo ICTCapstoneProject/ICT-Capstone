@@ -21,9 +21,12 @@
 
     <div class="wrapper">
         <nav class="sidebar">
-            <div class="p-3 d-flex align-items-center">
-                <i class="bi bi-kanban-fill fs-4 me-2"></i>
-                <span class="fs-5 fw-bold">ProjectManagerMvc</span>
+           <div class="p-3 d-flex flex-column align-items-center" style="min-height: 160px;">
+                <img src="~/uploads/logo.jpg" alt="FSSA Logo"
+                    style="max-height: 110px; max-width: 105%; margin-bottom: 0.5em; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);" />
+                <span class="fs-5 fw-bold text-center" style="color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.20); line-height: 1.1;">
+                    R&D Management Hub
+                </span>
             </div>
             <ul class="nav flex-column px-3">
                 <li class="nav-item">
@@ -63,7 +66,7 @@
                     </li>
                 }
                 @if (User.IsInRole("Committee Chair"))
-                {
+                { 
                     <li class="nav-item">
                         <a class="nav-link @(currentController == "ChairApproval" ? "active" : "")"
                         asp-controller="ChairApproval" asp-action="Index">
@@ -85,7 +88,7 @@
                     <li class="nav-item">
                         <a class="nav-link @(currentController == "Complete" ? "active" : "")"
                         asp-controller="Complete" asp-action="Index">
-                            <i class="bi bi-check2-circle"></i> Complete<br>Proposal
+                            <i class="bi bi-check2-circle"></i> Complete<br>Proposals
                         </a>
                     </li>
                 }
@@ -119,8 +122,15 @@
                 @RenderBody()
             </main>
             <footer class="footer mt-auto">
-                <div class="container text-center">
-                    &copy; 2025 - ProjectManagerMvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <div class="container text-center py-3">
+                    @User.Identity?.Name
+                    <span class="text-secondary" style="font-size: 0.97em;">
+                        (#@User.FindFirst("UserId")?.Value)
+                    </span>
+                      <br />
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted ms-2" style="font-size: 0.95em;">
+                        - Privacy
+                    </a>
                 </div>
             </footer>
         </div>
