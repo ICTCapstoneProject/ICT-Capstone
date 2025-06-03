@@ -647,7 +647,7 @@ public async Task<IActionResult> Edit(
     proposal.Outcomes = model.Outcomes;
     proposal.Milestones = model.Milestones;
     proposal.EstimatedCompletionDate = model.EstimatedCompletionDate;
-    proposal.StatusId = model.StatusId;
+    proposal.StatusId = 1;
 
     // Update ProposalResearchers (Co-Researchers)
     var existingProposalResearchers = _context.ProposalResearchers.Where(pr => pr.ProposalId == proposal.Id);
