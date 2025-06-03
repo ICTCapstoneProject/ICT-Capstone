@@ -37,6 +37,12 @@ public class CommitteeApprovalController : Controller
                 proposal.StatusId = 2;
                 outcome = "approved";
                 break;
+
+            case "modification":
+            proposal.StatusId = 7; 
+            outcome = "modification";
+            break;
+
             case "reject":
                 proposal.StatusId = 6;
                 outcome = "rejected";
