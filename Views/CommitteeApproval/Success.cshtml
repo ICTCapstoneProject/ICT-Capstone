@@ -3,6 +3,7 @@
     ViewData["Title"] = "Action Complete";
     var outcome = ViewBag.Outcome as string ?? "approved";
     var isApproval = outcome == "approved";
+    var needsChange = outcome == "requires modification";
 }
 
 <div class="alert alert-success border-info-subtle bg-success bg-opacity-10 text-dark rounded-3 mt-5 mb-4 shadow" role="alert" style="font-size:1.15em;">
@@ -16,6 +17,16 @@
             It is now eligible for chair approval.
         </div>
     }
+    else if (needsChange)
+    {
+        <div>
+            <i class="bi bi-pencil-square text-warning me-2"></i>
+            You have just <strong>requested modifications</strong> for Proposal <strong>#@Model.Id</strong>
+            <span class="fst-italic">'@Model.Title'</span>.<br>
+            This Proposal will not be eligible for approval until modifications are made.
+        </div>
+    }
+
     else
     {
         <div>
