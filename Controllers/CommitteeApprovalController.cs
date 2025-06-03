@@ -41,6 +41,10 @@ public class CommitteeApprovalController : Controller
                 proposal.StatusId = 6;
                 outcome = "rejected";
                 break;
+            case "requestmodification":
+                proposal.StatusId = 7;
+                outcome = "requires modification";
+                break;
             default:
                 return BadRequest("Invalid action");
         }
