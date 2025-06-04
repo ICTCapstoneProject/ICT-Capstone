@@ -190,13 +190,13 @@
 <div class="d-flex justify-content-end mt-4 mb-3 gap-2">
     <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
 
-    <form method="post" asp-action="Commence" asp-route-id="@Model.Id" class="d-inline">
-        <button type="submit"
-                class="btn"
-                style="background-color: rgb(89, 108, 230); color: #fff; border: none;">
-            Commence
-        </button>
-    </form>
+    <button type="button"
+            class="btn"
+            style="background-color: rgb(89, 108, 230); color: #fff; border: none;"
+            data-bs-toggle="modal"
+            data-bs-target="#commenceModal">
+        Commence
+    </button>
 </div>
 
 
@@ -271,4 +271,32 @@
     </div>
 </div>
 
+<div class="modal fade" id="commenceModal" tabindex="-1" aria-labelledby="commenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header" style="background-color: rgb(89, 108, 230); color: #fff;">
+                <h5 class="modal-title" id="commenceModalLabel">
+                    <i class="bi bi-rocket-takeoff-fill me-2"></i>
+                    Confirm Commencement
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>commence</b> Proposal <strong>#@Model.Id</strong>
+                <span class="fst-italic">'@Model.Title'</span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Commence" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit"
+                            class="btn"
+                            style="background-color: rgb(89, 108, 230); color: #fff; border: none;">
+                        <i class="bi bi-rocket-takeoff-fill me-2"></i>
+                        Yes, Commence
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
