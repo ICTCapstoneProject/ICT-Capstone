@@ -353,6 +353,7 @@ namespace FSSA.Controllers
         {
             var proposal = _context.Proposals
                 .Include(p => p.Attachments)
+                .Include(p => p.Comments)
                 .FirstOrDefault(p => p.Id == id);
 
             if (proposal == null)
