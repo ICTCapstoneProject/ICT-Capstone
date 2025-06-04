@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Mark as Complete";
+    var search = ViewBag.Search as string ?? "";
 }
 
 <h2 class="mb-4">In Progress Proposals</h2>
@@ -11,9 +12,18 @@
     Inspect active proposals under your authority. Tap on a proposal and follow the navigation guide to mark them for completion.
 </div>
 
+<form method="get" asp-action="Index" class="mb-4" autocomplete="off">
+    <div class="input-group" style="max-width:400px;">
+        <input type="text" class="form-control" name="search" placeholder="Search by Title or ID..." value="@search" />
+        <button class="btn btn-outline-secondary" type="submit">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+</form>
+
 @if (!Model.Any())
 {
-    <div class="alert alert-info">You currently have...<br>No proposals for inspection.</div>
+    <div class="alert alert-info">Couldn't find any Proposals for inspection.</div>
 }
 else
 {

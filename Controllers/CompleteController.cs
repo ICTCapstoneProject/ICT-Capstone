@@ -14,32 +14,31 @@ public class CompleteController : Controller
         _context = context;
     }
 
-    public IActionResult Index()
+   public IActionResult Index(string search = null)
     {
         var email = User.Identity?.Name;
-        var user = _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Email == email);
+        var user = _context.Users
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+            .FirstOrDefault(u => u.Email == email);
         if (user == null) return Unauthorized();
-         Console.WriteLine("User Roles:");
-        foreach(var ur in user.UserRoles)
-        {
-            Console.WriteLine($"- {ur.Role.RoleName}");
-        }
 
-        var isSubmitter = true;
         var isCommitteeMember = user.UserRoles.Any(r => r.Role.RoleName == "Ethics Committee");
         var isChair = user.UserRoles.Any(r => r.Role.RoleName == "Committee Chair");
-           Console.WriteLine($"isCommitteeMember: {isCommitteeMember}, isChair: {isChair}");
 
-        var proposals = _context.Proposals
-            .Where(p => p.StatusId == 4 &&
-                        (p.SubmittedBy == user.UserId || isCommitteeMember || isChair))
-            .Include(p => p.Attachments)
-            .ToList();
+        var query = _context.Proposals.Where(p => p.StatusId == 4 &&
+                            (p.SubmittedBy == user.UserId || isCommitteeMember || isChair));
 
-        
-        Console.WriteLine($"[CompleteController] proposals.Count = {proposals.Count}");
-        foreach(var p in proposals) Console.WriteLine($"  Proposal: {p.Id} {p.Title} {p.StatusId}");
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            if (int.TryParse(search, out int searchId))
+                query = query.Where(p => p.Id == searchId);
+            else
+                query = query.Where(p => p.Title.ToLower().Contains(search.ToLower()));
+        }
 
+        var proposals = query.Include(p => p.Attachments).ToList();
+
+        ViewBag.Search = search ?? "";
         return View("Complete", proposals);
     }
 

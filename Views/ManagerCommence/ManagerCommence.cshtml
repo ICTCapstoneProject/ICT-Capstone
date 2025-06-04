@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Commence Proposals";
+    var search = ViewBag.Search as string ?? "";
 }
 
 <h2 class="mb-4">Proposals Awaiting Commencement</h2>
@@ -11,10 +12,19 @@
     Inspect proposals that have cleared all approvals. Tap on a proposal and follow the navigation guide to allow the project to commence.
 </div>
 
+<form method="get" asp-action="Index" class="mb-4" autocomplete="off">
+    <div class="input-group" style="max-width:400px;">
+        <input type="text" class="form-control" name="search" placeholder="Search by Title or ID..." value="@search" />
+        <button class="btn btn-outline-secondary" type="submit">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+</form>
+
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        You currently have...<br>No proposals to commence.
+        Couldn't find any Proposals to commence.
     </div>
 }
 else
