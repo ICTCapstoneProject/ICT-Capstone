@@ -994,7 +994,7 @@ namespace FSSA.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateComment(int proposalId, int commentId, string commentText)
+        public IActionResult EditComment(int proposalId, int commentId, string commentText)
         {
             var comment = _context.Comments
                 .FirstOrDefault(c => c.Id == commentId && c.ProposalId == proposalId);
