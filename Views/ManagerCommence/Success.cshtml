@@ -1,0 +1,26 @@
+@model FSSA.Models.MyProposalViewModel
+
+@{
+    ViewData["Title"] = "Proposal Commenced";
+}
+
+<div class="alert alert-success mt-5 mb-4 shadow-sm" style="border-left: 8px solid rgb(89, 108, 230);">
+    <h4 class="alert-heading">
+        <i class="bi bi-rocket-takeoff-fill me-2" style="color: rgb(89, 108, 230);"></i>
+        Proposal Commenced
+    </h4>
+    <p class="mb-2">
+        <strong>#@Model.Id '@Model.Title'</strong> is now officially <strong>in progress</strong>.<br />
+        The research team can now begin execution.
+    </p>
+    <p class="text-muted mb-0">You may return to the commencement backlog or the dashboard.</p>
+</div>
+
+<div class="d-flex gap-3 justify-content-center mb-5">
+    <a asp-action="Index" class="btn btn-dark">
+        <i class="bi bi-arrow-left"></i> Return to Commencement Backlog
+    </a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+        <i class="bi bi-house-door"></i> Return to Dashboard
+    </a>
+</div>
