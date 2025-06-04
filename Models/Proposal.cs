@@ -69,7 +69,6 @@ namespace FSSA.Models
         [InverseProperty("Proposal")]
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
         
-        [Column("comments")]
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }
