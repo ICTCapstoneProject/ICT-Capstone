@@ -543,6 +543,23 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
+    @{
+        var jsCoResearchers = (ViewBag.OriginalCoResearchers as List<FSSA.DTOs.CoResearcherDto>) ?? new();
+    }
+    <script>
+        // Prefill coResearchers array in JS with values from the server
+        const coResearchers = [
+            @foreach(var co in jsCoResearchers)
+            {
+                @: { id: "@co.Id", name: "@co.Name" },
+            }
+        ];
+        // Now build the UI with the prefilled data
+        console.log("Prefilled coResearchers:", coResearchers);
+        document.addEventListener("DOMContentLoaded", updateCoResearcherUI);
+    </script>
+    
+
     <script>
         // Confirm modal logic
         document.addEventListener("DOMContentLoaded", function () {
@@ -756,7 +773,6 @@ function setupCharCounter(inputId, counterId, max) {
 
 
     <script>
-        const coResearchers = [];
         document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
             const select = document.getElementById("coResearcherSelect");
             const name = select.options[select.selectedIndex].text;
@@ -793,6 +809,7 @@ function setupCharCounter(inputId, counterId, max) {
             coResearchers.splice(index, 1);
             updateCoResearcherUI();
         }
+        document.addEventListener("DOMContentLoaded", updateCoResearcherUI);
     </script>
 
     <style>
