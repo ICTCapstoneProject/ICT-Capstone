@@ -121,7 +121,7 @@ public class ChairApprovalController : Controller
         ViewBag.Outcome = outcome;
         return View("Success", model);
     }
-    
+
     [HttpPost]
     public IActionResult RequestAdditionalReview(int id)
     {
@@ -150,5 +150,34 @@ public class ChairApprovalController : Controller
 
         // Send to a matching Success view
         return RedirectToAction("Success", new { id = proposal.Id, outcome = "additional_review" });
+    }
+    
+    [HttpPost]
+    public IActionResult Reject(int id)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
+
+        proposal.StatusId = 6;
+        proposal.UpdatedAt = DateTime.Now;
+
+        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+        if (user == null)
+            return Unauthorized();
+
+        var userId = user.UserId;
+
+        _context.ProposalLogs.Add(new ProposalLog
+        {
+            ProposalId = id,
+            StatusId = proposal.StatusId,
+            ChangedBy = userId,
+            Action = "reject",
+            Timestamp = DateTime.Now
+        });
+
+        _context.SaveChanges();
+
+        return RedirectToAction("Success", new { id = proposal.Id, outcome = "rejected" });
     }
 }
