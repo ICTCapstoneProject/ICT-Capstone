@@ -558,6 +558,21 @@
         console.log("Prefilled coResearchers:", coResearchers);
         document.addEventListener("DOMContentLoaded", updateCoResearcherUI);
     </script>
+
+    @{
+    var jsFinancialResources = (ViewBag.OriginalFinancialResources as List<FSSA.DTOs.FinancialResourceDto>) ?? new();
+    }
+    <script>
+        // Prefill resources array with values from the server (for editing)
+        const resources = [
+            @foreach(var r in jsFinancialResources)
+            {
+                @: { title: "@r.Title", cost: @r.Cost },
+            }
+        ];
+        // Prefill the UI on load
+        document.addEventListener("DOMContentLoaded", updateFinancialResourcesUI);
+    </script>
     
 
     <script>
@@ -646,7 +661,6 @@
     </script>
 
     <script>
-        const resources = [];
         document.getElementById('addResourceBtn').addEventListener('click', function () {
             const title = document.getElementById('resourceTitle').value.trim();
             const cost = parseFloat(document.getElementById('resourceCost').value);
@@ -810,6 +824,7 @@ function setupCharCounter(inputId, counterId, max) {
             updateCoResearcherUI();
         }
         document.addEventListener("DOMContentLoaded", updateCoResearcherUI);
+        document.addEventListener("DOMContentLoaded", updateFinancialResourcesUI);
     </script>
 
     <style>
