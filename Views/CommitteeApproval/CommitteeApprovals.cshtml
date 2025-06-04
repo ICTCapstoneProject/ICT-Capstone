@@ -1,18 +1,26 @@
 @model List<FSSA.Models.Proposal>
-
 @{
     ViewData["Title"] = "Committee Approvals";
+    var searchValue = ViewBag.Search as string ?? "";
 }
 
 <h2 class="mb-4">Unsigned Proposals for Committee Review</h2>
 
+<form method="get" class="mb-3" style="max-width:400px;">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Search by ID or Title..."
+               value="@searchValue" />
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+    </div>
+</form>
+
 <div class="alert alert-warning mb-4" style="background-color: #fff8e1;">
-    <i class="bi bi-info-circle me-2"></i> Inspect proposals awaiting committee approval. Tap on a proposal and follow the navigation guide to make <strong>Committee Approvals & Rejections</strong>.
+    <i class="bi bi-info-circle me-2"></i> Inspect proposals awaiting committee approval...
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">There currently aren't any proposals waiting for committee approval.</div>
+    <div class="alert alert-info">Couldn't find any proposals waiting for committee approval.</div>
 }
 else
 {

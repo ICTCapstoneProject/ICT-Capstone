@@ -14,13 +14,24 @@ public class CommitteeApprovalController : Controller
         _context = context;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(string search = null)
     {
-        var proposals = _context.Proposals
-            .Where(p => p.StatusId == 1)
+        var query = _context.Proposals
+            .Where(p => p.StatusId == 1);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            if (int.TryParse(search, out int searchId))
+                query = query.Where(p => p.Id == searchId);
+            else
+                query = query.Where(p => p.Title.ToLower().Contains(search.ToLower()));
+        }
+
+        var proposals = query
             .Include(p => p.Attachments)
             .ToList();
 
+        ViewBag.Search = search ?? "";
         return View("CommitteeApprovals", proposals);
     }
 
