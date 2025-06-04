@@ -6,6 +6,14 @@
 
 <h1>Make a New Proposal</h1>
 
+<div class="alert alert-info mb-4 shadow-sm" role="alert" style="font-size:1.05em;">
+    <i class="bi bi-info-circle me-2"></i>
+    Fill out all <span class="fst-italic text-muted">(Required)</span> fields to <strong>create a new Research & Development Proposal</strong>.<br><br>
+    <span class="text-muted">
+        While optional, the  <span class="fst-italic text-muted">(Optional)</span> fields add clarity to the proposed research. Use the help text as a basic guide if you get stuck.
+    </span>
+</div>
+
 <form id="proposalForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="Title" class="form-label">Title <span class="text-muted">(Required)</span></label>
