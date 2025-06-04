@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using FSSA.DTOs;
+using ProjectManagerMvc.Services;
 
 namespace FSSA.DTOs
 {
@@ -38,11 +39,13 @@ namespace FSSA.Controllers
         private readonly ProjectManagerContext _context;
         private const int MethodImageTypeId = 1;
         private readonly IWebHostEnvironment _environment;
+        private readonly INotificationService _notificationService;
 
-        public ProposalController(ProjectManagerContext context, IWebHostEnvironment environment)
+        public ProposalController(ProjectManagerContext context, IWebHostEnvironment environment, INotificationService notificationService)
         {
             _context = context;
             _environment = environment;
+            _notificationService = notificationService;
         }
         
         private string BuildAttachmentFileName(int proposalId, string proposalTitle, string attachmentType, string ext)
@@ -91,7 +94,7 @@ namespace FSSA.Controllers
         // POST: /Proposal/Create
        [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(
+    public async Task<IActionResult> Create(
         Proposal proposal,
         [FromForm] IFormFile? SynopsisAttachment,
         [FromForm] IFormFile? MethodImage,
@@ -153,7 +156,7 @@ namespace FSSA.Controllers
             proposal.LeadResearcherId = ResearcherId;
 
             _context.Proposals.Add(proposal);
-            _context.SaveChanges(); // Save to generate Proposal.Id
+            await _context.SaveChangesAsync();
 
            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             if (!Directory.Exists(uploadsPath))
@@ -219,7 +222,24 @@ namespace FSSA.Controllers
                 Timestamp = DateTime.Now
             });
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            // Send notification
+            var submitter = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId.Value);
+            var submitterName = submitter?.Name ?? "Unknown User";
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Committee Chair",
+                $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                proposal.Id,
+                "ProposalSubmission",
+                userId.Value
+            );
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Ethics Committee",
+                $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                proposal.Id,
+                "ProposalSubmission",
+                userId.Value
+            );
 
             return RedirectToAction("Success", new { id = proposal.Id });
         }
@@ -647,7 +667,7 @@ public async Task<IActionResult> Edit(
     proposal.Outcomes = model.Outcomes;
     proposal.Milestones = model.Milestones;
     proposal.EstimatedCompletionDate = model.EstimatedCompletionDate;
-    proposal.StatusId = model.StatusId;
+    proposal.StatusId = 1;
 
     // Update ProposalResearchers (Co-Researchers)
     var existingProposalResearchers = _context.ProposalResearchers.Where(pr => pr.ProposalId == proposal.Id);
@@ -737,6 +757,15 @@ public async Task<IActionResult> Edit(
     });
 
     await _context.SaveChangesAsync();
+    
+    // Notify the chair
+    await _notificationService.CreateNotificationForRoleAsync(
+        "Committee Chair",
+        $"Proposal '{proposal.Title}' has been modified and requires re-approval.",
+        proposal.Id,
+        "ProposalModification",
+        userId
+    );
 
     //  Set up ViewBags for EditSuccess (side-by-side compare)
     await PopulateEditSuccessViewBags(originalProposal, proposal);
@@ -901,8 +930,23 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
             if (EndDate.HasValue)
                 query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
 
-            if (!string.IsNullOrEmpty(SearchKeyword))
-                query = query.Where(p => p.Title.Contains(SearchKeyword));
+            if (!string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                // If the input is all digits, search by id
+                if (int.TryParse(SearchKeyword, out int searchId))
+                {
+                    query = query.Where(p => p.Id == searchId);
+                }
+                else
+                {
+                    // Case insensitive for non-integers
+                    var lowered = SearchKeyword.ToLower();
+                    query = query.Where(p =>
+                        p.Title != null && p.Title.ToLower().Contains(lowered)
+                        || p.Id.ToString().Contains(lowered) // And on top of that, allow typing an ID within another string
+                    );
+                }
+            }
 
             query = SortBy == "Title" ? query.OrderBy(p => p.Title) : query.OrderByDescending(p => p.EstimatedCompletionDate);
 

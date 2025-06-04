@@ -193,6 +193,16 @@
     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
         Grant Chair Approval
     </button>
+
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#additionalReviewModal">
+         <i class="bi bi-arrow-repeat"></i>
+        Request Additional Review
+    </button>
+
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+        <i class="bi bi-x-octagon"></i>
+        Reject Proposal
+    </button>
 </div>
 
 
@@ -287,6 +297,57 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
                     <button type="submit" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Review Modal -->
+<div class="modal fade" id="additionalReviewModal" tabindex="-1" aria-labelledby="additionalReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="additionalReviewModalLabel">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Confirm: Request Additional Review
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Request Additional Committee Review</b> for Proposal <strong>#@Model.Id</strong> <span class="fst-italic">'@Model.Title'</span>?<br><br>
+                The proposal will return to the full committee for re-evaluation.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="RequestAdditionalReview" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-warning text-dark">Yes, Send Back for Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="bi bi-x-octagon-fill me-2"></i>
+                    Confirm: Reject Proposal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Reject</b> Proposal 
+                <strong>#@Model.Id</strong> <span class="fst-italic">'@Model.Title'</span>?<br><br>
+                This cannot be undone.<br><br>
+                <i class="bi bi-info-circle me-2"></i>Press <strong>Cancel</strong>, leave a comment, and opt into <strong>Request Modifications</strong> for proposals that require slight tweaks.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Reject" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Yes, Reject Proposal</button>
                 </form>
             </div>
         </div>

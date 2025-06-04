@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 
 namespace FSSA.Models
 {
@@ -72,5 +74,7 @@ namespace FSSA.Models
 
          [InverseProperty("Proposal")]
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+        [ValidateNever]
+        public virtual ICollection<Notification> Notifications { get; set; }    
     }
 }

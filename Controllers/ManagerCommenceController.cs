@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
 
-[Authorize(Roles = "Manager")]
+[Authorize(Roles = "Manager,Committee Chair")]
 public class ManagerCommenceController : Controller
 {
     private readonly ProjectManagerContext _context;
@@ -93,7 +93,7 @@ public class ManagerCommenceController : Controller
             return Unauthorized();
 
         var userId = user.UserId;
-        
+
         _context.ProposalLogs.Add(new ProposalLog
         {
             ProposalId = id,
@@ -105,6 +105,19 @@ public class ManagerCommenceController : Controller
 
         _context.SaveChanges();
 
-        return RedirectToAction("Index");
+        return RedirectToAction("Success", new { id = proposal.Id });
+    }
+    public IActionResult Success(int id)
+    {
+        var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
+        if (proposal == null) return NotFound();
+
+        var model = new MyProposalViewModel
+        {
+            Id = proposal.Id,
+            Title = proposal.Title
+        };
+
+        return View("Success", model);
     }
 }

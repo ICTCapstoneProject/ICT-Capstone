@@ -70,7 +70,7 @@
                     <a asp-controller="Proposal" asp-action="Details" asp-route-id="@proposal.Id"
                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark proposal-item">
                         <div>
-                            <h5 class="mb-1">@proposal.Title</h5>
+                            <h5 class="mb-1">@proposal.Title <span class="text-muted" style="font-weight:400;">(#@proposal.Id)</span></h5>
                             <small>
                                 <i class="bi bi-person"></i> @proposal.SubmittedByName &nbsp;
                                 <i class="bi bi-calendar"></i> Due: @proposal.EstimatedCompletionDate.ToString("MMM dd, yyyy") &nbsp;

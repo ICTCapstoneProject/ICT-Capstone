@@ -18,10 +18,18 @@ namespace FSSA.Models
         [Column("message")]
         public string Message { get; set; }
 
-        [Column("is_read")]
-        public bool IsRead { get; set; }
+        [Column("proposal_id")]
+        public int? ProposalId { get; set; }
+
+        [Column("notification_type")]
+        public string NotificationType { get; set; } = "General";
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        [Column("is_read")]
+        public bool IsRead { get; set; } = false;
+        public virtual User? User { get; set; }
+        public virtual Proposal? Proposal { get; set; }
     }
 }

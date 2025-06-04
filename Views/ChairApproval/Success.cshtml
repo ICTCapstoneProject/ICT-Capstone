@@ -3,27 +3,37 @@
     ViewData["Title"] = "Action Complete";
     var outcome = ViewBag.Outcome as string ?? "approved";
     var isApproval = outcome == "approved";
+    var isAdditionalReview = outcome == "additional_review";
 }
 
-<div class="alert alert-success border-success-subtle bg-success bg-opacity-10 text-dark rounded-3 mt-5 mb-4 shadow" role="alert" style="font-size:1.15em;">
+<div class="alert alert-success border-info-subtle bg-success bg-opacity-10 text-dark rounded-3 mt-5 mb-4 shadow">
     @if (isApproval)
     {
         <div>
             <i class="bi bi-award-fill text-success me-2"></i>
-            You have successfully <strong>granted Chair Approval</strong> to
+            You have successfully granted
             <strong>Proposal #@Model.Id</strong>
-            <span class="fst-italic">'@Model.Title'</span>.<br>
+            <span class="fst-italic">'@Model.Title'</span><strong> Chair Approval</strong>.<br>
             This proposal is now eligible for <b>Commencement</b>.
+        </div>
+    }
+    else if (isAdditionalReview)
+    {
+        <div>
+            <i class="bi bi-arrow-repeat text-warning me-2"></i>
+            Proposal <strong>#@Model.Id</strong>
+            <span class="fst-italic">'@Model.Title'</span>
+            has been returned for <b>Additional Committee Review</b>.<br>
+            The committee will re-evaluate this proposal.
         </div>
     }
     else
     {
         <div>
             <i class="bi bi-x-octagon-fill text-danger me-2"></i>
-            Proposal <strong>#@Model.Id</strong>
-            <span class="fst-italic">'@Model.Title'</span>
-            did not receive Chair Approval.<br>
-            Please review the proposal’s details or return to the backlog.
+            You have just <strong>Rejected</strong> Proposal <strong>#@Model.Id</strong>
+            <span class="fst-italic">'@Model.Title'</span><br>
+            ... Archiving to <strong>Proposal Lookup</strong> under <strong>Rejected.</strong>
         </div>
     }
 </div>
