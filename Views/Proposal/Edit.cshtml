@@ -23,7 +23,8 @@
             <!-- Title -->
             <div class="mb-4">
                 <label asp-for="Title" class="form-label fw-semibold">New Title</label>
-                <input asp-for="Title" class="form-control" style="height:48px;" placeholder="e.g, DNA analysis for x crime scene..." />
+                <input asp-for="Title" class="form-control" style="height:48px;" maxlength="50" id="Title" placeholder="e.g, DNA analysis for x crime scene..." />
+                <div class="form-text" id="titleCounter">0/50 characters</div>
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <!-- Synopsis -->
@@ -71,7 +72,8 @@
             <!-- Method -->
            <div class="mb-4">
                 <label asp-for="Method" class="form-label fw-semibold">New Method</label>
-                <textarea asp-for="Method" class="form-control" style="height: 8em;" placeholder="e.g, Drug manufacturing info..."></textarea>
+                <textarea asp-for="Method" class="form-control" style="height: 8em;" maxlength="250" id="Method" placeholder="e.g, Drug manufacturing info..."></textarea>
+                <div class="form-text" id="methodCounter">0/250 characters</div>
                 <span asp-validation-for="Method" class="text-danger"></span>
                 <div class="mt-2 d-flex align-items-center gap-2">
                     <label for="MethodImage" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center mb-0">
@@ -140,7 +142,8 @@
             <!-- Physical Resources -->
             <div class="mb-4">
                 <label class="form-label fw-semibold">New Physical Resources</label>
-                <textarea name="PhysicalResources" class="form-control" rows="3" style="min-height: 60px;" placeholder="e.g., Lab equipment, workspace...">@Model.PhysicalResources</textarea>
+                <textarea name="PhysicalResources" id="PhysicalResources" class="form-control" rows="3" style="min-height: 60px;" maxlength="250" placeholder="e.g., Lab equipment, workspace...">@Model.PhysicalResources</textarea>
+                <div class="form-text" id="resourcesCounter">0/250 characters</div>
             </div>
             <!-- Financial Resources -->
             <div class="mb-4">
@@ -673,6 +676,26 @@
             resources.splice(index, 1);
             updateFinancialResourcesUI();
         }
+    </script>
+
+    <script>
+function setupCharCounter(inputId, counterId, max) {
+    const input = document.getElementById(inputId);
+    const counter = document.getElementById(counterId);
+    if (!input || !counter) return;
+
+    function updateCount() {
+        counter.textContent = `${input.value.length}/${max} characters`;
+        }
+        input.addEventListener("input", updateCount);
+        updateCount();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        setupCharCounter("Title", "titleCounter", 50);
+        setupCharCounter("Method", "methodCounter", 250);
+        setupCharCounter("PhysicalResources", "resourcesCounter", 250);
+    });
     </script>
 
 
