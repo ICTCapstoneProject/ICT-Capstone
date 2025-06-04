@@ -339,7 +339,7 @@ namespace FSSA.Controllers
                                 Id = u.UserId.ToString(),
                                 Name = u.Name
                             }).ToList(),
-                    Comments = x.p.Comments
+                    Comments = x.p.Comments.ToList()
                 }).ToList();
 
             ViewBag.canToggle = canToggle;
@@ -402,7 +402,7 @@ namespace FSSA.Controllers
                 FinancialResources = financialResources,
                 CoResearchers = coResearchers,
                 Attachments = proposal.Attachments.ToList(),
-                Comments = proposal.Comments
+                Comments = proposal.Comments.ToList()
             };
 
             return View(model);
@@ -867,7 +867,7 @@ namespace FSSA.Controllers
                     Attachments = _context.Attachments
                         .Where(a => a.ProposalId == entry.p.Id)
                         .ToList(),
-                    Comments = entry.p.Comments
+                    Comments = entry.p.Comments.ToList()
                 })
                 .AsQueryable();
 
@@ -961,7 +961,7 @@ namespace FSSA.Controllers
                 StatusName = statusName,
                 CoResearchers = coResearchers,
                 Attachments = attachments,
-                Comments = proposal.Comments
+                Comments = proposal.Comments.ToList()
             };
 
             return View("Details", model);
@@ -970,12 +970,28 @@ namespace FSSA.Controllers
         [HttpPost]
         public IActionResult UpdateComment(int id, string comments)
         {
-            var proposal = _context.Proposals.Find(id);
+            var proposal = _context.Proposals
+                .Include(p => p.Comments) // Make sure comments are loaded
+                .FirstOrDefault(p => p.Id == id);
 
-            proposal.Comments = comments;
+            if (proposal == null)
+            {
+                return NotFound();
+            }
+
+            var newComment = new Comment
+            {
+                ProposalId = id,
+                Content = comments,
+                Timestamp = DateTime.Now
+                // Add other fields if needed (e.g., Author, UserId)
+            };
+
+            proposal.Comments.Add(newComment);
             _context.SaveChanges();
 
             return RedirectToAction("Details", new { id });
         }
+
 }
 }
