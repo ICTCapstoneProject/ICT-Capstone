@@ -227,14 +227,14 @@ namespace FSSA.Controllers
             var submitter = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId.Value);
             var submitterName = submitter?.Name ?? "Unknown User";
             await _notificationService.CreateNotificationForRoleAsync(
-                "Chair",
+                "Committee Chair",
                 $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
                 proposal.Id,
                 "ProposalSubmission",
                 userId.Value
             );
             await _notificationService.CreateNotificationForRoleAsync(
-                "Reviewer",
+                "Ethics Committee",
                 $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
                 proposal.Id,
                 "ProposalSubmission",
@@ -760,7 +760,7 @@ public async Task<IActionResult> Edit(
     
     // Notify the chair
     await _notificationService.CreateNotificationForRoleAsync(
-        "Chair",
+        "Committee Chair",
         $"Proposal '{proposal.Title}' has been modified and requires re-approval.",
         proposal.Id,
         "ProposalModification",
