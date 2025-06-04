@@ -11,6 +11,10 @@ namespace FSSA.Models
         public int CommentId { get; set; }
 
         [Required]
+        [Column("proposal_id")]
+        public int ProposalId { get; set; }
+
+        [Required]
         [Column("review_id")]
         public int ReviewId { get; set; }
 
