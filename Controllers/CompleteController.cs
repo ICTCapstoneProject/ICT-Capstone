@@ -19,16 +19,26 @@ public class CompleteController : Controller
         var email = User.Identity?.Name;
         var user = _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Email == email);
         if (user == null) return Unauthorized();
+         Console.WriteLine("User Roles:");
+        foreach(var ur in user.UserRoles)
+        {
+            Console.WriteLine($"- {ur.Role.RoleName}");
+        }
 
         var isSubmitter = true;
         var isCommitteeMember = user.UserRoles.Any(r => r.Role.RoleName == "Ethics Committee");
         var isChair = user.UserRoles.Any(r => r.Role.RoleName == "Committee Chair");
+           Console.WriteLine($"isCommitteeMember: {isCommitteeMember}, isChair: {isChair}");
 
         var proposals = _context.Proposals
             .Where(p => p.StatusId == 4 &&
                         (p.SubmittedBy == user.UserId || isCommitteeMember || isChair))
             .Include(p => p.Attachments)
             .ToList();
+
+        
+        Console.WriteLine($"[CompleteController] proposals.Count = {proposals.Count}");
+        foreach(var p in proposals) Console.WriteLine($"  Proposal: {p.Id} {p.Title} {p.StatusId}");
 
         return View("Complete", proposals);
     }

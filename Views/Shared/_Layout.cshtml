@@ -74,7 +74,7 @@
                         </a>
                     </li>
                 }
-                @if (User.IsInRole("Manager"))
+                @if (User.IsInRole("Manager") || User.IsInRole("Committee Chair"))
                 {
                     <li class="nav-item">
                         <a class="nav-link @(currentAction == "Index" && currentController == "ManagerCommence" ? "active" : "")"

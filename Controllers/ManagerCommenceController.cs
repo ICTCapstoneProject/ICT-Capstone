@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
 
-[Authorize(Roles = "Manager")]
+[Authorize(Roles = "Manager,Committee Chair")]
 public class ManagerCommenceController : Controller
 {
     private readonly ProjectManagerContext _context;

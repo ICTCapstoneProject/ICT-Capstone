@@ -318,10 +318,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval" class="d-inline">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <button type="submit" name="actionType" value="requestModification" class="btn btn-warning text-dark">Yes, Request Modification</button>
-                </form>
+                <form method="post" asp-action="UpdateStatus" asp-controller="CommitteeApproval">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" name="actionType" value="requestModification" class="btn btn-warning text-dark">
+        Yes, Request Modification
+    </button>
+</form>
             </div>
         </div>
     </div>

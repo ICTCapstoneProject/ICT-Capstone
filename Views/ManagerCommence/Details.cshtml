@@ -191,7 +191,11 @@
     <a asp-action="Index" class="btn btn-dark">← Back to Proposals</a>
 
     <form method="post" asp-action="Commence" asp-route-id="@Model.Id" class="d-inline">
-        <button type="submit" class="btn btn-primary">Commence</button>
+        <button type="submit"
+                class="btn"
+                style="background-color: rgb(89, 108, 230); color: #fff; border: none;">
+            Commence
+        </button>
     </form>
 </div>
 

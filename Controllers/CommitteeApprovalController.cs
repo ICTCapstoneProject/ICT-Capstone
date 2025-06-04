@@ -27,6 +27,8 @@ public class CommitteeApprovalController : Controller
     [HttpPost]
     public IActionResult UpdateStatus(int id, string actionType)
     {
+        Console.WriteLine($"UpdateStatus called: id={id}, actionType={actionType}");
+    
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
