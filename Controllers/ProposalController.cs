@@ -968,6 +968,19 @@ namespace FSSA.Controllers
             return View("Details", model);
         }
 
+        // GET: Comments
+        public async Task<IActionResult> GetComments(int proposalId)
+        {
+            var comments = await _context.Comments
+                .Where(c => c.ProposalId == proposalId)
+                .OrderByDescending(c => c.Timestamp)
+                .Include(c => c.User)
+                .ToListAsync();
+
+            return PartialView("_CommentList", comments);
+        }
+
+
         [HttpPost]
         public IActionResult AddComment(int proposalId, string content)
         {
