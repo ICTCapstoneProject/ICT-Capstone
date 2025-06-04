@@ -982,39 +982,28 @@ namespace FSSA.Controllers
 
 
         [HttpPost]
-        public IActionResult AddComment(int proposalId, string content)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int proposalId, string content)
         {
-            // Retrieve proposal ID
-            var proposal = _context.Proposals
-                .Include(p => p.Comments)
-                .FirstOrDefault(p => p.Id == proposalId);
+            if (string.IsNullOrWhiteSpace(content))
+                return BadRequest("Comment content cannot be empty.");
 
-            // Get the current user id
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            var userId = GetCurrentUserId();
 
-            if (string.IsNullOrEmpty(userEmail))
-                return Unauthorized("User email not found in claims.");
-
-            var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
-
-            if (user == null)
-                return Unauthorized("User not found in database.");
-
-            // Create a new comment
-            var newComment = new Comment
+            var comment = new Comment
             {
-                ProposalId = proposal.Id,
-                UserId = user.UserId,
                 Content = content,
+                ProposalId = proposalId,
+                UserId = userId,
                 Timestamp = DateTime.Now
             };
 
-            // Add and save the new comment
-            proposal.Comments.Add(newComment);
-            _context.SaveChanges();
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", new { id = proposalId });
         }
+
 
 
         [HttpPost]
