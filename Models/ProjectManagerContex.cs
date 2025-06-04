@@ -51,7 +51,6 @@ namespace FSSA.Models
             modelBuilder.Entity<FinancialResource>().ToTable("financial_resources");
             modelBuilder.Entity<ProposalResearcher>().ToTable("proposal_researchers");
             
-
             // This down here is a composite primary key for UserGroup
             modelBuilder.Entity<UserGroup>()
                 .HasKey(ug => new { ug.UserId, ug.GroupId });
@@ -68,6 +67,19 @@ namespace FSSA.Models
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+            
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Proposal)
+                .WithMany(p => p.Notifications)
+                .HasForeignKey(n => n.ProposalId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
             
             modelBuilder.Entity<Attachment>()
                 .HasOne(a => a.AttachmentType)

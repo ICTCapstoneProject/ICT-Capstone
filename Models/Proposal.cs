@@ -68,5 +68,6 @@ namespace FSSA.Models
 
          [InverseProperty("Proposal")]
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+        public virtual ICollection<Notification> Notifications { get; set; }    
     }
 }
