@@ -968,30 +968,29 @@ namespace FSSA.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateComment(int id, string comments)
+        public IActionResult AddComment(int proposalId, int userId, string content)
         {
             var proposal = _context.Proposals
-                .Include(p => p.Comments) // Make sure comments are loaded
-                .FirstOrDefault(p => p.Id == id);
+                .Include(p => p.Comments)
+                .FirstOrDefault(p => p.Id == proposalId);
 
             if (proposal == null)
-            {
                 return NotFound();
-            }
 
             var newComment = new Comment
             {
-                ProposalId = id,
-                Content = comments,
+                ProposalId = proposalId,
+                UserId = userId,
+                Content = content,
                 Timestamp = DateTime.Now
-                // Add other fields if needed (e.g., Author, UserId)
             };
 
             proposal.Comments.Add(newComment);
             _context.SaveChanges();
 
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", new { id = proposalId });
         }
+
 
         [HttpPost]
         public IActionResult EditComment(int proposalId, int commentId, string commentText)
