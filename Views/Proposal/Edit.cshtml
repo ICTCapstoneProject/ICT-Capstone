@@ -493,18 +493,26 @@
         <button type="button" class="btn btn-warning w-auto" id="triggerModalBtn">Modify</button>
     </div>
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">WARNING: These Changes Will Be Broadcasted to the Dashboard.</h5>
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title d-flex align-items-center" id="confirmModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Revised Proposals Must Re-Pass All Approvals.
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    Are You Sure You Want to Proceed with These Changes?
+                <div class="modal-body fw-semibold" style="font-size: 1.05em;">
+                    Are you sure you want to declare this proposal as modified?<br>
+                    <span class="small text-muted">
+                        (Once changed, your proposal, regardless of state, cannot commence until the modified state has been accepted at all levels)
+                    </span>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-warning">Yes, Modify</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark">
+                        Yes, Modify
+                    </button>
                 </div>
             </div>
         </div>

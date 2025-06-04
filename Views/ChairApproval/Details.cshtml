@@ -193,6 +193,11 @@
     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
         Grant Chair Approval
     </button>
+
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#additionalReviewModal">
+         <i class="bi bi-arrow-repeat"></i>
+        Request Additional Review
+    </button>
 </div>
 
 
@@ -287,6 +292,31 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
                     <button type="submit" class="btn btn-success">Yes, Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Review Modal -->
+<div class="modal fade" id="additionalReviewModal" tabindex="-1" aria-labelledby="additionalReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="additionalReviewModalLabel">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Confirm: Request Additional Review
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <b>Request Additional Committee Review</b> for Proposal <strong>#@Model.Id</strong> <span class="fst-italic">'@Model.Title'</span>?<br><br>
+                The proposal will return to the full committee for re-evaluation.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="RequestAdditionalReview" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-warning text-dark">Yes, Send Back for Review</button>
                 </form>
             </div>
         </div>

@@ -94,6 +94,7 @@ public class HomeController : Controller
                     "marked_complete"   => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span style='color:rgb(38, 99, 103); font-weight:600;'>Marked Complete</span> by {x.UserName}",
                     "commenced"         => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was set to <span style='color:rgb(89, 108, 230); font-weight:600;'>Commenced</span> by {x.UserName}",
                     "requestModification"=> $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span style='color:#ff8800; font-weight:600;'>Requested Revision</span> by {x.UserName}",
+                    "request_additional_review"  => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span style='color:#495057; font-weight:600;'>Requested Additional Review</span> by {x.UserName}",
                     "reject"            => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was <span class='text-danger' style='font-weight:600;'>Rejected</span> by {x.UserName}",
                     _                   => $"Proposal #{x.ProposalId}, <strong>'{x.Title}'</strong> was updated by {x.UserName}"
                 },
