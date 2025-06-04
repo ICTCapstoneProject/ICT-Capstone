@@ -968,23 +968,34 @@ namespace FSSA.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddComment(int proposalId, int userId, string content)
+        public IActionResult AddComment(int proposalId, string content)
         {
+            // Retrieve proposal ID
             var proposal = _context.Proposals
                 .Include(p => p.Comments)
                 .FirstOrDefault(p => p.Id == proposalId);
 
-            if (proposal == null)
-                return NotFound();
+            // Get the current user id
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
+            if (string.IsNullOrEmpty(userEmail))
+                return Unauthorized("User email not found in claims.");
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
+
+            if (user == null)
+                return Unauthorized("User not found in database.");
+
+            // Create a new comment
             var newComment = new Comment
             {
-                ProposalId = proposalId,
-                UserId = userId,
+                ProposalId = proposal.Id,
+                UserId = user.UserId,
                 Content = content,
                 Timestamp = DateTime.Now
             };
 
+            // Add and save the new comment
             proposal.Comments.Add(newComment);
             _context.SaveChanges();
 
