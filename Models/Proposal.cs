@@ -71,6 +71,5 @@ namespace FSSA.Models
         
         [Column("comments")]
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-
     }
 }
