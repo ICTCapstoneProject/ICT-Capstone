@@ -70,6 +70,7 @@ namespace FSSA.Models
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
         
         [Column("comments")]
-        public string Comments;
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
     }
 }
