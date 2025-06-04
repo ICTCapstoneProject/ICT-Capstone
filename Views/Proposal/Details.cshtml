@@ -183,16 +183,68 @@
                 </dd>
             </div>
 
-            <div class="mb-4"></div>
+            <div class="mb-4">
                 <dt class="h6">Comments:</dt>
                 <dd>
-                    <div class="field-preview" data-bs-toggle="modal" data-bs-target="#commentsModal">
-                        @truncate(Model.Comments)
-                        <span class="view-full">...</span>
-                    </div>
+                    @if (Model.Comments != null && Model.Comments.Any())
+                    {
+                        <ul class="list-group mb-3">
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <li class="list-group-item">
+                                    <div>
+                                        <strong>@comment.User?.Name ?? "Unknown User"</strong>
+                                        <span class="text-muted small">(@comment.Timestamp.ToString("g"))</span>
+                                    </div>
+                                    <div>@comment.Content</div>
+                                    
+                                    <!-- Edit button triggers modal for this comment -->
+                                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-bs-toggle="modal" data-bs-target="#editCommentModal-@comment.Id">Edit</button>
+
+                                    <!-- Edit Comment Modal -->
+                                    <div class="modal fade" id="editCommentModal-@comment.Id" tabindex="-1" aria-labelledby="editCommentModalLabel-@comment.Id" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <form method="post" asp-action="UpdateComment">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editCommentModalLabel-@comment.Id">Edit Comment</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="commentId" value="@comment.Id" />
+                                                        <input type="hidden" name="proposalId" value="@Model.Id" />
+                                                        <textarea name="content" class="form-control" rows="5">@comment.Content</textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No comments yet.</p>
+                    }
+
+                    <!-- Add New Comment Form -->
+                    <form asp-action="AddComment" method="post">
+                        <input type="hidden" name="proposalId" value="@Model.Id" />
+                        
+                        <div class="form-group">
+                            <label for="content">Your Comment</label>
+                            <textarea name="content" class="form-control" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-2">Add Comment</button>
+                    </form>
                 </dd>
             </div>
-
         </dl>
     </div>
 </div>
@@ -277,7 +329,7 @@
 <div class="modal fade" id="commentsModal" tabindex="-1" aria-labelledby="commentsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <form method="post" asp-action="UpdateComment">
+            <form id="commentForm" method="post" asp-action="UpdateComment">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Comments</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
