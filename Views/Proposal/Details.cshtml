@@ -186,10 +186,27 @@
     </div>
 </div>
 
+@{
+    int currentUserId = (int)ViewBag.CurrentUserId;
+    var currentUserRoleIds = ViewBag.CurrentUserRoleIds as List<int> ?? new List<int>();
+    int submitterId = (int)ViewBag.SubmitterId;
+    bool isSubmitter = currentUserId == submitterId;
+    bool isCommittee = currentUserRoleIds.Contains(5) || currentUserRoleIds.Contains(6);
+}
+
 <!-- Navigation Buttons -->
 <div class="mt-4 text-end mb-3">
     <a class="btn btn-dark" asp-action="Search"><i class="bi bi-arrow-left"></i> Back to Proposals</a>
-    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit Proposal</a>
+    @if (isSubmitter || isCommittee)
+    {
+        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit Proposal</a>
+    }
+    else
+    {
+       <button class="btn btn-warning" type="button" disabled title="Only editable by submitter or committee">
+            <i class="bi bi-lock-fill me-1"></i>
+        </button>
+    }
 </div>
 
 <!-- Modals for full field text -->

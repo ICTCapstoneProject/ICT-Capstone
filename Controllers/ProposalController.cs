@@ -390,6 +390,16 @@ namespace FSSA.Controllers
 
             var submitter = _context.Users.FirstOrDefault(u => u.UserId == proposal.SubmittedBy);
             var leadResearcher = _context.Users.FirstOrDefault(u => u.UserId == proposal.LeadResearcherId);
+            var currentUser = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+            var userRoleIds = _context.UserRoles
+                .Where(ur => ur.UserId == currentUser.UserId)
+                .Select(ur => ur.RoleId)
+                .ToList();
+
+            // Pass current user data
+            ViewBag.CurrentUserId = currentUser.UserId;
+            ViewBag.CurrentUserRoleIds = userRoleIds;
+            ViewBag.SubmitterId = proposal.SubmittedBy;
 
             var projectLevelName = _context.ProjectLevels
                 .FirstOrDefault(pl => pl.LevelId == proposal.ProjectLevelId)?.LevelName ?? "Unknown";
