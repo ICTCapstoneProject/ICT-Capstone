@@ -57,7 +57,8 @@ namespace FSSA.Models{
         public string MethodImage { get; set; }
     
         [Display(Name = "Comments")]
-        public string? Comments { get; set; }
+        public List<Comment> Comments { get; set; }
+
     }
 
 }
