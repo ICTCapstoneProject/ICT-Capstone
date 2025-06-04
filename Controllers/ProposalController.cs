@@ -993,5 +993,23 @@ namespace FSSA.Controllers
             return RedirectToAction("Details", new { id });
         }
 
-}
+        [HttpPost]
+        public IActionResult UpdateComment(int proposalId, int commentId, string commentText)
+        {
+            var comment = _context.Comments
+                .FirstOrDefault(c => c.Id == commentId && c.ProposalId == proposalId);
+
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            comment.Content = commentText;
+            comment.Timestamp = DateTime.Now;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Details", new { id = proposalId });
+        }
+    }
 }
