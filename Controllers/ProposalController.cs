@@ -667,7 +667,7 @@ public async Task<IActionResult> Edit(
     proposal.Outcomes = model.Outcomes;
     proposal.Milestones = model.Milestones;
     proposal.EstimatedCompletionDate = model.EstimatedCompletionDate;
-    proposal.StatusId = model.StatusId;
+    proposal.StatusId = 1;
 
     // Update ProposalResearchers (Co-Researchers)
     var existingProposalResearchers = _context.ProposalResearchers.Where(pr => pr.ProposalId == proposal.Id);
@@ -930,8 +930,23 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
             if (EndDate.HasValue)
                 query = query.Where(p => p.EstimatedCompletionDate <= EndDate.Value);
 
-            if (!string.IsNullOrEmpty(SearchKeyword))
-                query = query.Where(p => p.Title.Contains(SearchKeyword));
+            if (!string.IsNullOrWhiteSpace(SearchKeyword))
+            {
+                // If the input is all digits, search by id
+                if (int.TryParse(SearchKeyword, out int searchId))
+                {
+                    query = query.Where(p => p.Id == searchId);
+                }
+                else
+                {
+                    // Case insensitive for non-integers
+                    var lowered = SearchKeyword.ToLower();
+                    query = query.Where(p =>
+                        p.Title != null && p.Title.ToLower().Contains(lowered)
+                        || p.Id.ToString().Contains(lowered) // And on top of that, allow typing an ID within another string
+                    );
+                }
+            }
 
             query = SortBy == "Title" ? query.OrderBy(p => p.Title) : query.OrderByDescending(p => p.EstimatedCompletionDate);
 

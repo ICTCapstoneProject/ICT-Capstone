@@ -11,6 +11,7 @@ namespace FSSA.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(50, ErrorMessage = "Your Title contents cannot exceed 50 characters.")]
         [Column("title")]
         public string Title { get; set; }
 
@@ -19,6 +20,7 @@ namespace FSSA.Models
         public string Synopsis { get; set; }
 
         [Required]
+        [MaxLength(250, ErrorMessage = "Your Method contents cannot exceed 50 characters.")]
         [Column("method")]
         public string Method { get; set; }
 
@@ -27,6 +29,8 @@ namespace FSSA.Models
         [Column("project_level_id")]
         public int ProjectLevelId { get; set; }
 
+        [Display(Name = "Physical Resources")]
+        [MaxLength(250, ErrorMessage = "Your Resources contents cannot exceed 50 characters.")]
         [Column("physical_resources")]
         public string PhysicalResources { get; set; }
 

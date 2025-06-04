@@ -6,10 +6,19 @@
 
 <h1>Make a New Proposal</h1>
 
+<div class="alert alert-info mb-4 shadow-sm" role="alert" style="font-size:1.05em;">
+    <i class="bi bi-info-circle me-2"></i>Creating...<br>
+    Fill out all <span class="fst-italic text-muted">(Required)</span> fields to <strong>create a new Research & Development Proposal</strong>.<br>
+    <span class="text-muted">
+        While optional, the  <span class="fst-italic text-muted">(Optional)</span> fields add clarity to the proposed research. Use the help text as a basic guide if you get stuck.
+    </span>
+</div>
+
 <form id="proposalForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="Title" class="form-label">Title <span class="text-muted">(Required)</span></label>
-        <input asp-for="Title" class="form-control" placeholder="e.g, DNA analysis for x crime scene..."/>
+        <input asp-for="Title" class="form-control" maxlength="50" placeholder="e.g, DNA analysis for x crime scene..."/>
+        <div class="form-text" id="titleCounter">0/50 characters</div>
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
@@ -43,7 +52,8 @@
 
     <div class="mb-3">
         <label asp-for="Method" class="form-label">Method <span class="text-muted">(Required)</span></label>
-        <textarea asp-for="Method" class="form-control" placeholder="e.g, Drug manufacturing information goes here..."></textarea>
+        <textarea asp-for="Method" class="form-control" maxlength="250" placeholder="e.g, Drug manufacturing information goes here..."></textarea>
+        <div class="form-text" id="methodCounter">0/250 characters</div>
         <span asp-validation-for="Method" class="text-danger"></span>
     </div>
 
@@ -62,7 +72,7 @@
 
         <input type="file" id="MethodImage" name="MethodImage"
        class="d-none"
-       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf"
+       accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.doc,.docx,.pdf,.cdx,.cdxml"
        onchange="updateMethodFileName()" />
     </div>
     <div class="mb-1">
@@ -108,7 +118,9 @@
 
     <div class="mb-3 mt-3">
         <label class="form-label">Physical Resources <span class="text-muted">(Required)</span></label>
-        <textarea name="PhysicalResources" class="form-control" rows="3" placeholder="e.g., Laboratory equipment, workspace, or chemical resource information goes here..."></textarea>
+        <textarea name="PhysicalResources" id="PhysicalResources" class="form-control" maxlength="250" rows="3" placeholder="e.g., Laboratory equipment, workspace, research technology, or chemical resource information goes here..."></textarea>
+        <div class="form-text" id="resourcesCounter">0/250 characters</div>
+        <span asp-validation-for="PhysicalResources" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -167,7 +179,7 @@
         data-label="Outcomes"
         data-placeholder="e.g., The project aims to develop forensic workflows, publish findings, and improve lab protocols..."
         style="white-space: pre-wrap; overflow-y: auto; height: 10em; line-height: 1.5; cursor: pointer;">
-            Tap here to fill out your outcomes. If you'd like to make modifications, simply tap again.
+            Tap here to fill out your outcomes. (What are the main research deliverables?) If you'd like to make modifications, simply tap again.
         </div>
         <textarea asp-for="Outcomes" class="form-control d-none modal-field" id="OutcomesField"></textarea>
         <span asp-validation-for="Outcomes" class="text-danger"></span>
@@ -303,6 +315,28 @@
         });
     </script>
 
+   <script>
+function setupCharCounter(inputId, counterId, max) {
+    const input = document.getElementById(inputId);
+    const counter = document.getElementById(counterId);
+    if (!input || !counter) return;
+
+    function updateCount() {
+        counter.textContent = `${input.value.length}/${max} characters`;
+    }
+    input.addEventListener("input", updateCount);
+    updateCount();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setupCharCounter("Title", "titleCounter", 50);
+    setupCharCounter("Method", "methodCounter", 250);
+    setupCharCounter("PhysicalResources", "resourcesCounter", 250);
+});
+</script>
+
+
+
     <script>
         function updateMethodFileName() {
             const input = document.getElementById('MethodImage');
@@ -386,7 +420,7 @@
    <script>
        const resources = [];
 
-document.getElementById('addResourceBtn').addEventListener('click', function () {
+    document.getElementById('addResourceBtn').addEventListener('click', function () {
     const title = document.getElementById('resourceTitle').value.trim();
     const cost = parseFloat(document.getElementById('resourceCost').value);
 
@@ -401,7 +435,7 @@ document.getElementById('addResourceBtn').addEventListener('click', function () 
     bootstrap.Modal.getInstance(document.getElementById('financialResourcesModal')).hide();
     document.getElementById('resourceTitle').value = '';
     document.getElementById('resourceCost').value = '';
-});
+    });
 
 function updateFinancialResourcesUI() {
     const list = document.getElementById('financialResourcesList');

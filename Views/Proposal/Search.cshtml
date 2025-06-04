@@ -41,9 +41,6 @@
         <div class="col-10">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4>Search Proposals</h4>
-                <div>
-                    <span>@User.Identity.Name</span>
-                </div>
             </div>
             <form method="get" asp-action="Search" class="mb-3">
                 <div class="input-group">
@@ -71,10 +68,9 @@
     @foreach (var proposal in Model.Proposals)
                 {
                     <a asp-controller="Proposal" asp-action="Details" asp-route-id="@proposal.Id"
-                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark proposal-item"
-                        data-image="@(proposal.Attachments.FirstOrDefault(a => a.TypeId == 1)?.FileUrl ?? "")">
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-decoration-none text-dark proposal-item">
                         <div>
-                            <h5 class="mb-1">@proposal.Title</h5>
+                            <h5 class="mb-1">@proposal.Title <span class="text-muted" style="font-weight:400;">(#@proposal.Id)</span></h5>
                             <small>
                                 <i class="bi bi-person"></i> @proposal.SubmittedByName &nbsp;
                                 <i class="bi bi-calendar"></i> Due: @proposal.EstimatedCompletionDate.ToString("MMM dd, yyyy") &nbsp;
@@ -112,38 +108,3 @@
 
 
 
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let timer;
-        const previewBox = document.getElementById('imagePreview');
-        const previewImg = document.getElementById('previewImg');
-
-        document.querySelectorAll('.proposal-item').forEach(item => {
-            item.addEventListener('mouseenter', (e) => {
-                const imageUrl = item.getAttribute('data-image');
-                if (!imageUrl) return;
-
-                timer = setTimeout(() => {
-                    previewImg.src = imageUrl;
-                    previewBox.style.top = `${e.clientY + 10}px`;
-                    previewBox.style.left = `${e.clientX + 10}px`;
-                    previewBox.style.display = 'block';
-                }, 1500);
-            });
-
-            item.addEventListener('mouseleave', () => {
-                clearTimeout(timer);
-                previewBox.style.display = 'none';
-                previewImg.src = '';
-            });
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (previewBox.style.display === 'block') {
-                previewBox.style.top = `${e.clientY + 10}px`;
-                previewBox.style.left = `${e.clientX + 10}px`;
-            }
-        });
-    });
-</script>
