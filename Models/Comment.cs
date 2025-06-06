@@ -33,5 +33,8 @@ namespace FSSA.Models
         // Navigation property
         [ForeignKey("ProposalId")]
         public Proposal Proposal { get; set; }
+
+        [ForeignKey("UserId")]
+        public User User { get; set; }
     }
 }
