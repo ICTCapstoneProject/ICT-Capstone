@@ -1021,7 +1021,22 @@ namespace FSSA.Controllers
                 .Where(a => a.ProposalId == proposal.Id)
                 .ToList();
 
-            // Add Comment addtion logic here
+            // Comment logic
+            var comments = _context.Comments
+                .Where(c => c.ProposalId == proposal.Id)
+                .Join(_context.Users,
+                    c => c.Commenter,
+                    u => u.UserId,
+                    (c, u) => new CommentDto
+                    {
+                        CommentId = c.CommentId,
+                        Author = u.Name,
+                        Timestamp = c.Timestamp,
+                        CommentText = c.CommentText
+                    })
+                .OrderByDescending(c => c.Timestamp)
+                .ToList();
+
 
             var model = new MyProposalViewModel
             {
@@ -1043,7 +1058,8 @@ namespace FSSA.Controllers
                 SubmittedByName = user?.Name ?? "Unknown",
                 StatusName = statusName,
                 CoResearchers = coResearchers,
-                Attachments = attachments
+                Attachments = attachments,
+                Comments = comments
             };
 
             return View("Summary", model);
@@ -1052,29 +1068,28 @@ namespace FSSA.Controllers
 
         // Comment Post method
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddComment(int id, string newCommentText)
+        public IActionResult AddComment(int ProposalId, string CommentText)
         {
-            if (string.IsNullOrWhiteSpace(newCommentText))
+            if (string.IsNullOrWhiteSpace(CommentText))
             {
-                TempData["ErrorMessage"] = "Comment cannot be empty.";
-                return RedirectToAction("Summary", new { id });
+                // Redirect back with error message if needed
+                return RedirectToAction("Summary", new { id = ProposalId });
             }
 
-            var currentUserId = (int)HttpContext.Session.GetInt32("UserId")!;
             var comment = new Comment
             {
-                ReviewId = id,
-                Commenter = currentUserId,
-                CommentText = newCommentText,
+                ProposalId = ProposalId,
+                CommentText = CommentText,
+                Commenter = GetCurrentUserId(), 
                 Timestamp = DateTime.Now
             };
 
             _context.Comments.Add(comment);
             _context.SaveChanges();
 
-            return RedirectToAction("Summary", new { id });
+            return RedirectToAction("Summary", new { id = ProposalId });
         }
+
 
     }
 }
