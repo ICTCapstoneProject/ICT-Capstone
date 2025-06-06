@@ -30,6 +30,13 @@ namespace FSSA.DTOs
         public string TypeName { get; set; }
         public int Id { get; set; }
     }
+
+    public class CommentDto
+    {
+        public string Commenter { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string CommentText { get; set; }
+    }
 }
 
 namespace FSSA.Controllers
