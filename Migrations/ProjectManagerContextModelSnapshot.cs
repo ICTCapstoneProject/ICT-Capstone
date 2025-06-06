@@ -32,23 +32,40 @@ namespace ProjectManagerMvc.Migrations
                     b.Property<string>("FileUrl")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasColumnName("file_url");
+                        .HasColumnName("file_path");
 
                     b.Property<int>("ProposalId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("proposal_id");
 
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("uploaded_at");
-
-                    b.Property<int>("UploadedBy")
+                    b.Property<int>("TypeId")
                         .HasColumnType("INTEGER")
-                        .HasColumnName("uploaded_by");
+                        .HasColumnName("type_id");
 
                     b.HasKey("FileId");
 
+                    b.HasIndex("ProposalId");
+
+                    b.HasIndex("TypeId");
+
                     b.ToTable("attachments", (string)null);
+                });
+
+            modelBuilder.Entity("FSSA.Models.AttachmentType", b =>
+                {
+                    b.Property<int>("TypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("type_id");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("type_name");
+
+                    b.HasKey("TypeId");
+
+                    b.ToTable("attachment_types", (string)null);
                 });
 
             modelBuilder.Entity("FSSA.Models.Comment", b =>
@@ -67,6 +84,10 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("commenter");
 
+                    b.Property<int>("ProposalId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("proposal_id");
+
                     b.Property<int>("ReviewId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("review_id");
@@ -76,6 +97,8 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnName("timestamp");
 
                     b.HasKey("CommentId");
+
+                    b.HasIndex("ProposalId");
 
                     b.ToTable("comments", (string)null);
                 });
@@ -123,6 +146,33 @@ namespace ProjectManagerMvc.Migrations
                     b.ToTable("ethics_review", (string)null);
                 });
 
+            modelBuilder.Entity("FSSA.Models.FinancialResource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("cost");
+
+                    b.Property<int>("ProposalId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("proposal_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProposalId");
+
+                    b.ToTable("financial_resources", (string)null);
+                });
+
             modelBuilder.Entity("FSSA.Models.Group", b =>
                 {
                     b.Property<int>("GroupId")
@@ -160,11 +210,24 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("message");
 
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("notification_type");
+
+                    b.Property<int?>("ProposalId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("proposal_id");
+
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("user_id");
 
                     b.HasKey("NotificationId");
+
+                    b.HasIndex("ProposalId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("notifications", (string)null);
                 });
@@ -206,8 +269,13 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("ethical_considerations");
 
+                    b.Property<int>("LeadResearcherId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("lead_researcher_id");
+
                     b.Property<string>("Method")
                         .IsRequired()
+                        .HasMaxLength(250)
                         .HasColumnType("TEXT")
                         .HasColumnName("method");
 
@@ -221,14 +289,15 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("outcomes");
 
+                    b.Property<string>("PhysicalResources")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("physical_resources");
+
                     b.Property<int>("ProjectLevelId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("project_level_id");
-
-                    b.Property<string>("Resources")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("resources");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("INTEGER")
@@ -245,6 +314,7 @@ namespace ProjectManagerMvc.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT")
                         .HasColumnName("title");
 
@@ -255,6 +325,70 @@ namespace ProjectManagerMvc.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("proposals", (string)null);
+                });
+
+            modelBuilder.Entity("FSSA.Models.ProposalHistory", b =>
+                {
+                    b.Property<int>("HistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ChangedBy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("EstimatedCompletionDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EthicalConsiderations")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LeadResearcherId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Milestones")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Outcomes")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhysicalResources")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectLevelId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProposalId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Synopsis")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("HistoryId");
+
+                    b.ToTable("ProposalHistories");
                 });
 
             modelBuilder.Entity("FSSA.Models.ProposalLog", b =>
@@ -288,6 +422,23 @@ namespace ProjectManagerMvc.Migrations
                     b.HasKey("LogId");
 
                     b.ToTable("proposal_log", (string)null);
+                });
+
+            modelBuilder.Entity("FSSA.Models.ProposalResearcher", b =>
+                {
+                    b.Property<int>("ProposalId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("proposal_id");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("ProposalId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("proposal_researchers", (string)null);
                 });
 
             modelBuilder.Entity("FSSA.Models.Review", b =>
@@ -379,11 +530,6 @@ namespace ProjectManagerMvc.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("password_hash");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("role");
-
                     b.HasKey("UserId");
 
                     b.ToTable("users", (string)null);
@@ -408,6 +554,136 @@ namespace ProjectManagerMvc.Migrations
                     b.HasKey("UserId", "GroupId");
 
                     b.ToTable("user_groups", (string)null);
+                });
+
+            modelBuilder.Entity("FSSA.Models.UserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("user_roles", (string)null);
+                });
+
+            modelBuilder.Entity("FSSA.Models.Attachment", b =>
+                {
+                    b.HasOne("FSSA.Models.Proposal", "Proposal")
+                        .WithMany("Attachments")
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FSSA.Models.AttachmentType", "AttachmentType")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttachmentType");
+
+                    b.Navigation("Proposal");
+                });
+
+            modelBuilder.Entity("FSSA.Models.Comment", b =>
+                {
+                    b.HasOne("FSSA.Models.Proposal", "Proposal")
+                        .WithMany("Comments")
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Proposal");
+                });
+
+            modelBuilder.Entity("FSSA.Models.FinancialResource", b =>
+                {
+                    b.HasOne("FSSA.Models.Proposal", "Proposal")
+                        .WithMany()
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Proposal");
+                });
+
+            modelBuilder.Entity("FSSA.Models.Notification", b =>
+                {
+                    b.HasOne("FSSA.Models.Proposal", "Proposal")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FSSA.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Proposal");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FSSA.Models.ProposalResearcher", b =>
+                {
+                    b.HasOne("FSSA.Models.Proposal", "Proposal")
+                        .WithMany()
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FSSA.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Proposal");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FSSA.Models.UserRole", b =>
+                {
+                    b.HasOne("FSSA.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FSSA.Models.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FSSA.Models.Proposal", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("FSSA.Models.User", b =>
+                {
+                    b.Navigation("Notifications");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }
