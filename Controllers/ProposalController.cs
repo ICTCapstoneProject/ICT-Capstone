@@ -1090,7 +1090,7 @@ namespace FSSA.Controllers
             if (string.IsNullOrWhiteSpace(CommentText))
             {
                 // Redirect back with error message if needed
-                return RedirectToAction("Summary", new { id = ProposalId });
+                return RedirectToAction("Details", new { id = ProposalId });
             }
 
             var comment = new Comment
