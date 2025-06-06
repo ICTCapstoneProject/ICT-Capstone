@@ -54,7 +54,7 @@ namespace FSSA.Controllers
             _environment = environment;
             _notificationService = notificationService;
         }
-        
+
         private string BuildAttachmentFileName(int proposalId, string proposalTitle, string attachmentType, string ext)
         {
             // Remove/replace unsafe characters
@@ -99,52 +99,52 @@ namespace FSSA.Controllers
 
 
         // POST: /Proposal/Create
-       [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        Proposal proposal,
-        [FromForm] IFormFile? SynopsisAttachment,
-        [FromForm] IFormFile? MethodImage,
-        [FromForm] IFormFile? EthicsAttachment,
-        [FromForm] List<int> CoResearchers,
-        [FromForm] List<string> ResourceTitles,
-        [FromForm] List<decimal> ResourceCosts,
-        [FromForm] int ResearcherId
-    )
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+         Proposal proposal,
+         [FromForm] IFormFile? SynopsisAttachment,
+         [FromForm] IFormFile? MethodImage,
+         [FromForm] IFormFile? EthicsAttachment,
+         [FromForm] List<int> CoResearchers,
+         [FromForm] List<string> ResourceTitles,
+         [FromForm] List<decimal> ResourceCosts,
+         [FromForm] int ResearcherId
+     )
         {
             if (!ModelState.IsValid)
+            {
+                foreach (var modelStateEntry in ModelState)
                 {
-                    foreach (var modelStateEntry in ModelState)
-                            {
-                                foreach (var error in modelStateEntry.Value.Errors)
-                                {
-                                    Console.WriteLine($"Model error in {modelStateEntry.Key}: {error.ErrorMessage}");
-                                }
-                            }
-                    ViewBag.ProjectLevels = _context.ProjectLevels
-                        .Select(pl => new SelectListItem
-                        {
-                            Value = pl.LevelId.ToString(),
-                            Text = pl.LevelName
-                        }).ToList();
-
-                    var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
-
-                    ViewBag.Researchers = (researcherRoleId != null)
-                        ? _context.UserRoles
-                            .Where(ur => ur.RoleId == researcherRoleId)
-                            .Include(ur => ur.User)
-                            .Select(ur => new SelectListItem
-                            {
-                                Value = ur.User.UserId.ToString(),
-                                Text = ur.User.Name + " (#" + ur.User.UserId + ")"
-                            })
-                            .OrderBy(r => r.Text)
-                            .ToList()
-                        : new List<SelectListItem>();
-
-                    return View(proposal);
+                    foreach (var error in modelStateEntry.Value.Errors)
+                    {
+                        Console.WriteLine($"Model error in {modelStateEntry.Key}: {error.ErrorMessage}");
+                    }
                 }
+                ViewBag.ProjectLevels = _context.ProjectLevels
+                    .Select(pl => new SelectListItem
+                    {
+                        Value = pl.LevelId.ToString(),
+                        Text = pl.LevelName
+                    }).ToList();
+
+                var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+
+                ViewBag.Researchers = (researcherRoleId != null)
+                    ? _context.UserRoles
+                        .Where(ur => ur.RoleId == researcherRoleId)
+                        .Include(ur => ur.User)
+                        .Select(ur => new SelectListItem
+                        {
+                            Value = ur.User.UserId.ToString(),
+                            Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                        })
+                        .OrderBy(r => r.Text)
+                        .ToList()
+                    : new List<SelectListItem>();
+
+                return View(proposal);
+            }
 
             var identity = User.Identity;
             if (identity == null || !identity.IsAuthenticated)
@@ -165,33 +165,33 @@ namespace FSSA.Controllers
             _context.Proposals.Add(proposal);
             await _context.SaveChangesAsync();
 
-           var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             if (!Directory.Exists(uploadsPath))
                 Directory.CreateDirectory(uploadsPath);
 
             // Helper method to save attachment
-           void SaveAttachment(IFormFile file, int typeId, string typeLabel)
+            void SaveAttachment(IFormFile file, int typeId, string typeLabel)
+            {
+                if (file != null && file.Length > 0)
                 {
-                    if (file != null && file.Length > 0)
+                    var ext = Path.GetExtension(file.FileName);
+                    var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
+                    var filePath = Path.Combine(uploadsPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        var ext = Path.GetExtension(file.FileName);
-                        var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
-                        var filePath = Path.Combine(uploadsPath, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            file.CopyTo(stream);
-                        }
-
-                        _context.Attachments.Add(new Attachment
-                        {
-                            ProposalId = proposal.Id,
-                            FileName = fileName,
-                            FileUrl = "/uploads/" + fileName,
-                            TypeId = typeId
-                        });
+                        file.CopyTo(stream);
                     }
+
+                    _context.Attachments.Add(new Attachment
+                    {
+                        ProposalId = proposal.Id,
+                        FileName = fileName,
+                        FileUrl = "/uploads/" + fileName,
+                        TypeId = typeId
+                    });
                 }
+            }
 
             // Save each one with the correct type and label
             SaveAttachment(SynopsisAttachment, 1, "Synopsis");
@@ -203,22 +203,22 @@ namespace FSSA.Controllers
                 _context.ProposalResearchers.Add(new ProposalResearcher
                 {
                     ProposalId = proposal.Id,
-                    UserId = coResearcherId 
+                    UserId = coResearcherId
                 });
             }
 
             for (int i = 0; i < ResourceTitles.Count; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(ResourceTitles[i]))
                 {
-                    if (!string.IsNullOrWhiteSpace(ResourceTitles[i]))
+                    _context.FinancialResources.Add(new FinancialResource
                     {
-                        _context.FinancialResources.Add(new FinancialResource
-                        {
-                            ProposalId = proposal.Id,
-                            Title = ResourceTitles[i],
-                            Cost = i < ResourceCosts.Count ? ResourceCosts[i] : 0
-                        });
-                    }
+                        ProposalId = proposal.Id,
+                        Title = ResourceTitles[i],
+                        Cost = i < ResourceCosts.Count ? ResourceCosts[i] : 0
+                    });
                 }
+            }
 
             _context.ProposalLogs.Add(new ProposalLog
             {
@@ -531,7 +531,7 @@ namespace FSSA.Controllers
                         FileUrl = a.FileUrl,
                         TypeName = t.TypeName
                     }).ToList();
-            
+
             // Project Level Name
             ViewBag.OriginalProjectLevel = _context.ProjectLevels
                 .Where(pl => pl.LevelId == proposal.ProjectLevelId)
@@ -546,47 +546,47 @@ namespace FSSA.Controllers
 
             return View(proposal);
         }
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(
-    int id,
-    [Bind("Id,Title,Synopsis,Method,ProjectLevelId,LeadResearcherId,PhysicalResources,EthicalConsiderations,Outcomes,Milestones,EstimatedCompletionDate,StatusId")] Proposal model,
-    int[] CoResearchers,
-    string[] ResourceTitles,
-    decimal[] ResourceCosts,
-    IFormFile? SynopsisAttachment,
-    IFormFile? MethodImage,
-    IFormFile? EthicsAttachment,
-    bool RemoveSynopsisAttachment = false,
-    bool RemoveMethodImage = false,
-    bool RemoveEthicsAttachment = false
-)
-{
-    
-    if (id != model.Id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Title,Synopsis,Method,ProjectLevelId,LeadResearcherId,PhysicalResources,EthicalConsiderations,Outcomes,Milestones,EstimatedCompletionDate,StatusId")] Proposal model,
+            int[] CoResearchers,
+            string[] ResourceTitles,
+            decimal[] ResourceCosts,
+            IFormFile? SynopsisAttachment,
+            IFormFile? MethodImage,
+            IFormFile? EthicsAttachment,
+            bool RemoveSynopsisAttachment = false,
+            bool RemoveMethodImage = false,
+            bool RemoveEthicsAttachment = false
+        )
+        {
+
+            if (id != model.Id)
                 return NotFound();
 
-    // To avoid null reference nonsense
-    CoResearchers ??= Array.Empty<int>();
-    ResourceTitles ??= Array.Empty<string>();
-    ResourceCosts ??= Array.Empty<decimal>();
+            // To avoid null reference nonsense
+            CoResearchers ??= Array.Empty<int>();
+            ResourceTitles ??= Array.Empty<string>();
+            ResourceCosts ??= Array.Empty<decimal>();
 
-    // Get original proposal for side-by-side comparison
-    var originalProposal = await _context.Proposals.AsNoTracking()
-        .FirstOrDefaultAsync(p => p.Id == id);
-    if (originalProposal == null)
-        return NotFound();
+            // Get original proposal for side-by-side comparison
+            var originalProposal = await _context.Proposals.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (originalProposal == null)
+                return NotFound();
 
-    if (!ModelState.IsValid)
-    {
-        foreach (var entry in ModelState)
-    {
-        foreach (var error in entry.Value.Errors)
-        {
-            Console.WriteLine($"Validation error in {entry.Key}: {error.ErrorMessage}");
-        }
-    }
-        // Inline ViewBag assignment (copy-paste from Edit GET for ModelState errors)
+            if (!ModelState.IsValid)
+            {
+                foreach (var entry in ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        Console.WriteLine($"Validation error in {entry.Key}: {error.ErrorMessage}");
+                    }
+                }
+                // Inline ViewBag assignment (copy-paste from Edit GET for ModelState errors)
                 ViewBag.ProjectLevels = _context.ProjectLevels
             .Select(pl => new SelectListItem
             {
@@ -594,273 +594,273 @@ public async Task<IActionResult> Edit(
                 Text = pl.LevelName
             }).ToList();
 
-        var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
-        ViewBag.Researchers = (researcherRoleId != null)
-            ? _context.UserRoles
-                .Where(ur => ur.RoleId == researcherRoleId)
-                .Include(ur => ur.User)
-                .Select(ur => new SelectListItem
-                {
-                    Value = ur.User.UserId.ToString(),
-                    Text = ur.User.Name + " (#" + ur.User.UserId + ")"
-                })
-                .OrderBy(r => r.Text)
-                .ToList()
-            : new List<SelectListItem>();
+                var researcherRoleId = _context.Roles.FirstOrDefault(r => r.RoleName.ToLower() == "researcher")?.RoleId;
+                ViewBag.Researchers = (researcherRoleId != null)
+                    ? _context.UserRoles
+                        .Where(ur => ur.RoleId == researcherRoleId)
+                        .Include(ur => ur.User)
+                        .Select(ur => new SelectListItem
+                        {
+                            Value = ur.User.UserId.ToString(),
+                            Text = ur.User.Name + " (#" + ur.User.UserId + ")"
+                        })
+                        .OrderBy(r => r.Text)
+                        .ToList()
+                    : new List<SelectListItem>();
 
-        ViewBag.OriginalProposal = new Proposal
-        {
-            Title = originalProposal.Title,
-            Synopsis = originalProposal.Synopsis,
-            Method = originalProposal.Method,
-            ProjectLevelId = originalProposal.ProjectLevelId,
-            PhysicalResources = originalProposal.PhysicalResources,
-            EthicalConsiderations = originalProposal.EthicalConsiderations,
-            Outcomes = originalProposal.Outcomes,
-            Milestones = originalProposal.Milestones,
-            EstimatedCompletionDate = originalProposal.EstimatedCompletionDate,
-            LeadResearcherId = originalProposal.LeadResearcherId
-        };
-        ViewBag.OriginalFinancialResources = _context.FinancialResources
-            .Where(fr => fr.ProposalId == id)
-            .Select(fr => new FinancialResourceDto
+                ViewBag.OriginalProposal = new Proposal
+                {
+                    Title = originalProposal.Title,
+                    Synopsis = originalProposal.Synopsis,
+                    Method = originalProposal.Method,
+                    ProjectLevelId = originalProposal.ProjectLevelId,
+                    PhysicalResources = originalProposal.PhysicalResources,
+                    EthicalConsiderations = originalProposal.EthicalConsiderations,
+                    Outcomes = originalProposal.Outcomes,
+                    Milestones = originalProposal.Milestones,
+                    EstimatedCompletionDate = originalProposal.EstimatedCompletionDate,
+                    LeadResearcherId = originalProposal.LeadResearcherId
+                };
+                ViewBag.OriginalFinancialResources = _context.FinancialResources
+                    .Where(fr => fr.ProposalId == id)
+                    .Select(fr => new FinancialResourceDto
+                    {
+                        Title = fr.Title,
+                        Cost = (double)fr.Cost
+                    }).ToList();
+
+                ViewBag.OriginalCoResearchers = _context.ProposalResearchers
+                    .Where(pr => pr.ProposalId == id)
+                    .Join(_context.Users,
+                        pr => pr.UserId,
+                        u => u.UserId,
+                        (pr, u) => new CoResearcherDto
+                        {
+                            Id = u.UserId.ToString(),
+                            Name = u.Name
+                        }).ToList();
+
+                ViewBag.OriginalAttachments = _context.Attachments
+                    .Where(a => a.ProposalId == id)
+                    .Join(_context.AttachmentTypes,
+                        a => a.TypeId,
+                        t => t.TypeId,
+                        (a, t) => new AttachmentDto
+                        {
+                            FileName = a.FileName,
+                            FileUrl = a.FileUrl,
+                            TypeName = t.TypeName
+                        }).ToList();
+
+                ViewBag.OriginalProjectLevel = _context.ProjectLevels
+                    .Where(pl => pl.LevelId == originalProposal.ProjectLevelId)
+                    .Select(pl => pl.LevelName)
+                    .FirstOrDefault() ?? "N/A";
+
+                ViewBag.OriginalLeadResearcher = _context.Users
+                    .Where(u => u.UserId == originalProposal.LeadResearcherId)
+                    .Select(u => u.Name)
+                    .FirstOrDefault() ?? "N/A";
+
+                return View(model);
+            }
+
+            // Get proposal for update
+            var proposal = await _context.Proposals
+                .Include(p => p.Attachments)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (proposal == null)
+                return NotFound();
+
+            // Update proposal fields
+            proposal.Title = model.Title;
+            proposal.Synopsis = model.Synopsis;
+            proposal.Method = model.Method;
+            proposal.ProjectLevelId = model.ProjectLevelId;
+            proposal.LeadResearcherId = model.LeadResearcherId;
+            proposal.PhysicalResources = model.PhysicalResources;
+            proposal.EthicalConsiderations = model.EthicalConsiderations;
+            proposal.Outcomes = model.Outcomes;
+            proposal.Milestones = model.Milestones;
+            proposal.EstimatedCompletionDate = model.EstimatedCompletionDate;
+            proposal.StatusId = 1;
+
+            // Update ProposalResearchers (Co-Researchers)
+            var existingProposalResearchers = _context.ProposalResearchers.Where(pr => pr.ProposalId == proposal.Id);
+            _context.ProposalResearchers.RemoveRange(existingProposalResearchers);
+            foreach (var coResearcherId in CoResearchers.Distinct())
             {
-                Title = fr.Title,
-                Cost = (double)fr.Cost
-            }).ToList();
-
-        ViewBag.OriginalCoResearchers = _context.ProposalResearchers
-            .Where(pr => pr.ProposalId == id)
-            .Join(_context.Users,
-                pr => pr.UserId,
-                u => u.UserId,
-                (pr, u) => new CoResearcherDto
+                _context.ProposalResearchers.Add(new ProposalResearcher
                 {
-                    Id = u.UserId.ToString(),
-                    Name = u.Name
-                }).ToList();
+                    ProposalId = proposal.Id,
+                    UserId = coResearcherId
+                });
+            }
 
-        ViewBag.OriginalAttachments = _context.Attachments
-            .Where(a => a.ProposalId == id)
-            .Join(_context.AttachmentTypes,
-                a => a.TypeId,
-                t => t.TypeId,
-                (a, t) => new AttachmentDto
+            // Update Financial Resources
+            var oldResources = _context.FinancialResources.Where(fr => fr.ProposalId == proposal.Id);
+            _context.FinancialResources.RemoveRange(oldResources);
+            for (int i = 0; i < ResourceTitles.Length && i < ResourceCosts.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(ResourceTitles[i]))
                 {
-                    FileName = a.FileName,
-                    FileUrl = a.FileUrl,
-                    TypeName = t.TypeName
-                }).ToList();
+                    _context.FinancialResources.Add(new FinancialResource
+                    {
+                        ProposalId = proposal.Id,
+                        Title = ResourceTitles[i],
+                        Cost = ResourceCosts[i]
+                    });
+                }
+            }
 
-        ViewBag.OriginalProjectLevel = _context.ProjectLevels
-            .Where(pl => pl.LevelId == originalProposal.ProjectLevelId)
-            .Select(pl => pl.LevelName)
-            .FirstOrDefault() ?? "N/A";
+            //  Update Attachments (helper for each type)
+            async Task SaveAttachmentAsync(IFormFile file, int typeId, string typeLabel)
+            {
+                if (file == null || file.Length == 0)
+                    return;
 
-        ViewBag.OriginalLeadResearcher = _context.Users
-            .Where(u => u.UserId == originalProposal.LeadResearcherId)
-            .Select(u => u.Name)
-            .FirstOrDefault() ?? "N/A";
+                var uploadsDir = Path.Combine(_environment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsDir))
+                    Directory.CreateDirectory(uploadsDir);
 
-        return View(model);
-    }
+                var ext = Path.GetExtension(file.FileName);
+                var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
+                var filePath = Path.Combine(uploadsDir, fileName);
 
-    // Get proposal for update
-    var proposal = await _context.Proposals
-        .Include(p => p.Attachments)
-        .FirstOrDefaultAsync(p => p.Id == id);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
 
-    if (proposal == null)
-        return NotFound();
+                var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
+                if (old != null)
+                    _context.Attachments.Remove(old);
 
-    // Update proposal fields
-    proposal.Title = model.Title;
-    proposal.Synopsis = model.Synopsis;
-    proposal.Method = model.Method;
-    proposal.ProjectLevelId = model.ProjectLevelId;
-    proposal.LeadResearcherId = model.LeadResearcherId;
-    proposal.PhysicalResources = model.PhysicalResources;
-    proposal.EthicalConsiderations = model.EthicalConsiderations;
-    proposal.Outcomes = model.Outcomes;
-    proposal.Milestones = model.Milestones;
-    proposal.EstimatedCompletionDate = model.EstimatedCompletionDate;
-    proposal.StatusId = 1;
+                proposal.Attachments.Add(new Attachment
+                {
+                    ProposalId = proposal.Id,
+                    TypeId = typeId,
+                    FileName = fileName,
+                    FileUrl = "/uploads/" + fileName
+                });
+            }
+            void RemoveAttachmentOfType(int typeId)
+            {
+                var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
+                if (old != null)
+                    _context.Attachments.Remove(old);
+            }
 
-    // Update ProposalResearchers (Co-Researchers)
-    var existingProposalResearchers = _context.ProposalResearchers.Where(pr => pr.ProposalId == proposal.Id);
-    _context.ProposalResearchers.RemoveRange(existingProposalResearchers);
-    foreach (var coResearcherId in CoResearchers.Distinct())
-    {
-        _context.ProposalResearchers.Add(new ProposalResearcher
-        {
-            ProposalId = proposal.Id,
-            UserId = coResearcherId  
-        });
-    }
+            // Remove if toggled
+            if (RemoveSynopsisAttachment) RemoveAttachmentOfType(1);
+            if (RemoveMethodImage) RemoveAttachmentOfType(2);
+            if (RemoveEthicsAttachment) RemoveAttachmentOfType(3);
 
-    // Update Financial Resources
-    var oldResources = _context.FinancialResources.Where(fr => fr.ProposalId == proposal.Id);
-    _context.FinancialResources.RemoveRange(oldResources);
-    for (int i = 0; i < ResourceTitles.Length && i < ResourceCosts.Length; i++)
-    {
-        if (!string.IsNullOrWhiteSpace(ResourceTitles[i]))
-        {
-            _context.FinancialResources.Add(new FinancialResource
+            // Save new files if uploaded
+            await SaveAttachmentAsync(SynopsisAttachment, 1, "Synopsis");
+            await SaveAttachmentAsync(MethodImage, 2, "Method");
+            await SaveAttachmentAsync(EthicsAttachment, 3, "Ethics");
+
+            // --- Log this edit action
+            var userId = GetCurrentUserId();
+            _context.ProposalLogs.Add(new ProposalLog
             {
                 ProposalId = proposal.Id,
-                Title = ResourceTitles[i],
-                Cost = ResourceCosts[i]
+                StatusId = proposal.StatusId,
+                ChangedBy = userId,
+                Action = "modified",
+                Timestamp = DateTime.Now
             });
-        }
-    }
 
-    //  Update Attachments (helper for each type)
-    async Task SaveAttachmentAsync(IFormFile file, int typeId, string typeLabel)
-    {
-        if (file == null || file.Length == 0)
-            return;
+            await _context.SaveChangesAsync();
 
-        var uploadsDir = Path.Combine(_environment.WebRootPath, "uploads");
-        if (!Directory.Exists(uploadsDir))
-            Directory.CreateDirectory(uploadsDir);
+            // Notify the chair
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Committee Chair",
+                $"Proposal '{proposal.Title}' has been modified and requires re-approval.",
+                proposal.Id,
+                "ProposalModification",
+                userId
+            );
 
-        var ext = Path.GetExtension(file.FileName);
-        var fileName = BuildAttachmentFileName(proposal.Id, proposal.Title, typeLabel, ext);
-        var filePath = Path.Combine(uploadsDir, fileName);
+            //  Set up ViewBags for EditSuccess (side-by-side compare)
+            await PopulateEditSuccessViewBags(originalProposal, proposal);
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
+            // Show comparison of changes
+            return View("EditSuccess", proposal);
         }
 
-        var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
-        if (old != null)
-            _context.Attachments.Remove(old);
-
-        proposal.Attachments.Add(new Attachment
+        // Helper: Get the current user's UserId
+        private int GetCurrentUserId()
         {
-            ProposalId = proposal.Id,
-            TypeId = typeId,
-            FileName = fileName,
-            FileUrl = "/uploads/" + fileName
-        });
-    }
-    void RemoveAttachmentOfType(int typeId)
-    {
-        var old = proposal.Attachments.FirstOrDefault(a => a.TypeId == typeId);
-        if (old != null)
-            _context.Attachments.Remove(old);
-    }
-
-    // Remove if toggled
-    if (RemoveSynopsisAttachment) RemoveAttachmentOfType(1);
-    if (RemoveMethodImage) RemoveAttachmentOfType(2);
-    if (RemoveEthicsAttachment) RemoveAttachmentOfType(3);
-
-    // Save new files if uploaded
-    await SaveAttachmentAsync(SynopsisAttachment, 1, "Synopsis");
-    await SaveAttachmentAsync(MethodImage, 2, "Method");
-    await SaveAttachmentAsync(EthicsAttachment, 3, "Ethics");
-
-    // --- Log this edit action
-    var userId = GetCurrentUserId();
-    _context.ProposalLogs.Add(new ProposalLog
-    {
-        ProposalId = proposal.Id,
-        StatusId = proposal.StatusId,
-        ChangedBy = userId,
-        Action = "modified",
-        Timestamp = DateTime.Now
-    });
-
-    await _context.SaveChangesAsync();
-    
-    // Notify the chair
-    await _notificationService.CreateNotificationForRoleAsync(
-        "Committee Chair",
-        $"Proposal '{proposal.Title}' has been modified and requires re-approval.",
-        proposal.Id,
-        "ProposalModification",
-        userId
-    );
-
-    //  Set up ViewBags for EditSuccess (side-by-side compare)
-    await PopulateEditSuccessViewBags(originalProposal, proposal);
-
-    // Show comparison of changes
-    return View("EditSuccess", proposal);
-}
-
-// Helper: Get the current user's UserId
-private int GetCurrentUserId()
-{
-    var email = User.Identity?.Name;
-    return _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
-}
+            var email = User.Identity?.Name;
+            return _context.Users.FirstOrDefault(u => u.Email == email)?.UserId ?? 0;
+        }
 
 
-private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
-{
-    // Original values
-    ViewBag.OrigProjectLevelName = await _context.ProjectLevels
-        .Where(x => x.LevelId == orig.ProjectLevelId).Select(x => x.LevelName).FirstOrDefaultAsync() ?? "N/A";
-    ViewBag.OrigLeadResearcherName = await _context.Users
-        .Where(x => x.UserId == orig.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
-    ViewBag.OrigCoResearcherNames = await _context.ProposalResearchers
-        .Where(pr => pr.ProposalId == orig.Id)
-        .Join(_context.Users, pr => pr.UserId, u => u.UserId, (pr, u) => u.Name)
-        .ToListAsync();
-
-    ViewBag.OrigFinancialResources = await _context.FinancialResources
-        .Where(x => x.ProposalId == orig.Id)
-        .Select(fr => new FinancialResourceDto
+        private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
         {
-            Title = fr.Title,
-            Cost = (double)fr.Cost
-        }).ToListAsync();
+            // Original values
+            ViewBag.OrigProjectLevelName = await _context.ProjectLevels
+                .Where(x => x.LevelId == orig.ProjectLevelId).Select(x => x.LevelName).FirstOrDefaultAsync() ?? "N/A";
+            ViewBag.OrigLeadResearcherName = await _context.Users
+                .Where(x => x.UserId == orig.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
+            ViewBag.OrigCoResearcherNames = await _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == orig.Id)
+                .Join(_context.Users, pr => pr.UserId, u => u.UserId, (pr, u) => u.Name)
+                .ToListAsync();
 
-    ViewBag.OrigAttachments = await _context.Attachments
-        .Where(a => a.ProposalId == orig.Id)
-        .Join(_context.AttachmentTypes, a => a.TypeId, t => t.TypeId,
-            (a, t) => new AttachmentDto
-            {
-                FileName = a.FileName,
-                FileUrl = a.FileUrl,
-                TypeName = t.TypeName
-            }).ToListAsync();
+            ViewBag.OrigFinancialResources = await _context.FinancialResources
+                .Where(x => x.ProposalId == orig.Id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToListAsync();
 
-    // Updated values
-    ViewBag.UpdatedProjectLevelName = await _context.ProjectLevels
-        .Where(x => x.LevelId == updated.ProjectLevelId).Select(x => x.LevelName).FirstOrDefaultAsync() ?? "N/A";
-    ViewBag.UpdatedLeadResearcherName = await _context.Users
-        .Where(x => x.UserId == updated.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
-    ViewBag.UpdatedCoResearcherNames = await _context.ProposalResearchers
-        .Where(pr => pr.ProposalId == updated.Id)
-        .Join(_context.Users, pr => pr.UserId, u => u.UserId, (pr, u) => u.Name)
-        .ToListAsync();
+            ViewBag.OrigAttachments = await _context.Attachments
+                .Where(a => a.ProposalId == orig.Id)
+                .Join(_context.AttachmentTypes, a => a.TypeId, t => t.TypeId,
+                    (a, t) => new AttachmentDto
+                    {
+                        FileName = a.FileName,
+                        FileUrl = a.FileUrl,
+                        TypeName = t.TypeName
+                    }).ToListAsync();
 
-    ViewBag.UpdatedFinancialResources = await _context.FinancialResources
-        .Where(x => x.ProposalId == updated.Id)
-        .Select(fr => new FinancialResourceDto
-        {
-            Title = fr.Title,
-            Cost = (double)fr.Cost
-        }).ToListAsync();
+            // Updated values
+            ViewBag.UpdatedProjectLevelName = await _context.ProjectLevels
+                .Where(x => x.LevelId == updated.ProjectLevelId).Select(x => x.LevelName).FirstOrDefaultAsync() ?? "N/A";
+            ViewBag.UpdatedLeadResearcherName = await _context.Users
+                .Where(x => x.UserId == updated.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
+            ViewBag.UpdatedCoResearcherNames = await _context.ProposalResearchers
+                .Where(pr => pr.ProposalId == updated.Id)
+                .Join(_context.Users, pr => pr.UserId, u => u.UserId, (pr, u) => u.Name)
+                .ToListAsync();
 
-    ViewBag.UpdatedAttachments = await _context.Attachments
-        .Where(a => a.ProposalId == updated.Id)
-        .Join(_context.AttachmentTypes, a => a.TypeId, t => t.TypeId,
-            (a, t) => new AttachmentDto
-            {
-                FileName = a.FileName,
-                FileUrl = a.FileUrl,
-                TypeName = t.TypeName
-            }).ToListAsync();
+            ViewBag.UpdatedFinancialResources = await _context.FinancialResources
+                .Where(x => x.ProposalId == updated.Id)
+                .Select(fr => new FinancialResourceDto
+                {
+                    Title = fr.Title,
+                    Cost = (double)fr.Cost
+                }).ToListAsync();
 
-    // Human readable submitter
-    ViewBag.SubmitterName = await _context.Users
-        .Where(x => x.UserId == updated.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
-}
+            ViewBag.UpdatedAttachments = await _context.Attachments
+                .Where(a => a.ProposalId == updated.Id)
+                .Join(_context.AttachmentTypes, a => a.TypeId, t => t.TypeId,
+                    (a, t) => new AttachmentDto
+                    {
+                        FileName = a.FileName,
+                        FileUrl = a.FileUrl,
+                        TypeName = t.TypeName
+                    }).ToListAsync();
+
+            // Human readable submitter
+            ViewBag.SubmitterName = await _context.Users
+                .Where(x => x.UserId == updated.LeadResearcherId).Select(x => x.Name).FirstOrDefaultAsync() ?? "N/A";
+        }
 
 
         public IActionResult Search(
@@ -986,8 +986,8 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
 
             return View(viewModel);
         }
-       
-      public IActionResult Summary(int id)
+
+        public IActionResult Summary(int id)
         {
             var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
             if (proposal == null)
@@ -1045,5 +1045,33 @@ private async Task PopulateEditSuccessViewBags(Proposal orig, Proposal updated)
 
             return View("Summary", model);
         }
-}
+        
+
+        // Comment Post method
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddComment(int id, string newCommentText)
+        {
+            if (string.IsNullOrWhiteSpace(newCommentText))
+            {
+                TempData["ErrorMessage"] = "Comment cannot be empty.";
+                return RedirectToAction("Summary", new { id });
+            }
+
+            var currentUserId = (int)HttpContext.Session.GetInt32("UserId")!;
+            var comment = new Comment
+            {
+                ReviewId = id,
+                Commenter = currentUserId,
+                CommentText = newCommentText,
+                Timestamp = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+
+            return RedirectToAction("Summary", new { id });
+        }
+
+    }
 }
