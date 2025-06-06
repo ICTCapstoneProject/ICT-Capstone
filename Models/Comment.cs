@@ -24,5 +24,14 @@ namespace FSSA.Models
 
         [Column("timestamp")]
         public DateTime Timestamp { get; set; }
+
+        // Foreign Key for Proposal
+        [Required]
+        [Column("proposal_id")]
+        public int ProposalId { get; set; }
+
+        // Navigation property
+        [ForeignKey("ProposalId")]
+        public Proposal Proposal { get; set; }
     }
 }
