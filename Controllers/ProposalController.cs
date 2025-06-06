@@ -33,7 +33,8 @@ namespace FSSA.DTOs
 
     public class CommentDto
     {
-        public string Commenter { get; set; }
+        public int CommentId { get; set; }
+        public string Author { get; set; }
         public DateTime Timestamp { get; set; }
         public string CommentText { get; set; }
     }
@@ -1019,6 +1020,8 @@ namespace FSSA.Controllers
             var attachments = _context.Attachments
                 .Where(a => a.ProposalId == proposal.Id)
                 .ToList();
+
+            // Add Comment addtion logic here
 
             var model = new MyProposalViewModel
             {
