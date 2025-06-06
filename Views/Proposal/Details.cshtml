@@ -183,21 +183,35 @@
                 </dd>
             </div>
 
+            <!-- Comment List field view -->
             <div class="mb-4">
                 <dt class="h6">Comments :</dt>
                 <dd>
                     @if (Model.Comments != null && Model.Comments.Any())
                     {
-                        <ul class="list-group">
-                            @foreach (var comment in Model.Comments)
+                        var latestComments = Model.Comments.OrderByDescending(c => c.Timestamp).Take(3).ToList();
+
+                        <div class="border rounded p-3 bg-light hover-shadow" 
+                            style="cursor: pointer;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#allCommentsModal" 
+                            role="button" 
+                            tabindex="0">
+                            <div class="comment-preview">
+                            @foreach (var comment in latestComments)
                             {
-                                <li class="list-group-item">
-                                    <strong>@comment.Commenter</strong>
-                                    <em>@comment.Timestamp.ToString("dd MMM yyyy HH:mm")</em>:
-                                    <p class="mt-2 mb-1">@comment.CommentText</p>
-                                </li>
+                                <div class="mb-3">
+                                    <div class="fw-bold">@Html.DisplayFor(modelItem => comment.Author)</div>
+                                    <div class="text-muted small">@comment.Timestamp.ToString("dd MMM yyyy HH:mm")</div>
+                                    <div>@Html.DisplayFor(modelItem => comment.CommentText)</div>
+                                </div>
                             }
-                        </ul>
+                            </div>
+                            @if (Model.Comments.Count > 3)
+                            {
+                                <p class="text-end text-muted mb-0 mt-2"><small>Click to view all @Model.Comments.Count comments</small></p>
+                            }
+                        </div>
                     }
                     else
                     {
@@ -205,6 +219,23 @@
                     }
                 </dd>
             </div>
+
+            <!-- Add Comment field -->
+            <div class="mb-4 mt-3">
+                <dt class="h6">Add a Comment:</dt>
+                <dd>
+                    <form asp-action="AddComment" method="post">
+                        <input type="hidden" name="ProposalId" value="@Model.Id" />
+                        <div class="mb-2">
+                            <textarea name="CommentText" class="form-control" rows="4" placeholder="Write your comment here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-chat-dots"></i> Submit Comment
+                        </button>
+                    </form>
+                </dd>
+            </div>
+
         </dl>
     </div>
 </div>
@@ -298,6 +329,30 @@
             </div>
             <div class="modal-body" style="min-height: 400px; max-height: 400px; overflow-y: auto;">
                 @Model.Milestones
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Full Comments Modal -->
+<div class="modal fade" id="allCommentsModal" tabindex="-1" aria-labelledby="allCommentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allCommentsModalLabel">All Comments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="comment-list">
+                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.Timestamp))
+                    {
+                        <div class="mb-4">
+                            <div class="fw-bold">@Html.DisplayFor(modelItem => comment.Author)</div>
+                            <div class="text-muted small">@comment.Timestamp.ToString("dd MMM yyyy HH:mm")</div>
+                            <div>@Html.DisplayFor(modelItem => comment.CommentText)</div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
