@@ -59,6 +59,9 @@ namespace FSSA.Models
 
         [Display(Name = "Comments")]
         public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
+
+        public string NewCommentText { get; set; }
+        public int CurrentUserId { get; set; }
     }
 }
 
