@@ -67,14 +67,17 @@ namespace FSSA.Models
         [Required]
         [Column("submitted_by")]
         public int SubmittedBy { get; set; }
-        
+
         [Required(ErrorMessage = "A Lead Researcher is required.")]
         [Column("lead_researcher_id")]
         public int LeadResearcherId { get; set; }
 
-         [InverseProperty("Proposal")]
+        [InverseProperty("Proposal")]
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
         [ValidateNever]
-        public virtual ICollection<Notification> Notifications { get; set; }    
+        public virtual ICollection<Notification> Notifications { get; set; }  
+
+        public ICollection<Comment> Comments { get; set; }
+  
     }
 }
