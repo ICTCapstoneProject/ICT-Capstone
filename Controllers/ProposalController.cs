@@ -431,6 +431,22 @@ namespace FSSA.Controllers
                         Name = u.Name
                     }).ToList();
 
+            // Comment logic
+            var comments = _context.Comments
+                .Where(c => c.ProposalId == proposal.Id)
+                .Join(_context.Users,
+                    c => c.Commenter,
+                    u => u.UserId,
+                    (c, u) => new CommentDto
+                    {
+                        CommentId = c.CommentId,
+                        Author = u.Name,
+                        Timestamp = c.Timestamp,
+                        CommentText = c.CommentText
+                    })
+                .OrderByDescending(c => c.Timestamp)
+                .ToList();
+
             var model = new MyProposalViewModel
             {
                 Id = proposal.Id,
@@ -447,7 +463,8 @@ namespace FSSA.Controllers
                 LeadResearcherName = leadResearcher?.Name ?? "Unknown",
                 FinancialResources = financialResources,
                 CoResearchers = coResearchers,
-                Attachments = proposal.Attachments.ToList()
+                Attachments = proposal.Attachments.ToList(),
+                Comments = comments
             };
 
             return View(model);
@@ -1080,14 +1097,14 @@ namespace FSSA.Controllers
             {
                 ProposalId = ProposalId,
                 CommentText = CommentText,
-                Commenter = GetCurrentUserId(), 
+                Commenter = GetCurrentUserId(), // use helper method to retreive User Id
                 Timestamp = DateTime.Now
             };
 
             _context.Comments.Add(comment);
             _context.SaveChanges();
 
-            return RedirectToAction("Summary", new { id = ProposalId });
+            return RedirectToAction("Details", new { id = ProposalId });
         }
 
 
