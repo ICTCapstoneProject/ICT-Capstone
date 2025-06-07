@@ -90,7 +90,7 @@
         <label class="form-label">Lead Researcher <span class="text-muted">(Required)</span></label>
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-            <select id="ResearcherId" name="ResearcherId" class="form-select">
+            <select id="LeadResearcherId" name="LeadResearcherId" class="form-select">
                 <option value="" disabled selected hidden>*Type to Search for a Lead Researcher to Assign to the Proposed Research</option>
                 @foreach (var researcher in (List<SelectListItem>)ViewBag.Researchers)
                 {
@@ -530,7 +530,7 @@ function removeResource(index) {
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
    <script>
     document.addEventListener("DOMContentLoaded", function () {
-    new TomSelect("#ResearcherId", {
+    new TomSelect("#LeadResearcherId", {
         create: false,
         sortField: { field: "text", direction: "asc" }
     });

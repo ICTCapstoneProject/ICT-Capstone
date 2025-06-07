@@ -110,7 +110,7 @@ namespace FSSA.Controllers
          [FromForm] List<int> CoResearchers,
          [FromForm] List<string> ResourceTitles,
          [FromForm] List<decimal> ResourceCosts,
-         [FromForm] int ResearcherId
+         [FromForm] int LeadResearcherId
      )
         {
             if (!ModelState.IsValid)
@@ -161,7 +161,7 @@ namespace FSSA.Controllers
             proposal.CreatedAt = DateTime.Now;
             proposal.UpdatedAt = DateTime.Now;
 
-            proposal.LeadResearcherId = ResearcherId;
+            proposal.LeadResearcherId = LeadResearcherId;
 
             _context.Proposals.Add(proposal);
             await _context.SaveChangesAsync();

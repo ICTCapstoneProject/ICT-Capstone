@@ -70,7 +70,7 @@
 
             [Required(ErrorMessage = "A Lead Researcher is required.")]
             [Column("lead_researcher_id")]
-            public int LeadResearcherId { get; set; }
+            public int? LeadResearcherId { get; set; }
 
             [InverseProperty("Proposal")]
             public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
