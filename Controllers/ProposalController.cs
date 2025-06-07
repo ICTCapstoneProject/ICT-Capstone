@@ -802,6 +802,14 @@ namespace FSSA.Controllers
                 userId
             );
 
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Ethics Committee",
+                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to reattain committee approval.",
+                proposal.Id,
+                "ProposalModification",
+                userId.Value
+            );
+
             //  Set up ViewBags for EditSuccess (side-by-side compare)
             await PopulateEditSuccessViewBags(originalProposal, proposal);
 
