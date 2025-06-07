@@ -236,14 +236,14 @@ namespace FSSA.Controllers
             var submitterName = submitter?.Name ?? "Unknown User";
             await _notificationService.CreateNotificationForRoleAsync(
                 "Committee Chair",
-                $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                $"Proposal #{proposal.Id} '{proposal.Title}' was created by {submitterName} and requires committee approval.",
                 proposal.Id,
                 "ProposalSubmission",
                 userId.Value
             );
             await _notificationService.CreateNotificationForRoleAsync(
                 "Ethics Committee",
-                $"Proposal '{proposal.Title}' was created by {submitterName} and requires approval.",
+                $"Proposal #{proposal.Id} '{proposal.Title}' was created by {submitterName} and requires committee approval.",
                 proposal.Id,
                 "ProposalSubmission",
                 userId.Value
@@ -796,7 +796,7 @@ namespace FSSA.Controllers
             // Notify the chair
             await _notificationService.CreateNotificationForRoleAsync(
                 "Committee Chair",
-                $"Proposal '{proposal.Title}' has been modified and requires re-approval.",
+                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to reattain committee approval.",
                 proposal.Id,
                 "ProposalModification",
                 userId
