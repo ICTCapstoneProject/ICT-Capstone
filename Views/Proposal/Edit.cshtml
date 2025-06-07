@@ -9,8 +9,8 @@
 
 <div class="alert alert-info mb-4 shadow-sm" role="alert" style="font-size:1.05em;">
     <i class="bi bi-info-circle me-2"></i>
-    Editting...<br>All editable fields (<strong>left column</strong>) are prefilled with their original values (<strong>right column</strong>).
-    If you do not intend to make changes to a field, you may leave it untouched and the form will automatically retain that field’s original data.
+    Editting...<br>All editable fields (<strong>left column</strong>), including the ones with <strong>Tap here</strong> help text, are automatically prefilled with their original values (<strong>right column</strong>).
+    Thus, if you do not intend to make changes to a field, you may leave it untouched and the form will automatically retain that field’s original data.
 </div>
 
 <form id="proposalForm" asp-action="Edit" method="post" enctype="multipart/form-data">
@@ -60,7 +60,7 @@
                                 @synopsisAttachment.FileName
                             </span>
                             <input type="checkbox" name="RemoveSynopsisAttachment" id="RemoveSynopsisAttachment" value="true" class="form-check-input" />
-                            <label for="RemoveSynopsisAttachment" class="form-check-label small mb-0"><span class="text-muted">(Or Tick to Remove)</span></label>
+                            <label for="RemoveSynopsisAttachment" class="form-check-label small mb-0"><span class="text-muted">Or if you'd rather just remove the original (<strong>Green</strong>), tick the box before hitting the <strong>Modify</strong> button at the bottom of this page.</span></label>
                         </div>
                     }
                 }
@@ -97,7 +97,7 @@
                                 @methodAttachment.FileName
                             </span>
                             <input type="checkbox" name="RemoveMethodImage" id="RemoveMethodImage" value="true" class="form-check-input" />
-                            <label for="RemoveMethodImage" class="form-check-label small mb-0"><span class="text-muted">(Or Tick to Remove)</span></label>
+                            <label for="RemoveMethodImage" class="form-check-label small mb-0"><span class="text-muted">Or if you'd rather just remove the original (<strong>Green</strong>), tick the box before hitting the <strong>Modify</strong> button at the bottom of this page.</span></label>
                         </div>
                     }
                 }
@@ -191,7 +191,7 @@
                                 @ethicsAttachment.FileName
                             </span>
                             <input type="checkbox" name="RemoveEthicsAttachment" id="RemoveEthicsAttachment" value="true" class="form-check-input" />
-                            <label for="RemoveEthicsAttachment" class="form-check-label small mb-0"><span class="text-muted">(Or Tick to Remove)</span></label>
+                            <label for="RemoveEthicsAttachment" class="form-check-label small mb-0"><span class="text-muted">Or if you'd rather just remove the original (<strong>Green</strong>), tick the box before hitting the <strong>Modify</strong> button at the bottom of this page.</span></label>
                         </div>
                     }
                 }
