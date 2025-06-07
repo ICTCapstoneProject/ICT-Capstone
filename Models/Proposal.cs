@@ -77,7 +77,7 @@
             [ValidateNever]
             public virtual ICollection<Notification> Notifications { get; set; }  
 
-            public ICollection<Comment> Comments { get; set; }
+            public ICollection<Comment>? Comments { get; set; }
     
         }
     }
