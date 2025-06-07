@@ -239,14 +239,14 @@ namespace FSSA.Controllers
                 $"Proposal #{proposal.Id} '{proposal.Title}' was created by {submitterName} and requires committee approval.",
                 proposal.Id,
                 "ProposalSubmission",
-                userId.Value
+                userId
             );
             await _notificationService.CreateNotificationForRoleAsync(
                 "Ethics Committee",
                 $"Proposal #{proposal.Id} '{proposal.Title}' was created by {submitterName} and requires committee approval.",
                 proposal.Id,
                 "ProposalSubmission",
-                userId.Value
+                userId
             );
 
             return RedirectToAction("Success", new { id = proposal.Id });
@@ -796,7 +796,7 @@ namespace FSSA.Controllers
             // Notify the chair
             await _notificationService.CreateNotificationForRoleAsync(
                 "Committee Chair",
-                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to reattain committee approval.",
+                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to be signed for committee approval.",
                 proposal.Id,
                 "ProposalModification",
                 userId
@@ -804,10 +804,10 @@ namespace FSSA.Controllers
 
             await _notificationService.CreateNotificationForRoleAsync(
                 "Ethics Committee",
-                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to reattain committee approval.",
+                $"Proposal #{proposal.Id} '{proposal.Title}' has been modified and needs to be signed for committee approval.",
                 proposal.Id,
                 "ProposalModification",
-                userId.Value
+                userId
             );
 
             //  Set up ViewBags for EditSuccess (side-by-side compare)
