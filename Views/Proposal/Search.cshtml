@@ -8,7 +8,7 @@
                 <h5>Filters</h5>
                 <form method="get" asp-action="Search">
                     <div class="mb-3">
-                        <label class="form-label">Status</label>
+                        <label class="form-label"><strong>Project Status</strong></label>
                         <div>
                             @foreach (var status in ViewBag.Statuses)
                             {
@@ -18,7 +18,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Project Level</label>
+                        <label class="form-label"><strong>Project Level</strong></label>
                         <div>
                             @foreach (var level in ViewBag.ProjectLevels)
                             {
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Date Range</label>
+                        <label class="form-label"><strong>Date Range</strong></label>
                         <input type="date" class="form-control mb-1" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
                         <input type="date" class="form-control" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
                     </div>
@@ -39,6 +39,17 @@
         </div>
         <!-- body -->
         <div class="col-10">
+            <div class="alert alert-info mb-4 shadow-sm" role="alert" style="font-size:1.05em;">
+                <i class="bi bi-info-circle me-2"></i>
+                Searching...<br>
+                For instant lookup, find your Proposal's reference code (The number next to "#"), drop that number (without the "#") into the <strong>search bar</strong> and tap the <strong>Search</strong> button.<br>
+                Enter keywords in the <strong>search bar</strong> to find proposals by title, author, or key details.<br>
+                Use the <strong>filters</strong> on the left to narrow down proposals by <span class="fst-italic text-muted">Status</span>, <span class="fst-italic text-muted">Project Level</span>, or <span class="fst-italic text-muted">Date Range</span>.<br>
+                <i class="bi bi-arrow-down-circle ms-2" style="font-size:1.3em; vertical-align:middle;"></i>
+                <span class="text-muted">
+                    Use the <span class="fst-italic">pagination</span> controls down at the bottom to browse multiple pages.
+                </span>
+            </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4>Search Proposals</h4>
             </div>
