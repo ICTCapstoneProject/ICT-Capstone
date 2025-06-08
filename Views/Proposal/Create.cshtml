@@ -529,28 +529,55 @@ function removeResource(index) {
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    new TomSelect("#LeadResearcherId", {
-        create: false,
-        sortField: { field: "text", direction: "asc" }
-    });
+        document.addEventListener("DOMContentLoaded", function () {
+        new TomSelect("#LeadResearcherId", {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            render: {
+                option: function(data, escape) {
+                    if (data.disabled) return '';
+                    return `<div>${escape(data.text)}</div>`;
+                }
+            }
+        });
 
-    new TomSelect("#coResearcherSelect", {
-    create: false,
-    sortField: { field: "text", direction: "asc" },
-    dropdownParent: "#coResearcherContainer"
-    });
+        new TomSelect("#coResearcherSelect", {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            dropdownParent: "#coResearcherContainer",
+            render: {
+                option: function(data, escape) {
+                    if (data.disabled) return '';
+                    return `<div>${escape(data.text)}</div>`;
+                }
+            }
+        });
+
+        // Always sync disables on initial load
+        updateLeadResearcherDropdown();
+        updateCoResearcherDropdown();
+
+        document.getElementById("LeadResearcherId").addEventListener("change", function () {
+            updateLeadResearcherDropdown();
+            updateCoResearcherDropdown();
+        });
     });
     </script>
 
-<script>
+    <script>
     const coResearchers = [];
 
     document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
         const select = document.getElementById("coResearcherSelect");
         const name = select.options[select.selectedIndex].text;
         const id = select.value;
+        const leadId = document.getElementById("LeadResearcherId").value;
 
+        // Block if picking the lead as co
+        if (id === leadId) {
+            alert("You have already assigned this user a role! Please modify your selection.");
+            return;
+        }
         if (!id || coResearchers.find(r => r.id === id)) return;
 
         coResearchers.push({ id, name });
@@ -561,37 +588,69 @@ function removeResource(index) {
     });
 
     function updateCoResearcherUI() {
-    const list = document.getElementById("coResearchersList");
-    const container = document.getElementById("coResearchersHiddenFields");
-    list.innerHTML = "";
-    container.innerHTML = "";
+        const list = document.getElementById("coResearchersList");
+        const container = document.getElementById("coResearchersHiddenFields");
+        list.innerHTML = "";
+        container.innerHTML = "";
 
-    coResearchers.forEach((r, i) => {
-        // Show researcher in list
-        const item = document.createElement("li");
-        item.className = "list-group-item d-flex justify-content-between align-items-center";
-        item.innerHTML = `
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-person-fill"></i> ${r.name}
-            </div>
-            <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
-        `;
-        list.appendChild(item);
+        coResearchers.forEach((r, i) => {
+            const item = document.createElement("li");
+            item.className = "list-group-item d-flex justify-content-between align-items-center";
+            item.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-fill"></i> ${r.name}
+                </div>
+                <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
+            `;
+            list.appendChild(item);
 
-        // Hidden field added to form
-        const hidden = document.createElement("input");
-        hidden.type = "hidden";
-        hidden.name = "CoResearchers";
-        hidden.value = r.id;
-        container.appendChild(hidden);
-    });
-}
-
-function removeCoResearcher(index) {
-    coResearchers.splice(index, 1);
-    updateCoResearcherUI();
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "CoResearchers";
+            hidden.value = r.id;
+            container.appendChild(hidden);
+        });
+        // Always call both update functions after list is changed
+        updateLeadResearcherDropdown();
+        updateCoResearcherDropdown();
     }
-</script>
+
+    function updateLeadResearcherDropdown() {
+        const leadSelect = document.getElementById("LeadResearcherId");
+        const coResearcherIds = coResearchers.map(r => r.id);
+        Array.from(leadSelect.options).forEach(opt => {
+            if (!opt.value) return;
+            opt.disabled = coResearcherIds.includes(opt.value);
+        });
+        // If the current selection is invalid, reset and warn
+        if (coResearcherIds.includes(leadSelect.value)) {
+            leadSelect.value = "";
+            if (leadSelect.tomselect) leadSelect.tomselect.setValue(""); // TomSelect reset
+            alert("You have already assigned this user a role. Please modify your selection.");
+        }
+        if (leadSelect.tomselect) leadSelect.tomselect.refreshOptions(false);
+    }
+
+    function updateCoResearcherDropdown() {
+        const leadId = document.getElementById("LeadResearcherId").value;
+        const coSelect = document.getElementById("coResearcherSelect");
+        Array.from(coSelect.options).forEach(opt => {
+            if (!opt.value) return;
+            opt.disabled = (opt.value === leadId);
+        });
+        if (coSelect.value === leadId) {
+            coSelect.value = "";
+            if (coSelect.tomselect) coSelect.tomselect.setValue("");
+            // Optionally: alert("You cannot select the Lead Researcher as a Co-Researcher.");
+        }
+        if (coSelect.tomselect) coSelect.tomselect.refreshOptions(false);
+    }
+
+    function removeCoResearcher(index) {
+        coResearchers.splice(index, 1);
+        updateCoResearcherUI(); 
+    }
+    </script>
 
     <style>
     .ts-dropdown-content {
