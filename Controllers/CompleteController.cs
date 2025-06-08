@@ -3,15 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
+using ProjectManagerMvc.Services;
 
 [Authorize]
 public class CompleteController : Controller
 {
     private readonly ProjectManagerContext _context;
+    private readonly INotificationService _notificationService;
 
-    public CompleteController(ProjectManagerContext context)
+    public CompleteController(ProjectManagerContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
    public IActionResult Index(string search = null)
@@ -98,7 +101,7 @@ public class CompleteController : Controller
     }
 
     [HttpPost]
-    public IActionResult MarkComplete(int id)
+    public async Task<IActionResult> MarkComplete(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
@@ -121,7 +124,13 @@ public class CompleteController : Controller
             Timestamp = DateTime.Now
         });
 
-        _context.SaveChanges();
+       await _context.SaveChangesAsync();
+        // Notify Chair that a proposal was complete
+       var completionTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        var message = $"Proposal <strong>#{proposal.Id} '{proposal.Title}'</strong> was <strong>marked as complete</strong> on <strong>{completionTime}.</strong>";
+
+        await _notificationService.CreateNotificationForRoleAsync(
+            "Committee Chair", message, proposal.Id, "ProposalCompleted", userId);
 
         var model = new MyProposalViewModel
         {
