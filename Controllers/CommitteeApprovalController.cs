@@ -3,15 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
+using ProjectManagerMvc.Services;
+
 
 [Authorize(Roles = "Ethics Committee,Committee Chair")]
 public class CommitteeApprovalController : Controller
 {
+    private readonly INotificationService _notificationService;
     private readonly ProjectManagerContext _context;
 
-    public CommitteeApprovalController(ProjectManagerContext context)
+    public CommitteeApprovalController(ProjectManagerContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public IActionResult Index(string search = null)
@@ -36,14 +40,16 @@ public class CommitteeApprovalController : Controller
     }
 
     [HttpPost]
-    public IActionResult UpdateStatus(int id, string actionType)
+    public async Task<IActionResult> UpdateStatus(int id, string actionType)
     {
-        Console.WriteLine($"UpdateStatus called: id={id}, actionType={actionType}");
-    
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
         string outcome;
+        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+        if (user == null) return Unauthorized();
+        var userId = user.UserId;
+
         switch (actionType.ToLower())
         {
             case "approve":
@@ -64,12 +70,6 @@ public class CommitteeApprovalController : Controller
 
         proposal.UpdatedAt = DateTime.Now;
 
-        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
-        if (user == null)
-            return Unauthorized();
-
-        var userId = user.UserId;
-
         _context.ProposalLogs.Add(new ProposalLog
         {
             ProposalId = proposal.Id,
@@ -79,7 +79,19 @@ public class CommitteeApprovalController : Controller
             Timestamp = DateTime.Now
         });
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+
+        // Send notifications on approval
+        if (actionType.ToLower() == "approve")
+        {
+            var approvalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            var message = $"The proposal, <strong>#{proposal.Id}</strong> '<strong>{proposal.Title}</strong>' recieved committee approval on <strong>({approvalTime})</strong>, and requires chair approval before it can commence.";
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Ethics Committee", message, proposal.Id, "ProposalApproved", userId);
+            await _notificationService.CreateNotificationForRoleAsync(
+                "Committee Chair", message, proposal.Id, "ProposalApproved", userId);
+        }
+
         return RedirectToAction("Success", new { id = proposal.Id, outcome = outcome });
     }
 
