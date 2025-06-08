@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    var reason = ViewBag.Reason as string ?? "Action not permitted.";
+}
+<div class="container py-5">
+    <div class="alert alert-danger shadow-sm text-center" role="alert" style="font-size:1.15em;">
+        <i class="bi bi-x-octagon-fill me-2"></i>
+        <strong>Chair Level Behaviour Denied</strong>
+        <br />
+        @reason
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+            <i class="bi bi-house-door me-2"></i>
+            Return to Dashboard
+        </a>
+    </div>
+</div>

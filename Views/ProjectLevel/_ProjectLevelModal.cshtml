@@ -1,0 +1,92 @@
+@model List<FSSA.Models.ProjectLevel>
+
+<div class="modal-header" style="background: rgb(38, 99, 103); color: #fff;">
+    <h5 class="modal-title d-flex align-items-center gap-2">
+        <i class="bi bi-wrench-adjustable"></i> Chair Controls
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+
+    <div class="alert alert-info mb-4 shadow-sm d-flex align-items-center" role="alert" style="font-size:1.05em;">
+        <div>
+            <i class="bi bi-info-circle me-2"></i>
+            Adjusting Parameters...<br>
+            <strong>Project Levels</strong> allow you to categorise research proposals by their academic context.<br>
+            To <strong>Add</strong> a new Project Level, navigate to the <strong>Add Project Level...</strong> box, input an apt name for the level you would like to create, and tap the <strong>Add</strong> button.<br>
+            To <strong>Edit</strong> an existing Project Level, navigate to the name you of the Project Level you would like to change, highlight it, input a new name, and tap <strong>Modify Now</strong>.<br>
+            <span class="text-muted fst-italic"><strong>PLEASE READ</strong>: Both of these actions are protected. As a final safety blanket, you must input the indicated passkey into the appropriate row, or the system will reject your proposed changes.<br>
+            (Deletion is reserved to Engineering staff.)</span>
+        </div>
+    </div>
+
+    <h5 class="mb-2"><strong>Existing Project Levels</strong></h5>
+    <ul class="list-group mb-3">
+        @foreach (var level in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <form asp-action="Edit" method="post" class="d-flex flex-grow-1 gap-2 align-items-center project-level-edit-form" autocomplete="off">
+                    <input type="hidden" name="levelId" value="@level.LevelId" />
+                    <input name="newName" value="@level.LevelName"
+                           class="form-control me-2"
+                           maxlength="60"
+                           style="max-width:60%; font-weight:500;" />
+                    <input name="chairConfirmation" class="form-control me-2"
+                           placeholder="Type 'ChairPrivileges' to modify"
+                           style="max-width:180px;"
+                           autocomplete="off" />
+                    <button type="submit" class="btn btn-primary btn-sm px-3"
+                        style="background: rgb(38, 99, 103); border-color: rgb(38, 99, 103);">
+                        Modify Now
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+
+    <form asp-action="Add" method="post" class="d-flex gap-2 project-level-add-form" autocomplete="off">
+        <input name="newLevelName" class="form-control" maxlength="60" placeholder="New Project Level..." required />
+        <input name="chairConfirmation" class="form-control"
+               placeholder="Type 'ChairPrivileges' to add"
+               style="max-width:180px;"
+               autocomplete="off" />
+        <button type="submit" class="btn btn-success btn-sm px-3">
+            <i class="bi bi-plus-circle me-1"></i> Add
+        </button>
+    </form>
+    <div class="form-text mt-2 text-muted">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        <span>You can add as many project levels as needed, but <strong>existing data will be impacted by modifications</strong>.</span>
+    </div>
+</div>
+
+<script>
+function bindProjectLevelForms() {
+    document.querySelectorAll('.project-level-add-form, .project-level-edit-form').forEach(form => {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                // If redirected to Denied (non-modal), reload window
+                if (res.redirected) {
+                    window.location.href = res.url;
+                    return;
+                }
+                return res.text();
+            })
+            .then(html => {
+                if (html) {
+                    document.querySelector('#projectLevelModalContent').innerHTML = html;
+                    bindProjectLevelForms(); // Re-bind after update
+                }
+            });
+        };
+    });
+}
+bindProjectLevelForms();
+</script>

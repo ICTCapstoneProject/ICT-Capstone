@@ -1,0 +1,31 @@
+@model string
+@{
+    ViewData["Title"] = ViewBag.ActionType == "edit" ? "Level Modified" : "Level Created";
+    var actionType = ViewBag.ActionType as string ?? "add";
+}
+
+<div class="container py-5">
+    <div class="alert @(actionType == "edit" ? "alert-warning" : "alert-success") shadow-sm text-center" role="alert" style="font-size:1.15em;">
+        <i class="bi @(actionType == "edit" ? "bi-pencil-square" : "bi-patch-check-fill") me-2"></i>
+        @if (actionType == "edit")
+        {
+            <span>
+                Successfully <strong>modified</strong> renamed your selected Project Level to '<strong>@Model</strong>'.<br>
+                <span><strong>All existing proposals using the previous level now reflect the new name.</strong></span>
+            </span>
+        }
+        else
+        {
+            <span>
+                Successfully <strong>created</strong> the <strong>@Model</strong> project level.<br>
+                It is now available for use when creating and modifying proposals.
+            </span>
+        }
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+            <i class="bi bi-house-door me-2"></i>
+            Return to Dashboard
+        </a>
+    </div>
+</div>

@@ -1,10 +1,31 @@
 ﻿@model ProjectManagerMvc.Models.DashboardViewModel
 
 @{
+    var isChair = User.IsInRole("Committee Chair");
+}
+
+@{
     ViewData["Title"] = "Dashboard";
 }
 
 <div class="container mt-4">
+    @if (isChair)
+    {
+        <button type="button"
+                class="btn position-absolute"
+                style="
+                    top: 10px; right: 16px; z-index: 1055;
+                    background: rgb(38, 99, 103);
+                    border-color: rgb(38, 99, 103);
+                    color: #fff;
+                    font-weight: 500;
+                    box-shadow: 0 2px 8px rgba(38,99,103,0.14);
+                "
+                data-bs-toggle="modal"
+                data-bs-target="#projectLevelModal">
+            <i class="bi bi-wrench-adjustable"></i> Chair Controls
+        </button>
+    }
     <h2 id="dashboard-heading"></h2>
     <div class="row mb-4">
         <div class="col-md-3">
@@ -96,4 +117,34 @@
         }
     });
 </script>
+
+@if (isChair)
+{
+    <div class="modal fade" id="projectLevelModal" tabindex="-1" aria-labelledby="projectLevelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content" id="projectLevelModalContent">
+                <!-- Modal body is loaded via AJAX -->
+                <div class="modal-body d-flex justify-content-center align-items-center" style="min-height:200px;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('projectLevelModal');
+        modal.addEventListener('show.bs.modal', function () {
+            fetch('@Url.Action("Index", "ProjectLevel")')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('projectLevelModalContent').innerHTML = html;
+                    // This is for AJAX binding after the first load.
+                    if (typeof bindProjectLevelForms === "function") bindProjectLevelForms();
+                });
+        });
+    });
+    </script>
+}
 }

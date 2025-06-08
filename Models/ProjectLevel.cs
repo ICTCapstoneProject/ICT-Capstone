@@ -10,6 +10,7 @@ namespace FSSA.Models
         public int LevelId { get; set; }
 
         [Required]
+        [MaxLength(255)]
         [Column("level_name")]
         public string LevelName { get; set; }
     }
