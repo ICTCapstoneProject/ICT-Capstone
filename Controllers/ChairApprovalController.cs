@@ -137,7 +137,7 @@ public class ChairApprovalController : Controller
 
         // Send notifications 
         var approvalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-        var message = $"The proposal, #{proposal.Id} '{proposal.Title}' received Chair approval on {approvalTime} and may now be set to commence.";
+        var message = $"The proposal, <strong>#{proposal.Id} '{proposal.Title}'</strong> received <strong>Chair approval</strong> on <strong>({approvalTime})</strong> and may now be set to <strong>commence</strong>.";
 
         // Notify manager role
         await _notificationService.CreateNotificationForRoleAsync(

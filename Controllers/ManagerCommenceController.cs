@@ -3,15 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
+using ProjectManagerMvc.Services;
 
 [Authorize(Roles = "Manager,Committee Chair")]
 public class ManagerCommenceController : Controller
 {
     private readonly ProjectManagerContext _context;
+    private readonly INotificationService _notificationService;
 
-    public ManagerCommenceController(ProjectManagerContext context)
+
+    public ManagerCommenceController(ProjectManagerContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public IActionResult Index(string search = null)
@@ -88,7 +92,7 @@ public class ManagerCommenceController : Controller
     }
 
     [HttpPost]
-    public IActionResult Commence(int id)
+    public async Task<IActionResult> Commence(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
@@ -111,7 +115,18 @@ public class ManagerCommenceController : Controller
             Timestamp = DateTime.Now
         });
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+
+        var commenceTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm"); 
+        var message = $"Proposal <strong>#{proposal.Id} '{proposal.Title}'</strong> was set to commence. (<strong>{commenceTime}</strong>)";
+
+        // Notify Committee Chair
+        await _notificationService.CreateNotificationForRoleAsync(
+            "Committee Chair", message, proposal.Id, "ProposalCommenced", userId);
+
+        // Notify Ethics Committee
+        await _notificationService.CreateNotificationForRoleAsync(
+            "Ethics Committee", message, proposal.Id, "ProposalCommenced", userId);
 
         return RedirectToAction("Success", new { id = proposal.Id });
     }
