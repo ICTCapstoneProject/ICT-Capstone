@@ -3,15 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FSSA.Models;
 using FSSA.DTOs;
+using ProjectManagerMvc.Services;
 
 [Authorize(Roles = "Committee Chair")]
 public class ChairApprovalController : Controller
 {
     private readonly ProjectManagerContext _context;
+    private readonly INotificationService _notificationService;
 
-    public ChairApprovalController(ProjectManagerContext context)
+    public ChairApprovalController(ProjectManagerContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public IActionResult Index(string search = null)
@@ -107,7 +110,7 @@ public class ChairApprovalController : Controller
     }
 
     [HttpPost]
-    public IActionResult Approve(int id)
+    public async Task<IActionResult> Approve(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
@@ -130,7 +133,16 @@ public class ChairApprovalController : Controller
             Timestamp = DateTime.Now
         });
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
+
+        // Send notifications 
+        var approvalTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        var message = $"The proposal, #{proposal.Id} '{proposal.Title}' received Chair approval on {approvalTime} and may now be set to commence.";
+
+        // Notify manager role
+        await _notificationService.CreateNotificationForRoleAsync(
+            "Manager", message, proposal.Id, "ChairApproved", userId);
+
 
         return RedirectToAction("Success", new { id = proposal.Id, outcome = "approved" });
     }
