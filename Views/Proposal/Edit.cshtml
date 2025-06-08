@@ -773,60 +773,100 @@ function setupCharCounter(inputId, counterId, max) {
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            new TomSelect("select[name='LeadResearcherId']", {
-                create: false,
-                sortField: { field: "text", direction: "asc" }
-            });
-            new TomSelect("#coResearcherSelect", {
-                create: false,
-                sortField: { field: "text", direction: "asc" },
-                dropdownParent: "#coResearcherContainer"
-            });
-        });
-    </script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Init TomSelect for Lead and Co-Researcher fields
+    const leadSelectEl = document.getElementById("LeadResearcherId");
+    const coSelectEl = document.getElementById("coResearcherSelect");
+    const leadTS = leadSelectEl.tomselect || new TomSelect(leadSelectEl, { create: false, sortField: { field: "text", direction: "asc" } });
+    const coTS = coSelectEl.tomselect || new TomSelect(coSelectEl, { create: false, sortField: { field: "text", direction: "asc" }, dropdownParent: "#coResearcherContainer" });
 
-
-    <script>
-        document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
-            const select = document.getElementById("coResearcherSelect");
-            const name = select.options[select.selectedIndex].text;
-            const id = select.value;
-            if (!id || coResearchers.find(r => r.id === id)) return;
-            coResearchers.push({ id, name });
-            updateCoResearcherUI();
-            bootstrap.Modal.getInstance(document.getElementById("coResearchersModal")).hide();
-            select.value = "";
+    // Keep dropdowns in sync with current state
+    function updateResearcherDropdowns() {
+        const leadId = leadSelectEl.value;
+        // Disable Lead in Co-Researchers select
+        Array.from(coSelectEl.options).forEach(opt => {
+            opt.disabled = (opt.value && opt.value === leadId);
         });
-        function updateCoResearcherUI() {
-            const list = document.getElementById("coResearchersList");
-            const container = document.getElementById("coResearchersHiddenFields");
-            list.innerHTML = "";
-            container.innerHTML = "";
-            coResearchers.forEach((r, i) => {
-                const item = document.createElement("li");
-                item.className = "list-group-item d-flex justify-content-between align-items-center";
-                item.innerHTML = `
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-person-fill"></i> ${r.name}
-                    </div>
-                    <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
-                `;
-                list.appendChild(item);
-                const hidden = document.createElement("input");
-                hidden.type = "hidden";
-                hidden.name = "CoResearchers";
-                hidden.value = r.id;
-                container.appendChild(hidden);
-            });
+        coTS.refreshOptions(false);
+
+        // Disable Co-Researchers in Lead select
+        const coIds = coResearchers.map(r => r.id);
+        Array.from(leadSelectEl.options).forEach(opt => {
+            opt.disabled = (opt.value && coIds.includes(opt.value));
+        });
+        leadTS.refreshOptions(false);
+
+        // If the lead is also a co-researcher, clear Lead and notify
+        if (coIds.includes(leadId)) {
+            leadTS.setValue("");
+            alert("You have already assigned this user a role. Please modify your selection.");
         }
-        function removeCoResearcher(index) {
-            coResearchers.splice(index, 1);
-            updateCoResearcherUI();
-        }
-        document.addEventListener("DOMContentLoaded", updateCoResearcherUI);
-        document.addEventListener("DOMContentLoaded", updateFinancialResourcesUI);
-    </script>
+    }
+
+    // Attach to Lead select change
+    leadSelectEl.addEventListener("change", updateResearcherDropdowns);
+
+    // Add/Remove Co-Researcher logic (use your modal/button code)
+    document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
+    const name = coSelectEl.options[coSelectEl.selectedIndex].text;
+    const id = coSelectEl.value;
+    const leadId = leadSelectEl.value;
+
+    if (id === leadId) {
+        alert("You have already assigned this user a role. Please modify your selection.");
+        return;
+    }
+    if (!id) return;
+
+    if (coResearchers.find(r => r.id === id)) {
+        alert("You have already assigned this user a role. Please modify your selection.");
+        return;
+    }
+
+    coResearchers.push({ id, name });
+    updateCoResearcherUI();
+    bootstrap.Modal.getInstance(document.getElementById("coResearchersModal")).hide();
+    coSelectEl.value = "";
+    if (coTS) coTS.setValue("");
+    });
+
+    window.removeCoResearcher = function(index) {
+        coResearchers.splice(index, 1);
+        updateCoResearcherUI();
+    }
+
+    // UI rendering for Co-Researchers list and hidden fields
+    window.updateCoResearcherUI = function() {
+        const list = document.getElementById("coResearchersList");
+        const container = document.getElementById("coResearchersHiddenFields");
+        list.innerHTML = "";
+        container.innerHTML = "";
+        coResearchers.forEach((r, i) => {
+            const item = document.createElement("li");
+            item.className = "list-group-item d-flex justify-content-between align-items-center";
+            item.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-fill"></i> ${r.name}
+                </div>
+                <button type="button" class="btn" onclick="removeCoResearcher(${i})">&times;</button>
+            `;
+            list.appendChild(item);
+
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "CoResearchers";
+            hidden.value = r.id;
+            container.appendChild(hidden);
+        });
+        updateResearcherDropdowns();
+    }
+
+    // Initial population from prefilled data
+    updateCoResearcherUI();
+    updateResearcherDropdowns();
+});
+</script>
+
 
     <style>
         .ts-dropdown-content { max-height: 10.5em; overflow-y: auto; }
