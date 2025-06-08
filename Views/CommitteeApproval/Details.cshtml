@@ -186,6 +186,87 @@
     </div>
 </div>
 
+<!-- Comment List field view -->
+<div class="mb-4 mt-2">
+    <dt class="h6">Comments :</dt>
+    <dd>
+        @if (Model.Comments != null && Model.Comments.Any())
+        {
+            var latestComments = Model.Comments.OrderByDescending(c => c.Timestamp).Take(3).ToList();
+
+            <div class="border rounded p-3 bg-light hover-shadow" 
+                style="cursor: pointer;" 
+                data-bs-toggle="modal" 
+                data-bs-target="#allCommentsModal" 
+                role="button" 
+                tabindex="0">
+                <div class="comment-preview">
+                @foreach (var comment in latestComments)
+                {
+                    <div class="mb-3">
+                        <div class="fw-bold">@Html.DisplayFor(modelItem => comment.Author)</div>
+                        <div class="text-muted small">@comment.Timestamp.ToString("dd MMM yyyy HH:mm")</div>
+                        <div>@Html.DisplayFor(modelItem => comment.CommentText)</div>
+                    </div>
+                }
+                </div>
+                @if (Model.Comments.Count > 3)
+                {
+                    <p class="text-end text-muted mb-0 mt-2"><small>Click to view all @Model.Comments.Count comments</small></p>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No comments yet.</p>
+        }
+    </dd>
+</div>
+
+<!-- Add Comment field -->
+<div class="mb-4 mt-3">
+    <dt class="h6">Add a Comment:</dt>
+    <dd>
+        <form asp-action="AddComment" method="post">
+            <input type="hidden" name="ProposalId" value="@Model.Id" />
+            <div class="mb-2">
+                <textarea name="CommentText" class="form-control" rows="4" placeholder="Write your comment here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-secondary">
+                <i class="bi bi-chat-dots"></i>+
+            </button>
+            <small class="text-muted d-block mb-3">
+                If you'd like to leave a <strong>comment</strong> on this proposal, type it into the <strong>Add a comment</strong> box. Once you are satisfied with how it reads, tap on the <strong>Grey Speech Bubble</strong> to post it.
+            </small>
+
+        </form>
+    </dd>
+</div>
+
+<!-- Full Comments Modal -->
+<div class="modal fade" id="allCommentsModal" tabindex="-1" aria-labelledby="allCommentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allCommentsModalLabel">All Comments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="comment-list">
+                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.Timestamp))
+                    {
+                        <div class="mb-4">
+                            <div class="fw-bold">@Html.DisplayFor(modelItem => comment.Author)</div>
+                            <div class="text-muted small">@comment.Timestamp.ToString("dd MMM yyyy HH:mm")</div>
+                            <div>@Html.DisplayFor(modelItem => comment.CommentText)</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Navigation Buttons -->
 <div class="d-flex justify-content-end gap-2 mt-4 mb-3">
     <a asp-action="Index" class="btn btn-dark">← Return to Committee Approval Backlog</a>

@@ -116,6 +116,21 @@ public class CommitteeApprovalController : Controller
                     Id = u.UserId.ToString(),
                     Name = u.Name
                 }).ToList();
+        
+        var comments = _context.Comments
+            .Where(c => c.ProposalId == proposal.Id)
+            .Join(_context.Users,
+                c => c.Commenter,
+                u => u.UserId,
+                (c, u) => new CommentDto
+                {
+                    CommentId = c.CommentId,
+                    Author = u.Name,
+                    Timestamp = c.Timestamp,
+                    CommentText = c.CommentText
+                })
+            .OrderByDescending(c => c.Timestamp)
+            .ToList();
 
         var model = new MyProposalViewModel
         {
@@ -134,10 +149,37 @@ public class CommitteeApprovalController : Controller
             FinancialResources = financialResources,
             CoResearchers = coResearchers,
             Attachments = proposal.Attachments.ToList(),
-            StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown"
+            StatusName = _context.Statuses.FirstOrDefault(s => s.StatusId == proposal.StatusId)?.StatusName ?? "Unknown",
+            Comments = comments
         };
 
         return View("Details", model);
+    }
+    
+    [HttpPost]
+    public IActionResult AddComment(int ProposalId, string CommentText)
+    {
+        if (string.IsNullOrWhiteSpace(CommentText))
+        {
+            return RedirectToAction("Details", new { id = ProposalId });
+        }
+
+        var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
+        if (user == null)
+            return Unauthorized();
+
+        var comment = new Comment
+        {
+            ProposalId = ProposalId,
+            CommentText = CommentText,
+            Commenter = user.UserId,
+            Timestamp = DateTime.Now
+        };
+
+        _context.Comments.Add(comment);
+        _context.SaveChanges();
+
+        return RedirectToAction("Details", new { id = ProposalId });
     }
     
     public IActionResult Success(int id, string outcome)
@@ -151,7 +193,7 @@ public class CommitteeApprovalController : Controller
             Title = proposal.Title
         };
         ViewBag.Outcome = outcome;
-        return View("Success", model); 
+        return View("Success", model);
     }
 
 
