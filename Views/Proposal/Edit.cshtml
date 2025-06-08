@@ -541,6 +541,26 @@
     </div>
 </div>
 
+<!-- Generic Warning Modal -->
+    <div class="modal fade" id="warnModal" tabindex="-1" aria-labelledby="warnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm ms-auto me-4">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-alert-info alert alert-info">
+        <h5 class="modal-title" id="warnModalLabel">
+          <i class="bi bi-info-circle me-2"></i>System Input Assist
+        </h5>
+        <button type="button" class="btn-close btn-close-alert-info" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="warnModalBody">
+        <!-- Warning message inserted by JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-alert-info" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -666,7 +686,7 @@
             const title = document.getElementById('resourceTitle').value.trim();
             const cost = parseFloat(document.getElementById('resourceCost').value);
             if (!title || isNaN(cost) || cost < 0) {
-                alert("Please enter a valid title and non-negative cost.");
+                showWarnModal("Please enter a valid title and non-negative cost.");
                 return;
             }
             resources.push({ title, cost });
@@ -799,27 +819,27 @@ document.addEventListener("DOMContentLoaded", function () {
         // If the lead is also a co-researcher, clear Lead and notify
         if (coIds.includes(leadId)) {
             leadTS.setValue("");
-            alert("You have already assigned this user a role. Please modify your selection.");
+            showWarnModal("You have already assigned this user a role. Please modify your researcher selections.");
         }
     }
 
     // Attach to Lead select change
     leadSelectEl.addEventListener("change", updateResearcherDropdowns);
 
-    // Add/Remove Co-Researcher logic (use your modal/button code)
+    // Add/Remove Co-Researcher logic 
     document.getElementById("addCoResearcherBtn").addEventListener("click", function () {
     const name = coSelectEl.options[coSelectEl.selectedIndex].text;
     const id = coSelectEl.value;
     const leadId = leadSelectEl.value;
 
     if (id === leadId) {
-        alert("You have already assigned this user a role. Please modify your selection.");
+        showWarnModal("You have already assigned this user a role. Please modify your researcher selections.");
         return;
     }
     if (!id) return;
 
     if (coResearchers.find(r => r.id === id)) {
-        alert("You have already assigned this user a role. Please modify your selection.");
+        showWarnModal("You have already assigned this user a role. Please modify your researcher selections.");
         return;
     }
 
@@ -833,6 +853,12 @@ document.addEventListener("DOMContentLoaded", function () {
     window.removeCoResearcher = function(index) {
         coResearchers.splice(index, 1);
         updateCoResearcherUI();
+    }
+
+    function showWarnModal(msg) {
+    document.getElementById('warnModalBody').textContent = msg;
+    const modal = new bootstrap.Modal(document.getElementById('warnModal'));
+    modal.show();
     }
 
     // UI rendering for Co-Researchers list and hidden fields
