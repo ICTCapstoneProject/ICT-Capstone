@@ -295,6 +295,26 @@
             </div>
         </div>
     </div>
+
+      <!-- Generic Warning Modal -->
+    <div class="modal fade" id="warnModal" tabindex="-1" aria-labelledby="warnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm ms-auto me-4">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-alert-info alert alert-info">
+        <h5 class="modal-title" id="warnModalLabel">
+          <i class="bi bi-info-circle me-2"></i>System Input Assist
+        </h5>
+        <button type="button" class="btn-close btn-close-alert-info" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="warnModalBody">
+        <!-- Warning message inserted by JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-alert-info" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
@@ -425,7 +445,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cost = parseFloat(document.getElementById('resourceCost').value);
 
     if (!title || isNaN(cost) || cost < 0) {
-        alert("Please enter a valid title and non-negative cost.");
+        showWarnModal("Please ensure you enter a valid title and non-negative cost.");
         return;
     }
 
@@ -575,7 +595,7 @@ function removeResource(index) {
 
         // Block if picking the lead as co
         if (id === leadId) {
-            alert("You have already assigned this user a role! Please modify your selection.");
+            showWarnModal("You have already assigned this user a role. Please modify your researcher selections.");
             return;
         }
         if (!id || coResearchers.find(r => r.id === id)) return;
@@ -626,7 +646,7 @@ function removeResource(index) {
         if (coResearcherIds.includes(leadSelect.value)) {
             leadSelect.value = "";
             if (leadSelect.tomselect) leadSelect.tomselect.setValue(""); // TomSelect reset
-            alert("You have already assigned this user a role. Please modify your selection.");
+            showWarnModal("You have already assigned this user a role. Please modify your researcher selections.");
         }
         if (leadSelect.tomselect) leadSelect.tomselect.refreshOptions(false);
     }
@@ -644,6 +664,12 @@ function removeResource(index) {
             // Optionally: alert("You cannot select the Lead Researcher as a Co-Researcher.");
         }
         if (coSelect.tomselect) coSelect.tomselect.refreshOptions(false);
+    }
+
+    function showWarnModal(msg) {
+        document.getElementById('warnModalBody').textContent = msg;
+        const modal = new bootstrap.Modal(document.getElementById('warnModal'));
+        modal.show();
     }
 
     function removeCoResearcher(index) {
