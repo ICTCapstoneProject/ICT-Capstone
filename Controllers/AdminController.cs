@@ -17,6 +17,7 @@ public class AdminController : Controller
     public IActionResult Index()
     {
         var users = _context.Users
+            .OrderBy(u => u.CreatedAt)
             .Select(u => new
             {
                 u.UserId,
