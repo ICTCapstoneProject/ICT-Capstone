@@ -28,7 +28,12 @@ public class CompleteController : Controller
         var isCommitteeMember = user.UserRoles.Any(r => r.Role.RoleName == "Ethics Committee");
         var isChair = user.UserRoles.Any(r => r.Role.RoleName == "Committee Chair");
 
-        var query = _context.Proposals.Where(p => p.StatusId == 4 &&
+        var commencedStatus = _context.Statuses
+            .FirstOrDefault(s => s.StatusName == "Commenced");
+
+        if (commencedStatus == null) return NotFound("Status not found");
+
+        var query = _context.Proposals.Where(p => p.StatusId == commencedStatus.StatusId &&
                             (p.SubmittedBy == user.UserId || isCommitteeMember || isChair));
 
         if (!string.IsNullOrWhiteSpace(search))

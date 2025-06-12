@@ -20,7 +20,13 @@ public class ManagerCommenceController : Controller
 
     public IActionResult Index(string search = null)
     {
-        var query = _context.Proposals.Where(p => p.StatusId == 3);
+        var status = _context.Statuses
+            .FirstOrDefault(s => s.StatusName == "Chair Approved");
+
+        if (status == null)
+            return NotFound("Status not found");
+
+        var query = _context.Proposals.Where(p => p.StatusId == status.StatusId);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
