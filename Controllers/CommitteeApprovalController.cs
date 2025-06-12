@@ -20,15 +20,8 @@ public class CommitteeApprovalController : Controller
 
     public IActionResult Index(string search = null)
     {
-
-        var status = _context.Statuses
-            .FirstOrDefault(s = s.StatusName == "Unsigned");
-
-        if (status == null)
-            return NotFound("Status not found");
-
         var query = _context.Proposals
-            .Where(p => p.StatusId == status.StatusId);
+            .Where(p => p.StatusId == 1);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
