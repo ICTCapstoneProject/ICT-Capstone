@@ -5,7 +5,7 @@ using FSSA.Models;
 using FSSA.DTOs;
 using ProjectManagerMvc.Services;
 
-
+// Only Ethics commitee and Chair users can access this controller
 [Authorize(Roles = "Ethics Committee,Committee Chair")]
 public class CommitteeApprovalController : Controller
 {
@@ -18,6 +18,7 @@ public class CommitteeApprovalController : Controller
         _notificationService = notificationService;
     }
 
+    // Display proposals status is 'Unsigned' for view
     public IActionResult Index(string search = null)
     {
 
@@ -47,6 +48,7 @@ public class CommitteeApprovalController : Controller
     }
 
     [HttpPost]
+    // Method to update the proposal status based on committee user's action
     public async Task<IActionResult> UpdateStatus(int id, string actionType)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
@@ -57,17 +59,21 @@ public class CommitteeApprovalController : Controller
         if (user == null) return Unauthorized();
         var userId = user.UserId;
 
+        // Determin new status based on action type
         switch (actionType.ToLower())
         {
             case "approve":
+                // StatusId 2 is 'Committee Approved'
                 proposal.StatusId = 2;
                 outcome = "approved";
                 break;
             case "reject":
+                // StatusId 6 is 'Rejected'
                 proposal.StatusId = 6;
                 outcome = "rejected";
                 break;
             case "requestmodification":
+                // StatusId 7 is 'Requires Modification'
                 proposal.StatusId = 7;
                 outcome = "requires modification";
                 break;
@@ -102,6 +108,7 @@ public class CommitteeApprovalController : Controller
         return RedirectToAction("Success", new { id = proposal.Id, outcome = outcome });
     }
 
+    // Display details of a selected proposal
     public IActionResult Details(int id)
     {
         var proposal = _context.Proposals
@@ -135,7 +142,7 @@ public class CommitteeApprovalController : Controller
                     Id = u.UserId.ToString(),
                     Name = u.Name
                 }).ToList();
-        
+
         var comments = _context.Comments
             .Where(c => c.ProposalId == proposal.Id)
             .Join(_context.Users,
@@ -174,8 +181,9 @@ public class CommitteeApprovalController : Controller
 
         return View("Details", model);
     }
-    
+
     [HttpPost]
+    // Method to add comments to proposal
     public IActionResult AddComment(int ProposalId, string CommentText)
     {
         if (string.IsNullOrWhiteSpace(CommentText))

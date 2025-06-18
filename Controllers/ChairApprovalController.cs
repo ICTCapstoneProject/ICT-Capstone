@@ -5,6 +5,7 @@ using FSSA.Models;
 using FSSA.DTOs;
 using ProjectManagerMvc.Services;
 
+// Only Committee Chair users can access this controller
 [Authorize(Roles = "Committee Chair")]
 public class ChairApprovalController : Controller
 {
@@ -17,6 +18,7 @@ public class ChairApprovalController : Controller
         _notificationService = notificationService;
     }
 
+    // Display list of proposals with status 'Committee Approved' for view
     public IActionResult Index(string search = null)
     {
         var status = _context.Statuses
@@ -25,9 +27,11 @@ public class ChairApprovalController : Controller
         if (status == null)
             return NotFound("Status not found.");
 
+        // Only show proposals are at 'Committee Approved' status
         var query = _context.Proposals
             .Where(p => p.StatusId == status.StatusId);
 
+        // Display proposals by ID or title
         if (!string.IsNullOrWhiteSpace(search))
         {
             if (int.TryParse(search, out int searchId))
@@ -44,6 +48,7 @@ public class ChairApprovalController : Controller
         return View("ChairApproval", proposals);
     }
 
+    // Display details of a selected proposal
     public IActionResult Details(int id)
     {
         var proposal = _context.Proposals
@@ -116,11 +121,13 @@ public class ChairApprovalController : Controller
     }
 
     [HttpPost]
+    // Allow Chair users to approve proposals and update the status to 'Chair Approved'
     public async Task<IActionResult> Approve(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        // StatusId 3 is Chair Approved
         proposal.StatusId = 3;
         proposal.UpdatedAt = DateTime.Now;
 
@@ -153,6 +160,7 @@ public class ChairApprovalController : Controller
         return RedirectToAction("Success", new { id = proposal.Id, outcome = "approved" });
     }
 
+    // Display success screen
     public IActionResult Success(int id, string outcome)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
@@ -168,11 +176,13 @@ public class ChairApprovalController : Controller
     }
 
     [HttpPost]
+    // Request additional comittee review
     public IActionResult RequestAdditionalReview(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        // StatusId 1 is 'Unsigned'
         proposal.StatusId = 1; // Back to Committee Review
         proposal.UpdatedAt = DateTime.Now;
 
@@ -198,11 +208,13 @@ public class ChairApprovalController : Controller
     }
 
     [HttpPost]
+    //  Method for Chair users to rejects the proposal
     public IActionResult Reject(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        // StatusId 6 is 'Rejected'
         proposal.StatusId = 6;
         proposal.UpdatedAt = DateTime.Now;
 
@@ -225,8 +237,9 @@ public class ChairApprovalController : Controller
 
         return RedirectToAction("Success", new { id = proposal.Id, outcome = "rejected" });
     }
-    
+
     [HttpPost]
+    // Method to add comments to proposal
     public IActionResult AddComment(int ProposalId, string CommentText)
     {
         if (string.IsNullOrWhiteSpace(CommentText))

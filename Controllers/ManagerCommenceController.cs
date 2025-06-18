@@ -5,6 +5,7 @@ using FSSA.Models;
 using FSSA.DTOs;
 using ProjectManagerMvc.Services;
 
+// Only Manager and Chair users can access this controller
 [Authorize(Roles = "Manager,Committee Chair")]
 public class ManagerCommenceController : Controller
 {
@@ -18,6 +19,7 @@ public class ManagerCommenceController : Controller
         _notificationService = notificationService;
     }
 
+    // Display proposals status is 'Chair Approved' for view
     public IActionResult Index(string search = null)
     {
         var status = _context.Statuses
@@ -42,6 +44,7 @@ public class ManagerCommenceController : Controller
         return View("ManagerCommence", proposals);
     }
 
+    // Display details of a selected proposal
     public IActionResult Details(int id)
     {
         var proposal = _context.Proposals
@@ -98,11 +101,13 @@ public class ManagerCommenceController : Controller
     }
 
     [HttpPost]
+    // Method to set a selected proposal's status to 'Commenced'
     public async Task<IActionResult> Commence(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        // StatusId 4 is 'Commenced'
         proposal.StatusId = 4;
         proposal.UpdatedAt = DateTime.Now;
 
@@ -123,7 +128,7 @@ public class ManagerCommenceController : Controller
 
         await _context.SaveChangesAsync();
 
-        var commenceTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm"); 
+        var commenceTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
         var message = $"Proposal <strong>#{proposal.Id} '{proposal.Title}'</strong> was set to commence. (<strong>{commenceTime}</strong>)";
 
         // Notify Committee Chair

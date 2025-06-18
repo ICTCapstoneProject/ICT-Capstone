@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SQLitePCL;
 
+// Only users with Admin or Committee Chair roles can access this controller
 [Authorize(Roles = "Admin,Committee Chair")]
 public class AdminController : Controller
 {
@@ -14,6 +15,7 @@ public class AdminController : Controller
         _context = context;
     }
 
+    // Display all current users to Admin panel, ordered by time created
     public IActionResult Index()
     {
         var users = _context.Users
@@ -30,6 +32,7 @@ public class AdminController : Controller
     }
 
     [HttpGet]
+    // Display user creation form
     public IActionResult Create()
     {
         ViewBag.Roles = new MultiSelectList(_context.Roles, "RoleId", "RoleName");
@@ -38,10 +41,11 @@ public class AdminController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    // Handle user creation
     public IActionResult Create(UserCreateViewModel model)
     {
 
-
+        // Confirmation key is required to creat new user
         if (model.AdminConfirmation != "AdminPrivileges")
         {
             ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
@@ -64,6 +68,7 @@ public class AdminController : Controller
         _context.Users.Add(user);
         _context.SaveChanges();
 
+        // Assign selected role to this user
         foreach (var roleId in model.SelectedRoles)
         {
             _context.UserRoles.Add(new UserRole { UserId = user.UserId, RoleId = roleId });
@@ -73,6 +78,7 @@ public class AdminController : Controller
         return RedirectToAction("CreateSuccess");
     }
 
+    // Display user edit form
     public IActionResult Edit(int id)
     {
         var user = _context.Users.FirstOrDefault(u => u.UserId == id);
@@ -101,8 +107,10 @@ public class AdminController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    // Handle user edit submission
     public IActionResult Edit(UserEditViewModel model)
     {
+        // Need confirmation key
         if (model.AdminConfirmation != "AdminPrivileges")
         {
             ModelState.AddModelError("AdminConfirmation", "Incorrect override key. Try Again.");
@@ -117,9 +125,11 @@ public class AdminController : Controller
         var user = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
         if (user == null) return NotFound();
 
+        // Update name and email
         user.Name = model.Name;
         user.Email = model.Email;
 
+        // If password left blank, keep the current password, or if changed, update it
         user.PasswordHash = string.IsNullOrWhiteSpace(model.PasswordHash)
             ? model.ExistingPasswordHash
             : model.PasswordHash;
@@ -135,6 +145,7 @@ public class AdminController : Controller
         return RedirectToAction("EditSuccess");
     }
 
+    // Display user delete page
     public IActionResult Delete(int id)
     {
         var user = _context.Users.FirstOrDefault(u => u.UserId == id);
@@ -151,8 +162,10 @@ public class AdminController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    // Delete user
     public IActionResult DeleteConfirmed(UserDeleteViewModel model)
     {
+        // Need confirmation key to delete a user
         if (model.AdminConfirmation != "AdminPrivileges")
         {
             var user = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
@@ -165,6 +178,7 @@ public class AdminController : Controller
         var userToDelete = _context.Users.FirstOrDefault(u => u.UserId == model.UserId);
         if (userToDelete == null) return NotFound();
 
+        // Remove user and their role
         var userRoles = _context.UserRoles.Where(ur => ur.UserId == model.UserId);
         _context.UserRoles.RemoveRange(userRoles);
         _context.Users.Remove(userToDelete);

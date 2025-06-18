@@ -17,23 +17,27 @@ public class CompleteController : Controller
         _notificationService = notificationService;
     }
 
-   public IActionResult Index(string search = null)
+    // Display proposals status is 'Commenced' and visible to the current user
+    public IActionResult Index(string search = null)
     {
+        // Get the current user with role
         var email = User.Identity?.Name;
         var user = _context.Users
             .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
             .FirstOrDefault(u => u.Email == email);
         if (user == null) return Unauthorized();
 
+        // Determine user roles for access control
         var isCommitteeMember = user.UserRoles.Any(r => r.Role.RoleName == "Ethics Committee");
         var isChair = user.UserRoles.Any(r => r.Role.RoleName == "Committee Chair");
 
+        // Get status ID for 'Commenced' stage
         var commencedStatus = _context.Statuses
             .FirstOrDefault(s => s.StatusName == "Commenced");
 
         if (commencedStatus == null) return NotFound("Status not found.");
 
-
+        // Get proposals that are commenced either is submitted by current user, or if the user is a Committee member or a Chair
         var query = _context.Proposals.Where(p => p.StatusId == commencedStatus.StatusId &&
                             (p.SubmittedBy == user.UserId || isCommitteeMember || isChair));
 
@@ -51,6 +55,7 @@ public class CompleteController : Controller
         return View("Complete", proposals);
     }
 
+    // Display details of a selected proposal
     public IActionResult Details(int id)
     {
         var proposal = _context.Proposals
@@ -107,11 +112,13 @@ public class CompleteController : Controller
     }
 
     [HttpPost]
+    // Method to change proposal status to 'Complete'
     public async Task<IActionResult> MarkComplete(int id)
     {
         var proposal = _context.Proposals.FirstOrDefault(p => p.Id == id);
         if (proposal == null) return NotFound();
 
+        // StatusId 5 is 'Complete'
         proposal.StatusId = 5;
         proposal.UpdatedAt = DateTime.Now;
 
@@ -130,9 +137,9 @@ public class CompleteController : Controller
             Timestamp = DateTime.Now
         });
 
-       await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
         // Notify Chair that a proposal was complete
-       var completionTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        var completionTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
         var message = $"Proposal <strong>#{proposal.Id} '{proposal.Title}'</strong> was <strong>marked as complete</strong> on <strong>{completionTime}.</strong>";
 
         await _notificationService.CreateNotificationForRoleAsync(
