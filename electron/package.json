@@ -4,6 +4,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +15,27 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "electron": "^36.5.0"
+    "electron": "^36.5.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+  "appId": "com.FSSA.ProjectManager",          
+  "productName": "FSSA ProjectManager",              
+  "files": [
+    "**/*"
+  ],
+  "directories": {
+    "buildResources": "assets"                   
+  },
+  "win": {
+    "icon": "assets/icon.ico"                    
+  },
+  "mac": {
+    "icon": "assets/icon.icns"                   
+  },
+  "linux": {
+    "icon": "assets/icon.png"                    
   }
+}
+  
 }

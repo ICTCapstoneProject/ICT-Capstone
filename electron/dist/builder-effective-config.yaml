@@ -1,0 +1,15 @@
+directories:
+  output: dist
+  buildResources: assets
+appId: com.FSSA.ProjectManager
+productName: FSSA ProjectManager
+files:
+  - filter:
+      - '**/*'
+win:
+  icon: assets/icon.ico
+mac:
+  icon: assets/icon.icns
+linux:
+  icon: assets/icon.png
+electronVersion: 36.5.0
