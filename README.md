@@ -18,6 +18,7 @@
    - After cloning the repository, you’ll be prompted to open the project folder. Press on `Open`.
 
 **Install dev dependencies**: (Windows)
+
 3. - https://dotnet.microsoft.com/en-us/download/dotnet/7.0 Install
 
 4. - https://git-scm.com/downloads/win Install
