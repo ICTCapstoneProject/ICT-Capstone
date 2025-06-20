@@ -66,3 +66,9 @@
 **NOTE: The server that the build points to must be running for the application to work.** If the project is being ran locally, open vscode, and if you are still within the electron dir (which you should be upon following these steps), type
 `cd ..` to go back to the project's directory and hit `return/enter` then type 
 `dotnet run` and hit `return/enter`. With the server it points to running, the application should now run.
+
+**NOTE: Unused data tables.**
+The data tables `proposal_history`, `groups`, and `user_groups` are unused and may be dropped. These have been leftover from an earlier migration that used alternate proposal tracking.
+
+**Note: Distribution folder (Electron)**
+The distribution folder and files have been pre-generated: `ProjectManagerMvc/electron`. This can be removed using `git ignore`. This was a decision made to accommodate contained development testing.
