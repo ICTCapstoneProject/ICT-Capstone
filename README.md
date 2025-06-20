@@ -71,4 +71,4 @@
 The data tables `proposal_history`, `groups`, and `user_groups` are unused and may be dropped. These have been leftover from an earlier migration that used alternate proposal tracking.
 
 **Note: Distribution folder (Electron)**
-The distribution folder and files have been pre-generated: `ProjectManagerMvc/electron`. This can be removed using `git ignore`. This was a decision made to accommodate contained development testing.
+The distribution folder and files have been pre-generated: `ProjectManagerMvc/electron`. Builds are currently stored within ProjectManagerMvc/electron/dist. This directory can be removed from git using `git ignore`. Build files can and will exceed the git file limit resulting in long sync times and an eventual failure. (This current set up ensured a contained deployment testing environment across platforms.)
